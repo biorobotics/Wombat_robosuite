@@ -1,0 +1,6 @@
+{
+  "type" : "WOMBAT_ARM_IK",
+  "qpos_limits": null,
+  "interpolation": null,
+  "ramp_ratio": 0.2
+}
