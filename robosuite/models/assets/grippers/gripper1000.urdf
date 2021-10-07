@@ -1,0 +1,211 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.6.0-1-g15f4949  Build Version: 1.6.7594.29634
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="gripper1000">
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="1.8179E-05 3.6616E-05 6.6398E-05"
+        rpy="0 0 0" />
+      <mass
+        value="4.9588E-11" />
+      <inertia
+        ixx="1.7522E-20"
+        ixy="8.7244E-27"
+        ixz="4.0942E-26"
+        iyy="4.0017E-20"
+        iyz="1.6156E-26"
+        izz="2.4808E-20" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gripper1000/meshes/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.29804 0.29804 0.29804 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gripper1000/meshes/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="base_bottom">
+    <inertial>
+      <origin
+        xyz="8.7448E-18 -0.024598 -7.3184E-18"
+        rpy="0 0 0" />
+      <mass
+        value="7.1772E-10" />
+      <inertia
+        ixx="2.9417E-18"
+        ixy="3.8038E-35"
+        ixz="-1.4694E-35"
+        iyy="5.0385E-18"
+        iyz="1.4477E-34"
+        izz="2.7547E-18" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gripper1000/meshes/base_bottom.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gripper1000/meshes/base_bottom.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="fixed joint"
+    type="fixed">
+    <origin
+      xyz="1.8179E-05 -6.6398E-05 0.0246"
+      rpy="1.5708 0 0" />
+    <parent
+      link="base_link" />
+    <child
+      link="base_bottom" />
+    <axis
+      xyz="0 0 0" />
+  </joint>
+  <link
+    name="left_hand">
+    <inertial>
+      <origin
+        xyz="-5.2601E-08 -2.1768E-05 1.6191E-05"
+        rpy="0 0 0" />
+      <mass
+        value="1.0871E-10" />
+      <inertia
+        ixx="1.2371E-19"
+        ixy="6.1546E-24"
+        ixz="-4.5778E-24"
+        iyy="5.8976E-19"
+        iyz="-2.9598E-20"
+        izz="5.6901E-19" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gripper1000/meshes/left_hand.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gripper1000/meshes/left_hand.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="revolute_1"
+    type="revolute">
+    <origin
+      xyz="0 -0.02461 6.5E-05"
+      rpy="-0.55281 0 0" />
+    <parent
+      link="base_bottom" />
+    <child
+      link="left_hand" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="0"
+      upper="0"
+      effort="0"
+      velocity="0" />
+  </joint>
+  <link
+    name="right_hand">
+    <inertial>
+      <origin
+        xyz="4.7399E-08 -2.1474E-05 1.4824E-05"
+        rpy="0 0 0" />
+      <mass
+        value="1.0871E-10" />
+      <inertia
+        ixx="1.2371E-19"
+        ixy="6.1546E-24"
+        ixz="-4.5778E-24"
+        iyy="5.8976E-19"
+        iyz="-2.9598E-20"
+        izz="5.6901E-19" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gripper1000/meshes/right_hand.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.79216 0.81961 0.93333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="package://gripper1000/meshes/right_hand.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="revolute_2"
+    type="continuous">
+    <origin
+      xyz="0 -0.02461 -6.6398E-05"
+      rpy="2.9297 0 3.1416" />
+    <parent
+      link="base_bottom" />
+    <child
+      link="right_hand" />
+    <axis
+      xyz="1 0 0" />
+  </joint>
+</robot>

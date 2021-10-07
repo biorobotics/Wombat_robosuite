@@ -1,0 +1,46 @@
+<mujoco model="D3_gripper_v2">
+    <compiler angle="radian" meshdir="/home/yashraghav/robosuite/robosuite/models/assets/grippers/meshes/D3_gripper_v2/" />
+    <size njmax="500" nconmax="100" />
+    <asset>
+        <mesh name="base_link" file="meshes/D3_gripper_v2/base_link.STL" />
+        <mesh name="left_finger" file="meshes/D3_gripper_v2/left_finger.STL" />
+        <mesh name="right_finger" file="meshes/D3_gripper_v2/right_finger.STL" />
+    </asset>
+    <actuator>
+        <position ctrllimited="true" ctrlrange="-0.2 0.2" joint="left_finger_joint" kp="100" name="left_finger_joint" forcelimited="true" forcerange="-20 20"/>
+        <position ctrllimited="true" ctrlrange="-0.2 0.2" joint="right_finger_joint" kp="100" name="right_finger_joint" forcelimited="true" forcerange="-20 20"/>
+    </actuator>
+    <contact>
+        <exclude body1="base_link" body2="left_finger"/>
+        <exclude body1="base_link" body2="right_finger"/>
+        <exclude body1="left_finger" body2="right_finger"/>
+    </contact>
+    <worldbody>
+        <body name="base_link" pos="0.0 0.0 -0.025" quat="0 0 0 1">
+            <site name="ft_frame" pos="0 0 1" size="0.01 0.01 0.01" rgba="1 0 0 1" type="sphere" group="1"/>
+            <inertial pos="0.00060964 0.00042834 -0.033975" quat="0 0 0 1" mass="0.75314" diaginertia="0.0029542 0.0050671 0.0027724" />
+            <geom type="mesh" group="1" rgba="0.29804 0.29804 0.29804 1" mesh="base_link" />
+            <geom type="mesh" mesh="base_link"  group="0" name="base_link" size="0.00001 0.00001 0.00001"/>
+            <!--  This site was added for visualization.  -->
+            <site name="grip_site" pos="0 0 -0.109" size="0.01 0.01 0.01" rgba="1 0 0 0.5" type="sphere" group="1"/>
+            <!--  This site was added for visualization.  -->
+            <site name="grip_site_cylinder" pos="0 0 0" size="0.005 10" rgba="0 1 0 0.3" type="cylinder" group="1"/>
+        <body name="left_finger" pos="0.06564 0.0003995 -0.04775" quat="0.532933 0.464738 0.464739 0.532935">
+            <inertial pos="-2.6008e-06 -0.021768 0.016191" quat="0.628186 0.324638 0.628177 0.324633" mass="0.10871" diaginertia="0.000610749 0.000548021 0.00012371" />
+            <joint name="left_finger_joint" pos="0 0 0" axis="1 0 0" />
+            <geom pos="-0.083 -0.145 -0.145" quat="0.500398 -0.499602 -0.5 -0.5" type="mesh" group="1" rgba="0.29804 0.29804 0.29804 1" mesh="left_finger" />
+            <geom type="mesh" group="0" mesh="left_finger" size="0.0001 0.0001 0.0001"/>
+        </body>
+        <body name="right_finger" pos="-0.06436 0.0003995 -0.04775" quat="0.491121 0.508722 -0.508724 -0.491123">
+            <inertial pos="-2.6008e-06 -0.021768 0.016191" quat="0.628186 0.324638 0.628177 0.324633" mass="0.10871" diaginertia="0.000610749 0.000548021 0.00012371" />
+            <joint name="right_finger_joint" pos="0 0 0" axis="1 0 0" />
+            <geom pos="0.083 -0.135 0.055" quat="0.42006 -0.568711 0.569164 0.419726" type="mesh" group="1" rgba="0.29804 0.29804 0.29804 1" mesh="right_finger" />
+            <geom type="mesh" group="0" mesh="right_finger" size="0.0001 0.0001 0.0001"/>
+        </body>
+        </body>
+    </worldbody>
+    <sensor>
+        <force name="force_ee" site="ft_frame"/>
+        <torque name="torque_ee" site="ft_frame"/>
+    </sensor>
+</mujoco>
