@@ -1,0 +1,791 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- This URDF was automatically created by SolidWorks to URDF Exporter! Originally created by Stephen Brawner (brawner@gmail.com) 
+     Commit Version: 1.5.1-0-g916b5db  Build Version: 1.5.7152.31018
+     For more information, please see http://wiki.ros.org/sw_urdf_exporter -->
+<robot
+  name="apple_arm">
+    <mujoco> 
+   <compiler meshdir="" balanceinertia="true"
+             discardvisual="false" 
+             coordinate="global"/>
+  </mujoco>
+  <link
+    name="base_link">
+    <inertial>
+      <origin
+        xyz="4.5694E-08 -0.86723 0.054105"
+        rpy="0 0 0" />
+      <mass
+        value="125.32" />
+      <inertia
+        ixx="4.7901"
+        ixy="2.8623E-09"
+        ixz="3.8345E-09"
+        iyy="8.1097"
+        iyz="-0.00015088"
+        izz="8.6493" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/base_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.49804 0.49804 0.49804 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/base_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <link
+    name="branch1_link">
+    <inertial>
+      <origin
+        xyz="-5.0256E-15 5.0391E-05 -1.2461E-09"
+        rpy="0 0 0" />
+      <mass
+        value="50757" />
+      <inertia
+        ixx="89.187"
+        ixy="4.248E-14"
+        ixz="-1.0258E-06"
+        iyy="173.37"
+        iyz="-1.557E-07"
+        izz="89.187" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch1_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch1_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="branch1_joint"
+    type="continuous">
+    <origin
+      xyz="0 0.19685 0.0015"
+      rpy="1.5708 0 -3.1416" />
+    <parent
+      link="base_link" />
+    <child
+      link="branch1_link" />
+    <axis
+      xyz="0 -1 0" />
+  </joint>
+  <link
+    name="branch1_pivot_link">
+    <inertial>
+      <origin
+        xyz="-0.0022955 0.016422 -0.007932"
+        rpy="0 0 0" />
+      <mass
+        value="119560" />
+      <inertia
+        ixx="516.62"
+        ixy="-0.017393"
+        ixz="0.0058914"
+        iyy="14.228"
+        iyz="19.76"
+        izz="512.33" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0.0025 0.0025 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch1_pivot_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0.0025 0.0025 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch1_pivot_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="branch1_pivot_joint"
+    type="revolute">
+    <origin
+      xyz="0 0.0053 0"
+      rpy="1.5708 1.0345 1.5708" />
+    <parent
+      link="branch1_link" />
+    <child
+      link="branch1_pivot_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-1"
+      upper="1"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="branch1_linear_link">
+    <inertial>
+      <origin
+        xyz="-8.31613639062923E-10 4.9483967617947E-10 -0.350007509773399"
+        rpy="0 0 0" />
+      <mass
+        value="109592.492325953" />
+      <inertia
+        ixx="5793.63460979836"
+        ixy="3.07306748936753E-08"
+        ixz="1.50531251447844E-06"
+        iyy="5793.63204299382"
+        iyz="-3.6255436635324E-05"
+        izz="2.7959845173821" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch2_linear_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch2_linear_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="branch1_linear_joint"
+    type="prismatic">
+    <origin
+      xyz="-0.00096442 -0.27498 0"
+      rpy="1.5708 0.92909 0" />
+    <parent
+      link="branch1_pivot_link" />
+    <child
+      link="branch1_linear_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-0.2226"
+      upper="0.2954"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="branch1_clevis_link">
+    <inertial>
+      <origin
+        xyz="0.000525846864027346 4.93836471715525E-10 0.00189665638985409"
+        rpy="0 0 0" />
+      <mass
+        value="0.0391203582473806" />
+      <inertia
+        ixx="1.04210530586347E-06"
+        ixy="3.10907232061447E-13"
+        ixz="2.00523533234881E-13"
+        iyy="1.23166761549771E-06"
+        iyz="1.09510677978738E-13"
+        izz="1.22412255992824E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 -0.008"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch1_clevis_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 -0.008"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch1_clevis_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="branch1_clevis_joint"
+    type="revolute">
+    <origin
+      xyz="0.000 0 0.32712"
+      rpy="2.6599 0 -1.5708" />
+    <parent
+      link="branch1_linear_link" />
+    <child
+      link="branch1_clevis_link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-1"
+      upper="1"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="branch1_ee_link">
+    <inertial>
+      <origin
+        xyz="9.6253E-09 -0.00024705 2.9244E-08"
+        rpy="0 0 0" />
+      <mass
+        value="0.1066" />
+      <inertia
+        ixx="4.8181E-05"
+        ixy="1.7066E-12"
+        ixz="-4.0263E-11"
+        iyy="9.0074E-05"
+        iyz="-2.3673E-11"
+        izz="4.818E-05" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch1_ee_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.29804 0.29804 0.29804 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch1_ee_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="branch1_ee_joint"
+    type="revolute">
+    <origin
+      xyz="0 0.021662 -0.029538"
+      rpy="0.7854 0 0" />
+    <parent
+      link="branch1_clevis_link" />
+    <child
+      link="branch1_ee_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-1"
+      upper="1"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="branch2_link">
+    <inertial>
+      <origin
+        xyz="-1.7486E-15 0.0015504 -1.2461E-09"
+        rpy="0 0 0" />
+      <mass
+        value="50757" />
+      <inertia
+        ixx="89.187"
+        ixy="6.3716E-14"
+        ixz="-1.0258E-06"
+        iyy="173.37"
+        iyz="-1.557E-07"
+        izz="89.187" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch2_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch2_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="branch2_joint"
+    type="continuous">
+    <origin
+      xyz="-0.14298 -0.0508 0"
+      rpy="1.5708 0 0.58745" />
+    <parent
+      link="base_link" />
+    <child
+      link="branch2_link" />
+    <axis
+      xyz="0 -1 0" />
+  </joint>
+  <link
+    name="branch2_pivot_link">
+    <inertial>
+      <origin
+        xyz="-0.00096061 0.01745 -0.0079319"
+        rpy="0 0 0" />
+      <mass
+        value="119560" />
+      <inertia
+        ixx="516.62"
+        ixy="-0.01731"
+        ixz="0.0058393"
+        iyy="14.228"
+        iyz="19.76"
+        izz="512.33" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0.0025 0.0025 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch2_pivot_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.75294 0.75294 0.75294 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0.0025 0.0025 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch2_pivot_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="branch2_pivot_joint"
+    type="revolute">
+    <origin
+      xyz="0 0.0053 0"
+      rpy="-1.5708 -1.2435 1.5708" />
+    <parent
+      link="branch2_link" />
+    <child
+      link="branch2_pivot_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-1"
+      upper="1"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="branch2_linear_link">
+    <inertial>
+      <origin
+        xyz="-8.31613639062923E-10 4.9483967617947E-10 -0.350007509773399"
+        rpy="0 0 0" />
+      <mass
+        value="109592.492325953" />
+      <inertia
+        ixx="5793.63460979836"
+        ixy="3.07306748936753E-08"
+        ixz="1.50531251447844E-06"
+        iyy="5793.63204299382"
+        iyz="-3.6255436635324E-05"
+        izz="2.7959845173821" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch2_linear_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch2_linear_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="branch2_linear_joint"
+    type="prismatic">
+    <origin
+      xyz="-0.00096442 -0.27498 0"
+      rpy="1.5708 0.92909 0" />
+    <parent
+      link="branch2_pivot_link" />
+    <child
+      link="branch2_linear_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-0.2226"
+      upper="0.2954"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="branch2_clevis_link">
+    <inertial>
+      <origin
+        xyz="0.000525846864027346 4.93836471715525E-10 0.00189665638985409"
+        rpy="0 0 0" />
+      <mass
+        value="0.0391203582473806" />
+      <inertia
+        ixx="1.04210530586347E-06"
+        ixy="3.10907232061447E-13"
+        ixz="2.00523533234881E-13"
+        iyy="1.23166761549771E-06"
+        iyz="1.09510677978738E-13"
+        izz="1.22412255992824E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 -0.008"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch2_clevis_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 -0.008"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch2_clevis_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="branch2_clevis_joint"
+    type="revolute">
+    <origin
+      xyz="0.000 0 0.32712"
+      rpy="2.6599 0 -1.5708" />
+    <parent
+      link="branch2_linear_link" />
+    <child
+      link="branch2_clevis_link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-1"
+      upper="1"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="branch3_link">
+    <inertial>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <mass
+        value="0" />
+      <inertia
+        ixx="0"
+        ixy="0"
+        ixz="0"
+        iyy="0"
+        iyz="0"
+        izz="0" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch3_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="1 1 1 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch3_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="branch3_joint"
+    type="continuous">
+    <origin
+      xyz="0.14298 -0.0508 0"
+      rpy="1.5708 0 -0.58745" />
+    <parent
+      link="base_link" />
+    <child
+      link="branch3_link" />
+    <axis
+      xyz="0 -1 0" />
+  </joint>
+  <link
+    name="branch3_pivot_link">
+    <inertial>
+      <origin
+        xyz="-0.000960617814022742 0.017449889255998 -0.00793194865737876"
+        rpy="0 0 0" />
+      <mass
+        value=".151021105" />
+      <inertia
+        ixx="516.615648764925"
+        ixy="-0.0172901676659301"
+        ixz="0.00582026704385896"
+        iyy="14.2283205034053"
+        iyz="19.7597404126588"
+        izz="512.325572590708" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0.0025 0.0025 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch2_pivot_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0.0025 0.0025 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch2_pivot_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="branch3_pivot_joint"
+    type="revolute">
+    <origin
+      xyz="0 0.0053 0"
+      rpy="-1.5708 -1.2435 1.5708" />
+    <parent
+      link="branch3_link" />
+    <child
+      link="branch3_pivot_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-1"
+      upper="1"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="branch3_linear_link">
+    <inertial>
+      <origin
+        xyz="-8.31613611307347E-10 -5.14177270205529E-10 -0.350007630216663"
+        rpy="0 0 0" />
+      <mass
+        value="109592.492325953" />
+      <inertia
+        ixx="5793.63460979833"
+        ixy="3.07304190982904E-08"
+        ixz="1.50532117491886E-06"
+        iyy="5793.63204299379"
+        iyz="-3.62554239351498E-05"
+        izz="2.79598451738251" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch3_linear_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 0"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch3_linear_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="branch3_linear_joint"
+    type="prismatic">
+    <origin
+      xyz="-0.00096442 -0.27498 0"
+      rpy="-1.5708 0.92909 3.1416" />
+    <parent
+      link="branch3_pivot_link" />
+    <child
+      link="branch3_linear_link" />
+    <axis
+      xyz="0 0 -1" />
+    <limit
+      lower="-0.2226"
+      upper="0.2954"
+      effort="10"
+      velocity="10" />
+  </joint>
+  <link
+    name="branch3_clevis_link">
+    <inertial>
+      <origin
+        xyz="0.000525845628013527 -2.06108186073806E-10 0.0018966561338819"
+        rpy="0 0 0" />
+      <mass
+        value="0.0391203585960704" />
+      <inertia
+        ixx="1.04210472283202E-06"
+        ixy="3.14779166173576E-13"
+        ixz="-8.70045309624779E-14"
+        iyy="1.23166762896806E-06"
+        iyz="-7.64920735115723E-14"
+        izz="1.22412197717913E-06" />
+    </inertial>
+    <visual>
+      <origin
+        xyz="0 0 -0.008"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch3_clevis_link.STL" />
+      </geometry>
+      <material
+        name="">
+        <color
+          rgba="0.752941176470588 0.752941176470588 0.752941176470588 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin
+        xyz="0 0 -0.008"
+        rpy="0 0 0" />
+      <geometry>
+        <mesh
+          filename="/branch3_clevis_link.STL" />
+      </geometry>
+    </collision>
+  </link>
+  <joint
+    name="branch3_clevis_joint"
+    type="revolute">
+    <origin
+      xyz="0.000 0 0.32712"
+      rpy="2.6599 0 1.5708" />
+    <parent
+      link="branch3_linear_link" />
+    <child
+      link="branch3_clevis_link" />
+    <axis
+      xyz="1 0 0" />
+    <limit
+      lower="-1"
+      upper="1"
+      effort="10"
+      velocity="10" />
+  </joint>
+</robot>

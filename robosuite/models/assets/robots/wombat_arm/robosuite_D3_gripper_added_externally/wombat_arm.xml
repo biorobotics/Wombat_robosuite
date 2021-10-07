@@ -1,0 +1,548 @@
+<mujoco model="wombat_arm">
+    <compiler angle="radian" meshdir="./meshes/" inertiafromgeom='auto' />
+    <option collision="predefined" timestep='0.0005' iterations="500" solver="Newton" integrator="RK4">
+        <flag energy="enable" />
+    </option>
+	<!--old options-->
+    <!--<option collision="predefined" />-->
+    <size njmax="500" nconmax="100" />
+
+    <visual>
+        <map fogstart="3" fogend="5" force="0.1" znear="0.1" zfar="5"/>
+        <quality shadowsize="2048"/>
+        <global offwidth="800" offheight="800"/>
+    </visual>
+
+    <asset>
+        <mesh name="base_link" file="meshes/base_link.stl" />
+        <mesh name="branch1_link" file="meshes/branch1_link.stl" />
+        <mesh name="branch1_pivot_link" file="meshes/branch1_pivot_link.stl" />
+        <mesh name="branch2_linear_link" file="meshes/branch2_linear_link.stl" />
+        <mesh name="branch1_clevis_link" file="meshes/branch1_clevis_link.stl" />
+        <mesh name="branch1_ee_link" file="meshes/branch1_ee_link.stl" />
+        <mesh name="branch2_link" file="meshes/branch2_link.stl" />
+        <mesh name="branch2_pivot_link" file="meshes/branch2_pivot_link.stl" />
+        <mesh name="branch2_clevis_link" file="meshes/branch2_clevis_link.stl" />
+        <mesh name="branch3_link" file="meshes/branch3_link.stl" />
+        <mesh name="branch3_linear_link" file="meshes/branch3_linear_link.stl" />
+        <mesh name="branch3_clevis_link" file="meshes/branch3_clevis_link.stl" />
+		<mesh name="motor_housing" file="meshes/motor_housing_2.stl" scale="0.001 0.001 0.001"/>
+        <texture name="texplane" type="2d" builtin="checker" rgb1=".2 .3 .4" rgb2=".1 0.15 0.2" 
+            width="512" height="512"/>  
+
+        <texture name="wooden" type="2d" builtin="none" file="/home/yashraghav/mujoco-py/xmls/wombat_arm/texture/wood_texture.png" rgb1=".2 .3 .4" rgb2=".1 0.15 0.2" /> 
+
+        <material name='MatPlane' reflectance='0.5' texture="texplane" texrepeat="1 1" texuniform="true"/>
+        <material name='wood' reflectance='0.1' texture="wooden" texrepeat="1 1" texuniform="true"/>
+        <mesh name="gripper" file="meshes/gripper.stl" />     
+        <!--<mesh name="base_bottom" file="meshes/base_bottom.stl" />  
+        <mesh name="left_finger" file="meshes/left_finger.stl" /> --> 
+    </asset>
+
+     <contact>
+        <exclude body1="base_link" body2="branch2_link"/><!--original-->
+        <exclude body1="base_link" body2="branch1_link"/><!--original-->
+        <exclude body1="base_link" body2="branch3_link"/><!--original-->
+        <exclude body1="base_link" body2="branch2_pivot_link"/><!--original-->
+        <exclude body1="base_link" body2="branch1_pivot_link"/><!--original-->
+        <exclude body1="base_link" body2="branch3_pivot_link"/><!--original-->
+        <exclude body1="base_link" body2="branch2_linear_link"/><!--original-->
+        <exclude body1="base_link" body2="branch1_linear_link"/><!--original-->
+        <exclude body1="base_link" body2="branch3_linear_link"/><!--original-->
+        <exclude body1="base_link" body2="branch2_clevis_link"/><!--original-->
+        <exclude body1="base_link" body2="branch1_clevis_link"/><!--original-->
+        <exclude body1="base_link" body2="branch3_clevis_link"/><!--original-->
+        <!-- <exclude body1="base_link" body2="gripper"/> --><!--original-->
+        <!-- <exclude body1="base_link" body2="branch2_ee_link"/>
+        <exclude body1="base_link" body2="branch1_ee_link"/>
+        <exclude body1="base_link" body2="branch3_ee_link"/>
+        <exclude body1="base_link" body2="right_hand"/>
+        <exclude body1="base_link" body2="ee_plate_1_link"/>
+        <exclude body1="base_link" body2="ee_plate_2_link"/>
+        <exclude body1="base_link" body2="ee_plate_3_link"/>
+        <exclude body1="base_link" body2="point_mass"/>
+        <exclude body1="base_link" body2="branch1_ee_2_link"/> -->
+        <!-- 
+        <exclude body1="branch1_link" body2="branch2_link"/>
+        <exclude body1="branch1_link" body2="branch3_link"/>
+        <exclude body1="branch1_link" body2="branch2_pivot_link"/>
+        <exclude body1="branch1_link" body2="branch1_pivot_link"/>
+        <exclude body1="branch1_link" body2="branch3_pivot_link"/>
+        <exclude body1="branch1_link" body2="branch2_linear_link"/> -->
+        <exclude body1="branch1_link" body2="branch1_linear_link"/> <!--original-->
+        <!-- <exclude body1="branch1_link" body2="gripper"/> --><!--original-->
+        <!-- <exclude body1="branch1_link" body2="branch3_linear_link"/>
+        <exclude body1="branch1_link" body2="branch2_clevis_link"/>
+        <exclude body1="branch1_link" body2="branch1_clevis_link"/>
+        <exclude body1="branch1_link" body2="branch3_clevis_link"/>
+        <exclude body1="branch1_link" body2="branch2_ee_link"/>
+        <exclude body1="branch1_link" body2="branch1_ee_link"/>
+        <exclude body1="branch1_link" body2="branch3_ee_link"/>
+        <exclude body1="branch1_link" body2="right_hand"/>
+        <exclude body1="branch1_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch1_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch1_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch1_link" body2="point_mass"/>
+        <exclude body1="branch1_link" body2="branch1_ee_2_link"/> -->
+<!-- 
+        <exclude body1="branch2_link" body2="branch3_link"/>
+        <exclude body1="branch2_link" body2="branch2_pivot_link"/>
+        <exclude body1="branch2_link" body2="branch1_pivot_link"/>
+        <exclude body1="branch2_link" body2="branch3_pivot_link"/> -->
+        <exclude body1="branch2_link" body2="branch2_linear_link"/> <!--original-->
+        <!-- <exclude body1="branch2_link" body2="gripper"/> --><!--original-->
+        <!-- <exclude body1="branch2_link" body2="branch1_linear_link"/>
+        <exclude body1="branch2_link" body2="branch3_linear_link"/>
+        <exclude body1="branch2_link" body2="branch2_clevis_link"/>
+        <exclude body1="branch2_link" body2="branch1_clevis_link"/>
+        <exclude body1="branch2_link" body2="branch3_clevis_link"/>
+        <exclude body1="branch2_link" body2="branch2_ee_link"/>
+        <exclude body1="branch2_link" body2="branch1_ee_link"/>
+        <exclude body1="branch2_link" body2="branch3_ee_link"/>
+        <exclude body1="branch2_link" body2="right_hand"/>
+        <exclude body1="branch2_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch2_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch2_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch2_link" body2="point_mass"/>
+        <exclude body1="branch2_link" body2="branch1_ee_2_link"/> -->
+
+        <!-- <exclude body1="branch3_link" body2="branch2_pivot_link"/>
+        <exclude body1="branch3_link" body2="branch1_pivot_link"/>
+        <exclude body1="branch3_link" body2="branch3_pivot_link"/>
+        <exclude body1="branch3_link" body2="branch2_linear_link"/>
+        <exclude body1="branch3_link" body2="branch1_linear_link"/> -->
+        <exclude body1="branch3_link" body2="branch3_linear_link"/> <!--original-->
+        <!-- <exclude body1="branch3_link" body2="gripper"/> --><!--original-->
+        <!-- <exclude body1="branch3_link" body2="branch2_clevis_link"/>
+        <exclude body1="branch3_link" body2="branch1_clevis_link"/>
+        <exclude body1="branch3_link" body2="branch3_clevis_link"/>
+        <exclude body1="branch3_link" body2="branch2_ee_link"/>
+        <exclude body1="branch3_link" body2="branch1_ee_link"/>
+        <exclude body1="branch3_link" body2="branch3_ee_link"/>
+        <exclude body1="branch3_link" body2="right_hand"/>
+        <exclude body1="branch3_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch3_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch3_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch3_link" body2="point_mass"/>
+        <exclude body1="branch3_link" body2="branch1_ee_2_link"/> -->
+
+        <!-- <exclude body1="branch1_pivot_link" body2="branch2_pivot_link"/>
+        <exclude body1="branch1_pivot_link" body2="branch3_pivot_link"/>
+        <exclude body1="branch1_pivot_link" body2="branch2_linear_link"/>
+        <exclude body1="branch1_pivot_link" body2="branch1_linear_link"/>
+        <exclude body1="branch1_pivot_link" body2="branch3_linear_link"/>
+        <exclude body1="branch1_pivot_link" body2="branch2_clevis_link"/>
+        <exclude body1="branch1_pivot_link" body2="branch1_clevis_link"/>
+        <exclude body1="branch1_pivot_link" body2="branch3_clevis_link"/>
+        <exclude body1="branch1_pivot_link" body2="branch2_ee_link"/>
+        <exclude body1="branch1_pivot_link" body2="branch1_ee_link"/>
+        <exclude body1="branch1_pivot_link" body2="branch3_ee_link"/>
+        <exclude body1="branch1_pivot_link" body2="right_hand"/>
+        <exclude body1="branch1_pivot_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch1_pivot_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch1_pivot_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch1_pivot_link" body2="point_mass"/>
+        <exclude body1="branch1_pivot_link" body2="branch1_ee_2_link"/>
+
+        <exclude body1="branch2_pivot_link" body2="branch3_pivot_link"/>
+        <exclude body1="branch2_pivot_link" body2="branch2_linear_link"/>
+        <exclude body1="branch2_pivot_link" body2="branch1_linear_link"/>
+        <exclude body1="branch2_pivot_link" body2="branch3_linear_link"/>
+        <exclude body1="branch2_pivot_link" body2="branch2_clevis_link"/>
+        <exclude body1="branch2_pivot_link" body2="branch1_clevis_link"/>
+        <exclude body1="branch2_pivot_link" body2="branch3_clevis_link"/>
+        <exclude body1="branch2_pivot_link" body2="branch2_ee_link"/>
+        <exclude body1="branch2_pivot_link" body2="branch1_ee_link"/>
+        <exclude body1="branch2_pivot_link" body2="branch3_ee_link"/>
+        <exclude body1="branch2_pivot_link" body2="right_hand"/>
+        <exclude body1="branch2_pivot_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch2_pivot_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch2_pivot_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch2_pivot_link" body2="point_mass"/>
+        <exclude body1="branch2_pivot_link" body2="branch1_ee_2_link"/>
+
+        <exclude body1="branch3_pivot_link" body2="branch2_linear_link"/>
+        <exclude body1="branch3_pivot_link" body2="branch1_linear_link"/>
+        <exclude body1="branch3_pivot_link" body2="branch3_linear_link"/>
+        <exclude body1="branch3_pivot_link" body2="branch2_clevis_link"/>
+        <exclude body1="branch3_pivot_link" body2="branch1_clevis_link"/>
+        <exclude body1="branch3_pivot_link" body2="branch3_clevis_link"/>
+        <exclude body1="branch3_pivot_link" body2="branch2_ee_link"/>
+        <exclude body1="branch3_pivot_link" body2="branch1_ee_link"/>
+        <exclude body1="branch3_pivot_link" body2="branch3_ee_link"/>
+        <exclude body1="branch3_pivot_link" body2="right_hand"/>
+        <exclude body1="branch3_pivot_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch3_pivot_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch3_pivot_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch3_pivot_link" body2="point_mass"/>
+        <exclude body1="branch3_pivot_link" body2="branch1_ee_2_link"/>
+
+        <exclude body1="branch1_linear_link" body2="branch2_linear_link"/>
+        <exclude body1="branch1_linear_link" body2="branch3_linear_link"/>
+        <exclude body1="branch1_linear_link" body2="branch2_clevis_link"/>
+        <exclude body1="branch1_linear_link" body2="branch1_clevis_link"/>
+        <exclude body1="branch1_linear_link" body2="branch3_clevis_link"/>
+        <exclude body1="branch1_linear_link" body2="branch2_ee_link"/>
+        <exclude body1="branch1_linear_link" body2="branch1_ee_link"/>
+        <exclude body1="branch1_linear_link" body2="branch3_ee_link"/>
+        <exclude body1="branch1_linear_link" body2="right_hand"/>
+        <exclude body1="branch1_linear_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch1_linear_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch1_linear_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch1_linear_link" body2="point_mass"/>
+        <exclude body1="branch1_linear_link" body2="branch1_ee_2_link"/>
+
+        <exclude body1="branch2_linear_link" body2="branch3_linear_link"/>
+        <exclude body1="branch2_linear_link" body2="branch2_clevis_link"/>
+        <exclude body1="branch2_linear_link" body2="branch1_clevis_link"/>
+        <exclude body1="branch2_linear_link" body2="branch3_clevis_link"/>
+        <exclude body1="branch2_linear_link" body2="branch2_ee_link"/>
+        <exclude body1="branch2_linear_link" body2="branch1_ee_link"/>
+        <exclude body1="branch2_linear_link" body2="branch3_ee_link"/>
+        <exclude body1="branch2_linear_link" body2="right_hand"/>
+        <exclude body1="branch2_linear_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch2_linear_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch2_linear_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch2_linear_link" body2="point_mass"/>
+        <exclude body1="branch2_linear_link" body2="branch1_ee_2_link"/>
+
+        <exclude body1="branch3_linear_link" body2="branch2_clevis_link"/>
+        <exclude body1="branch3_linear_link" body2="branch1_clevis_link"/>
+        <exclude body1="branch3_linear_link" body2="branch3_clevis_link"/>
+        <exclude body1="branch3_linear_link" body2="branch2_ee_link"/>
+        <exclude body1="branch3_linear_link" body2="branch1_ee_link"/>
+        <exclude body1="branch3_linear_link" body2="branch3_ee_link"/>
+        <exclude body1="branch3_linear_link" body2="right_hand"/>
+        <exclude body1="branch3_linear_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch3_linear_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch3_linear_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch3_linear_link" body2="point_mass"/>
+        <exclude body1="branch3_linear_link" body2="branch1_ee_2_link"/>
+
+        <exclude body1="branch1_clevis_link" body2="branch2_clevis_link"/>
+        <exclude body1="branch1_clevis_link" body2="branch3_clevis_link"/>
+        <exclude body1="branch1_clevis_link" body2="branch2_ee_link"/>
+        <exclude body1="branch1_clevis_link" body2="branch1_ee_link"/>
+        <exclude body1="branch1_clevis_link" body2="branch3_ee_link"/>
+        <exclude body1="branch1_clevis_link" body2="right_hand"/>
+        <exclude body1="branch1_clevis_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch1_clevis_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch1_clevis_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch1_clevis_link" body2="point_mass"/>
+        <exclude body1="branch1_clevis_link" body2="branch1_ee_2_link"/>
+
+        <exclude body1="branch2_clevis_link" body2="branch3_clevis_link"/>
+        <exclude body1="branch2_clevis_link" body2="branch2_ee_link"/>
+        <exclude body1="branch2_clevis_link" body2="branch1_ee_link"/>
+        <exclude body1="branch2_clevis_link" body2="branch3_ee_link"/>
+        <exclude body1="branch2_clevis_link" body2="right_hand"/>
+        <exclude body1="branch2_clevis_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch2_clevis_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch2_clevis_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch2_clevis_link" body2="point_mass"/>
+        <exclude body1="branch2_clevis_link" body2="branch1_ee_2_link"/>
+
+        <exclude body1="branch3_clevis_link" body2="branch2_ee_link"/>
+        <exclude body1="branch3_clevis_link" body2="branch1_ee_link"/>
+        <exclude body1="branch3_clevis_link" body2="branch3_ee_link"/>
+        <exclude body1="branch3_clevis_link" body2="right_hand"/>
+        <exclude body1="branch3_clevis_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch3_clevis_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch3_clevis_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch3_clevis_link" body2="point_mass"/>
+        <exclude body1="branch3_clevis_link" body2="branch1_ee_2_link"/>
+
+        <exclude body1="branch1_ee_link" body2="branch2_ee_link"/>
+        <exclude body1="branch1_ee_link" body2="branch3_ee_link"/>
+        <exclude body1="branch1_ee_link" body2="right_hand"/>
+        <exclude body1="branch1_ee_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch1_ee_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch1_ee_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch1_ee_link" body2="point_mass"/>
+        <exclude body1="branch1_ee_link" body2="branch1_ee_2_link"/>
+
+        <exclude body1="branch2_ee_link" body2="branch3_ee_link"/>
+        <exclude body1="branch2_ee_link" body2="right_hand"/>
+        <exclude body1="branch2_ee_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch2_ee_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch2_ee_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch2_ee_link" body2="point_mass"/>
+        <exclude body1="branch2_ee_link" body2="branch1_ee_2_link"/>
+
+        <exclude body1="branch3_ee_link" body2="right_hand"/>
+        <exclude body1="branch3_ee_link" body2="ee_plate_1_link"/>
+        <exclude body1="branch3_ee_link" body2="ee_plate_2_link"/>
+        <exclude body1="branch3_ee_link" body2="ee_plate_3_link"/>
+        <exclude body1="branch3_ee_link" body2="point_mass"/>
+        <exclude body1="branch3_ee_link" body2="branch1_ee_2_link"/>
+
+        <exclude body1="right_hand" body2="ee_plate_1_link"/>
+        <exclude body1="right_hand" body2="ee_plate_2_link"/>
+        <exclude body1="right_hand" body2="ee_plate_3_link"/>
+        <exclude body1="right_hand" body2="point_mass"/>
+        <exclude body1="right_hand" body2="branch1_ee_2_link"/>
+
+        <exclude body1="ee_plate_1_link" body2="ee_plate_2_link"/>
+        <exclude body1="ee_plate_1_link" body2="ee_plate_3_link"/>
+        <exclude body1="ee_plate_1_link" body2="point_mass"/>
+        <exclude body1="ee_plate_1_link" body2="branch1_ee_2_link"/>
+
+        <exclude body1="ee_plate_2_link" body2="ee_plate_3_link"/>
+        <exclude body1="ee_plate_2_link" body2="point_mass"/>
+        <exclude body1="ee_plate_2_link" body2="branch1_ee_2_link"/>
+
+        <exclude body1="ee_plate_3_link" body2="point_mass"/>
+        <exclude body1="ee_plate_3_link" body2="branch1_ee_2_link"/>
+        
+        <exclude body1="point_mass" body2="branch1_ee_2_link"/> -->
+        
+        <!-- <pair name="branch1" geom1="branch1_linear_geom" geom2="branch2_linear_geom" />
+        <pair name="branch2" geom1="branch2_linear_geom" geom2="branch3_linear_geom" /> -->
+
+    </contact>
+
+        <worldbody>
+       <light directional='false' diffuse='1 1 1' specular='0.3 0.3 0.3' pos='0 0 10.0' castshadow="false" dir='0.0 -0.0 -1'/>
+        <geom name='floor' pos='0 0 -1.6' size='20 20 .125' type='plane' material="MatPlane" condim='3'/>
+        <!-- <geom name='table' pos='0 -0.05 -0.8' size='0.59 0.6 .125' type='plane' material="wood" condim='3'/> -->
+
+        <body name="base_link" pos="0 0.0 0.0" quat="1 0 0 0">
+            <inertial pos="0 5.0391e-05 -1.2461e-09" quat="0.653281 0.270598 0.270598 0.653281" mass="0.1" diaginertia="0.1 0.1 0.1" />
+            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.49804 0.49804 0.49804 1" mesh="base_link" />
+            <geom type="mesh" rgba="0.49804 0.49804 0.49804 1" mesh="branch1_clevis_link" />
+			<geom type="mesh" pos="0 0.19685 0.0115" quat="0.707105 0.707108 0 0" rgba="0.49804 0.49804 0.49804 1" mesh="motor_housing"/>
+            <camera name="realsense1" mode="fixed" pos="0.6 0 -0.3" quat="0.9238 0 0.3826 0" />
+            <camera name="realsense2" mode="fixed" pos="-0.6 0 -0.3" quat="0.9238 0 -0.3826 0" />
+            <camera name="realsense_top" mode="fixed" pos="0.0 0 -0.3" quat="1 0 0 0" />
+            <body name="branch1_link" pos="0 0.19685 0.0015" quat="0.707105 0.707108 0 0">
+                <inertial pos="0 5.0391e-05 -1.2461e-09" quat="0.653281 0.270598 0.270598 0.653281" mass="1.69" fullinertia="0.069423 0.071863 0.003860 0.0 0.000001 -0.004373" />
+                <joint name="branch1_joint" pos="0 0 0" axis="0 -1 0" damping="15"/>
+                <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.75294 0.75294 0.75294 1" mesh="branch1_link" />
+                <geom type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="branch1_link" />
+                <body name="branch1_pivot_link" pos="0 0.0053 0" quat="0.7031826 -0.0743898 -0.7031831 0.0743898">
+                    <inertial pos="-0.0022955 0.016422 -0.007932" quat="0.720964 0.692973 -0.000526162 0.00052216" mass="1.234" fullinertia="0.009257 0.000739 0.009172 0.000276 0.000055 0.001639" />
+                    <joint name="branch1_pivot_joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-2 2" />
+                    <geom pos="0.0025 0.0025 0" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.75294 0.75294 0.75294 1" mesh="branch1_pivot_link" />
+                    <geom pos="0.0025 0.0025 0" type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="branch1_pivot_link" />
+                    <body name="branch1_linear_link" pos="-0.00096442 -0.27498 0" quat="0.707105 0.707108 0 0">
+                        <inertial pos="-8.31614e-10 4.9484e-10 -0.350008" mass="0.9409" fullinertia="0.07793724 0.00269486 0.07526799 0.0 0.0 0.0141738" />
+                        <joint name="branch1_linear_joint" pos="0 0 0" axis="0 0 -1" type="slide" limited="true" range="-0.2226 0.2954" damping="0.1" />
+                        <!--joint name="branch1_linear_joint" pos="0 0 0" axis="0 0 -1" type="slide" damping="0.1" /-->
+
+                        <joint name="branch1_linear_revolute_joint" pos="0 0 0" axis="0 0 -1"  damping="0.1" />
+                        <geom name="branch1_linear_geom" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="branch2_linear_link" />
+                        <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="branch2_linear_link" />
+                        <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="branch2_linear_link" />
+                        <body name="branch1_clevis_link" pos="0 0 0.32712" quat="0.172059 0.685853 -0.685855 -0.17206">
+                            <inertial pos="0.000525847 4.93836e-10 0.00189666" quat="0.5 0.5 0.5 0.5" mass="0.003912" fullinertia="3.43e-06 5.17e-06 2.85e-06 0.0 1.2e-07 0.0" />
+                            <joint name="branch1_clevis_joint" pos="0 0 0" axis="1 0 0" limited="true" range="-1 1" damping="0.1" />
+                            <!--joint name="branch1_clevis_joint" pos="0 0 0" axis="1 0 0" damping="0.1" /-->
+                            <geom name="branch1_clevis_geom" pos="0 0 -0.008" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="branch1_clevis_link" />
+                            <!--geom name="branch1_clevis_geom2" pos="0 0 -0.008" type="box" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" size="0.1 0.1 0.0000001" /-->
+                            <!--geom pos="0 0 -0.008" type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="branch1_clevis_link" /-->
+                            <!--body name="branch1_ee_link" pos="0 -0.02166 -0.03748" quat=" 0.4311 0.902 0 0"-->
+                            <!--body name="branch1_ee_link" pos="0 -0.02476 -0.04123" quat=" 0.4311 0.902 0 0"-->
+                            <!-- <body name="branch1_ee_link" pos="0 -0.02165 -0.03747" quat="0.4311 0.902 0 0"> -->
+                            <body name="branch1_ee_link" pos="0 -0.028 -0.03" quat=" 0.4311 0.902 0 0">
+                                <inertial pos="9.6253e-09 -0.00024705 2.9244e-08" quat="0.706964 0.0142035 0.0142035 0.706964" mass="0.1066" diaginertia="9.0074e-05 4.8181e-05 4.818e-05" />
+                                <!-- <inertial pos="9.6253e-09 -0.00024705 2.9244e-08" quat="0.706964 0.0142035 0.0142035 0.706964" mass="0.1066" fullinertia="4.818e-05 6.913e-05 6.913e-05 0.0 0.0 2.095e-05" /> -->
+                                <joint name="branch1_ee_joint" pos="0 0 0" axis="0 0 -1" damping="0.1" />
+                                <!--joint name="branch1_ee_joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.2 0.2" damping="10" /-->
+                                <geom name="branch1_ee_geom" quat="0.8775826 0 0.4794255 0" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.29804 0.29804 0.29804 1" mesh="branch1_ee_link" />
+                                <!-- <geom name="branch1__ee_geom" type="mesh" group="0" mesh="branch1_clevis_link" size="0.00001 0.00001 0.00001" /> -->
+                                <!-- <body name="gripper" pos="-0.14 -0.12 0.1" quat="-1.57 0 -0.45 0">
+                                    <inertial pos="9.6253e-09 -0.00024705 2.9244e-08" quat="0.706964 0.0142035 0.0142035 0.706964" mass="0.1066" fullinertia="4.818e-05 6.913e-05 6.913e-05 0.0 0.0 2.095e-05" />
+                                    <geom name="gripper" quat="0.8775826 0 0.4794255 0" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.29804 0.29804 0.29804 1" mesh="gripper" />
+                                    <joint name="gripper_joint" pos="0 0 0" axis="0 0 -1" damping="0.1" /> -->
+                                <!--<body name="base_bottom" pos="-0.033 -0.07 -0.1" quat="0 0 0 1">
+                                    <inertial pos="9.6253e-09 -0.00024705 2.9244e-08" quat="0.706964 0.0142035 0.0142035 0.706964" mass="0.1066" fullinertia="4.818e-05 6.913e-05 6.913e-05 0.0 0.0 2.095e-05" />
+                                    <geom name="base_bottom" quat="0 0 0 1" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.29804 0.29804 0.29804 1" mesh="base_bottom" />
+                                    <joint name="base_bottom_joint" pos="0 0 0" axis="0 0 -1" damping="0.1" /> -->
+                                <!-- <body name="left_finger" pos="0 0 0" quat="0 0 0 1">
+                                    <inertial pos="9.6253e-09 -0.00024705 2.9244e-08" quat="0.706964 0.0142035 0.0142035 0.706964" mass="0.1066" fullinertia="4.818e-05 6.913e-05 6.913e-05 0.0 0.0 2.095e-05" />
+                                    <geom name="left_finger" quat="0 0 0 1" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.29804 0.29804 0.29804 1" mesh="left_finger" />
+                                    <joint name="left_finger_joint" pos="0 0 0" axis="0 0 -1" damping="0.1" /> -->
+                                <body name="right_hand" pos="0 0 0" quat="0 0 0 0">
+                                  <!--  This sites were added for visualization. They are all standardized between models -->
+                                  <!--  Position mimics the gripper attachment point (right_hand)  -->
+                                  <!--   Y-axis should be perpendicular to grasping motion, and Z-axis should point out of the robot eef  -->
+                                  <site name="ee" pos="0 0 0" size="0.01 0.01 0.01" rgba="0 0 1 1" type="sphere" group="1"/>
+                                  <site name="ee_x" pos="0 0 0" size="0.005 .1" quat="0.707105 0.707108 0 0 " rgba="1 0 0 0" type="cylinder" group="1"/>
+                                  <site name="ee_z" pos="0 0 0" size="0.005 .1" quat="0.707105 0 0 0.707108" rgba="0 0 1 0" type="cylinder" group="1"/>
+                                  <site name="ee_y" pos="0 0 0" size="0.005 .1" quat="0.707105 0 0.707108 0 " rgba="0 1 0 0" type="cylinder" group="1"/>
+                                  <!--  This camera points out from the eef.  -->
+                                  <!--<camera mode="fixed" name="eye_in_hand" pos="0.05 0 0" quat="0 0.707108 0.707108 0" fovy="75"/>-->
+                                  <!--  To add gripper  -->
+                                </body>
+                                
+                                <!-- </body> -->
+                                <!-- </body> -->
+                                <body name="ee_plate_1_link" pos="0.001 -0.0 -0.0287" quat=" 1 0 0 0">
+                                <!--inertial pos="9.6253e-09 -0.00024705 2.9244e-08" quat="0.706964 0.0142035 0.0142035 0.706964" mass="0.1066" diaginertia="9.0074e-05 4.8181e-05 4.818e-05" /-->
+                                <geom name="ee_plate_1_geom" pos="0 0 0" type="box" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" size="0.001 0.001 0.001" />
+                                </body>
+                                <body name="ee_plate_2_link" pos="-0.02485 -0.0 0.01435" quat=" 1 0 0 0">
+                                <!--inertial pos="9.6253e-09 -0.00024705 2.9244e-08" quat="0.706964 0.0142035 0.0142035 0.706964" mass="0.1066" diaginertia="9.0074e-05 4.8181e-05 4.818e-05" /-->
+                                <geom name="ee_plate_2_geom" pos="0 0 0" type="box" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" size="0.001 0.001 0.001" />
+                                </body>
+                                <body name="ee_plate_3_link" pos="0.02485 -0.0 0.01435" quat=" 1 0 0 0">
+                                <!--inertial pos="9.6253e-09 -0.00024705 2.9244e-08" quat="0.706964 0.0142035 0.0142035 0.706964" mass="0.1066" diaginertia="9.0074e-05 4.8181e-05 4.818e-05" /-->
+                                <geom name="ee_plate_3_geom" pos="0 0 0" type="box" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" size="0.001 0.001 0.001" />
+                                </body>
+<!--added weight for testing the gripper weight-->
+								<body name="point_mass" pos="0 -0.05 0" quat = "1 0 0 0">
+									<inertial pos="0 0 0" quat="1 0 0 0" mass="0.00001" diaginertia="0.000001 0.000001 0.000001"/>
+									<geom name="point_mass_block" pos="0 0 0" type="box" contype="0" conaffinity="0" group="1" rgba="0.752941 0.742941 0.752941 1" size="0.000001 0.000001 0.000001"/>
+									<!--site name="point_mass_site" quat="0 0 -0.7071045 0.7071045"/-->
+                                </body>
+                            </body>
+                            <!-- </body> -->
+                            <!-- </body> -->
+                            <!-- </body> -->
+                            <body name="branch1_ee_2_link" pos="0 0 -0.025" quat="1 0 0 0">
+                                <!--inertial pos="0.000525847 4.93836e-10 0.00189666" quat="0.5 0.5 0.5 0.5" mass="0.001" diaginertia="1.23167e-06 1.22412e-06 1.04211e-06" /-->
+                                <geom name="branch1_ee_2_geom" pos="0 0 0" type="box" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" size="0.001 0.001 0.001" />
+                            </body>
+                        </body>
+                    </body>
+ <!--                <body name="branch1_revolute_link" pos="-0.00096442 -0.27498 0" quat="0.707105 0.707108 0 0">
+                    <inertial pos="-8.31614e-10 4.9484e-10 -0.350008" mass="0.1" diaginertia="0.1 0.1 0.1" />
+                    <joint name="branch1_revolute_joint" pos="0 0 0" axis="0 0 -1" damping="15" />
+                    <geom name="branch1_revolute_geom" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="branch2_linear_link" />
+                    </body> -->
+                </body>
+            </body>
+        
+        
+        <body name="branch2_link" pos="-0.14298 -0.0508 0" quat="0.353612 0.353614 0.612339 0.612337">
+            <inertial pos="0 0.0015504 -1.2461e-09" quat="0.653281 0.270598 0.270598 0.653281" mass="1.69" fullinertia="0.069423 0.071863 0.003860 0.0 0.000001 -0.004373" />
+            <joint name="branch2_joint" pos="0 0 0" axis="0 -1 0" damping="15"/>
+            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.75294 0.75294 0.75294 1" mesh="branch2_link" />
+            <geom type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="branch2_link" />
+            <body name="branch2_pivot_link" pos="0 0.0053 0" quat="0.7031826 -0.0743898 -0.7031831 0.0743898">
+                <inertial pos="-0.000960618 0.0174499 -0.00793195" quat="0.720963 0.692973 -0.000519455 0.000515332" mass="1.234" fullinertia="0.009257 0.000739 0.009172 0.000276 0.000055 0.001639" />
+                <joint name="branch2_pivot_joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-2 2" />
+                <geom pos="0.0025 0.0025 0" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.75294 0.75294 0.75294 1" mesh="branch2_pivot_link" />
+                <geom pos="0.0025 0.0025 0" type="mesh" rgba="0.75294 0.75294 0.75294 1" mesh="branch2_pivot_link" />
+                <body name="branch2_linear_link" pos="-0.00096442 -0.27498 0" quat="0.707105 0.707108 0 0">
+                    <inertial pos="-8.31614e-10 4.9484e-10 -0.350008" mass="0.9409" fullinertia="0.07793724 0.00269486 0.07526799 0.0 0.0 0.0141738" />
+                    <joint name="branch2_linear_joint" pos="0 0 0" axis="0 0 -1" type="slide" limited="true" range="-0.2226 0.2954" damping="0.1"/>
+                    <!--joint name="branch2_linear_joint" pos="0 0 0" axis="0 0 -1" type="slide" damping="0.1"/-->
+                    <joint name="branch2_linear_revolute_joint" pos="0 0 0" axis="0 0 -1"  damping="0.1"/>
+                    <geom name="branch2_linear_geom" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="branch2_linear_link" />
+                    <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="branch2_linear_link" />
+                    <body name="branch2_clevis_link" pos="0 0 0.32712" quat="0.172059 0.685853 -0.685855 -0.17206">
+                        <inertial pos="0.000525847 4.93836e-10 0.00189666" quat="0.5 0.5 0.5 0.5" mass="0.003912" fullinertia="3.43e-06 5.17e-06 2.85e-06 0.0 1.2e-07 0.0" />
+                        <joint name="branch2_clevis_joint" pos="0 0 0" axis="1 0 0" limited="true" range="-1 1" damping="0.1"/>
+                        <!--joint name="branch2_clevis_joint" pos="0 0 0" axis="1 0 0" damping="0.1"/-->
+                        <geom name="branch2_clevis_geom" pos="0 0 -0.008" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="branch2_clevis_link" />
+                        <geom pos="0 0 -0.008" type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="branch2_clevis_link" />
+                        <body name="branch2_ee_link" pos="0 0 -0.025" quat="1 0 0 0">
+                            <joint name="branch2_ee_joint" pos="0 0 0" axis="0 0 -1" damping="0.1" />
+                            <!--joint name="branch2_ee_joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-1 1" damping="10" /-->
+                            <inertial pos="0.000525847 4.93836e-10 0.00189666" quat="0.5 0.5 0.5 0.5" mass="0.001" diaginertia="1.23167e-06 1.22412e-06 1.04211e-06" />
+                            <geom name="branch2_ee_geom" pos="0 0 0" type="box" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" size="0.001 0.001 0.001" />
+                        </body>
+                    </body>
+                </body>
+<!--                 <body name="branch2_revolute_link" pos="-0.00096442 -0.27498 0" quat="0.707105 0.707108 0 0">
+                    <inertial pos="-8.31614e-10 4.9484e-10 -0.350008" mass="0.1" diaginertia="0.1 0.1 0.1" />
+                    <joint name="branch2_revolute_joint" pos="0 0 0" axis="0 0 -1" damping="15" />
+                    <geom name="branch2_revolute_geom" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="branch2_linear_link" />
+                    <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="branch2_linear_link" />
+                    </body> -->
+            </body>
+        </body>
+    
+        <body name="branch3_link" pos="0.14298 -0.0508 0" quat="0.353612 0.353614 -0.612339 -0.612337">
+            <inertial pos="0 0 0" quat="0.820473 0.339851 -0.17592 0.424708" mass="1.69" fullinertia="0.069423 0.071863 0.003860 0.0 0.000001 -0.004373" />
+            <joint name="branch3_joint" pos="0 0 0" axis="0 -1 0" damping="15"/>
+            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="1 1 1 1" mesh="branch3_link" />
+            <geom type="mesh" rgba="1 1 1 1" mesh="branch3_link" />
+            <body name="branch3_pivot_link" pos="0 0.0053 0" quat="0.7031826 -0.0743898 -0.7031831 0.0743898">
+                <inertial pos="-0.000960618 0.0174499 -0.00793195" quat="0.720963 0.692973 -0.000519455 0.000515332" mass="1.234" fullinertia="0.009257 0.000739 0.009172 0.000276 0.000055 0.001639" />
+                <joint name="branch3_pivot_joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-2 2" />
+                <geom pos="0.0025 0.0025 0" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="branch2_pivot_link" />
+                <geom pos="0.0025 0.0025 0" type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="branch2_pivot_link" />
+                <body name="branch3_linear_link" pos="-0.00096442 -0.27498 0" quat="0.707105 0.707108 0 0">
+                    <inertial pos="-8.31614e-10 -5.14177e-10 -0.350008" mass="0.9409" fullinertia="0.07793724 0.00269486 0.07526799 0.0 0.0 0.0141738" />
+                    <joint name="branch3_linear_joint" pos="0 0 0" axis="0 0 -1" type="slide" limited="true" range="-0.2226 0.2954" damping="0.1"/>
+                    <!--joint name="branch3_linear_joint" pos="0 0 0" axis="0 0 -1" type="slide" damping="0.1"/-->
+                    <joint name="branch3_linear_revolute_joint" pos="0 0 0" axis="0 0 -1" damping="0.1"/>
+                    <geom name="branch3_linear_geom" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="branch3_linear_link" />
+                    <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="branch3_linear_link" />
+                    <body name="branch3_clevis_link" pos="0 0 0.32712" quat="0.172059 0.685853 -0.685855 -0.17206">
+                        <inertial pos="0.000525846 -2.06108e-10 0.00189666" quat="0.5 0.5 0.5 0.5" mass="0.003912" fullinertia="3.43e-06 5.17e-06 2.85e-06 0.0 1.2e-07 0.0" />
+                        <joint name="branch3_clevis_joint" pos="0 0 0" axis="1 0 0" limited="true" range="-1 1" damping="0.1"/>
+                        <!--joint name="branch3_clevis_joint" pos="0 0 0" axis="1 0 0" damping="0.1"/-->
+                        <geom name="branch3_clevis_geom" pos="0 0 -0.008" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="branch3_clevis_link" />
+                        <geom pos="0 0 -0.008" type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="branch3_clevis_link" />
+                        <body name="branch3_ee_link" pos="0 0 -0.025" quat="1 0 0 0">
+                            <joint name="branch3_ee_joint" pos="0 0 0" axis="0 0 -1" damping="0.1" />
+                            <inertial pos="0.000525847 4.93836e-10 0.00189666" quat="0.5 0.5 0.5 0.5" mass="0.001" diaginertia="1.23167e-06 1.22412e-06 1.04211e-06" />
+                            <geom name="branch3_ee_geom" pos="0 0 0" type="box" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" size="0.001 0.001 0.001" />
+                        </body>
+                    </body>
+                </body>
+<!--                 <body name="branch3_revolute_link" pos="-0.00096442 -0.27498 0" quat="0.707105 0.707108 0 0">
+                    <inertial pos="-8.31614e-10 4.9484e-10 -0.350008" mass="0.1" diaginertia="0.1 0.1 0.1" />
+                    <joint name="branch3_revolute_joint" pos="0 0 0" axis="0 0 -1" damping="15" />
+                    <geom name="branch3_revolute_geom" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="branch3_linear_link" />
+                    <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="branch3_linear_link" />
+                    </body> -->
+            </body>
+        </body>
+        <!-- </body> -->
+    
+
+<!--        <body name="table" pos='0 -0.05 -0.9' quat="1 0 0 0">
+                <inertial pos="0 5.0391e-05 -1.2461e-09" quat="0.653281 0.270598 0.270598 0.653281" mass="5" diaginertia="0.1 0.1 0.1" />
+                <geom name='table' contype="1" conaffinity="0" size='0.45 0.58 .125' type='plane' material="wood" condim='3'/>
+        </body>
+        <body name="iPhone" pos="0.2 0.2 -0.89" quat="1 0 0 0">
+                <joint name="phone_joint" type="slide" pos="0 0 0" axis="0 0 1" damping="15"/>
+                <inertial pos="0 5.0391e-05 -1.2461e-09" quat="0.653281 0.270598 0.270598 0.653281" mass="0.1" diaginertia="0.1 0.1 0.1" />
+                <geom name="phone" type="box" contype="1" conaffinity="1" group="1" rgba="0.75294 0.75294 0.75294 1" size="0.04 0.08 0.01" />-->
+        </body>
+
+    </worldbody>
+    <actuator>
+
+        <position gear="2.0" joint="branch1_joint" kp="70" name="torq_branch1_joint"/>
+        <position gear="2.0" joint="branch2_joint" kp="70" name="torq_branch2_joint"/>
+        <position gear="2.0" joint="branch3_joint" kp="70" name="torq_branch3_joint"/>
+
+        <position gear="1.0" joint="branch1_linear_joint" kp="20" name="lin_branch1_joint"/>
+        <position gear="1.0" joint="branch2_linear_joint" kp="20" name="lin_branch2_joint"/>
+        <position gear="1.0" joint="branch3_linear_joint" kp="20" name="lin_branch3_joint"/>
+    </actuator>
+
+    <equality>
+
+
+        <weld body1="ee_plate_2_link" body2="branch2_ee_link" active="true" solref='0.005 1' relpose="0 0 0 0 0 0 0"/>
+        <weld body1="ee_plate_3_link" body2="branch3_ee_link" active="true" solref='0.005 1' relpose="0 0 0 0 0 0 0"/>
+        <!-- <weld body1="branch1_ee_link" body2="gripper" active="true" solref='0.005 1' relpose="0 0 0 0 0 0 0"/> -->
+
+        
+    </equality>
+
+
+
+    <sensor>
+        <framepos name="branch2_ee_pos_sensor" objtype="body" objname="branch2_ee_link" />
+        <framepos name="branch3_ee_pos_sensor" objtype="body" objname="branch3_ee_link" />
+        <framepos name="branch1_ee_pos_sensor" objtype="body" objname="branch1_ee_2_link" />
+        <framepos name="branch1_ee_sensor" objtype="body" objname="branch1_ee_link" />
+        <!--<framepos name="iPhone_pos_sensor" objtype="body" objname="iPhone" />-->
+		<framequat name="branch1_ee_quat_sensor" objtype="body" objname="branch1_ee_link"/>
+		<!--accelerometer name="payload_accelerometer" site="point_mass_site"/-->
+    </sensor>
+<!-- 
+    <contact>
+        <exclude name="excluded1" body1="base_link" body2="branch1_link" />
+        <exclude name="excluded2" body1="base_link" body2="branch3_link" />
+        <exclude name="excluded3" body1="base_link" body2="branch2_link" />
+    </contact> -->
+
+</mujoco>
