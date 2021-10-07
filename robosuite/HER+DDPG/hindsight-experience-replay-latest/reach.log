@@ -1,0 +1,15 @@
+Current Time = 2021-07-06-13-43-51
+Found 3 GPUs for rendering. Using device 0.
+/home/abhimanyu8713/anaconda3/envs/manipulator_RL/lib/python3.6/site-packages/gym/logger.py:30: UserWarning: [33mWARN: Box bound precision lowered by casting to float32[0m
+  warnings.warn(colorize('%s: %s'%('WARN', msg % args), 'yellow'))
+> [0;32m/home/abhimanyu8713/abhimanyu_research/apple_project/manipulator_research/robosuite/robosuite/HER+DDPG/hindsight-experience-replay/train.py[0m(237)[0;36mget_env_params[0;34m()[0m
+[0;32m    236 [0;31m        [0mipdb[0m[0;34m.[0m[0mset_trace[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
+[0m[0;32m--> 237 [0;31m        [0mobs[0m [0;34m=[0m [0menv[0m[0;34m.[0m[0mreset[0m[0;34m([0m[0;34m)[0m[0;34m[0m[0;34m[0m[0m
+[0m[0;32m    238 [0;31m        [0;31m# close the environment[0m[0;34m[0m[0;34m[0m[0;34m[0m[0m
+[0m
+ipdb> *** NameError: name 'obs' is not defined
+ipdb> <__main__.PickPlace_env object at 0x7fe0771aa470>
+ipdb> *** AttributeError: 'PickPlace_env' object has no attribute 'step'
+ipdb> *** AttributeError: 'PickPlace_env' object has no attribute 'list'
+ipdb> *** AttributeError: 'PickPlace_env' object has no attribute '__keys__'
+ipdb> 

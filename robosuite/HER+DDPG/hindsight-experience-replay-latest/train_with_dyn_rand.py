@@ -26,7 +26,6 @@ from gym import spaces
 import random
 """
 train the agent, the MPI part code is copy from openai baselines(https://github.com/openai/baselines/blob/master/baselines/her)
-
 """
 
 
@@ -56,9 +55,9 @@ class D3_pick_place_env(object):
 	def __init__ (self,args=None,is_render=False):
 
 		self.is_render = is_render
-		self.action_dim = 6
-		self.action_network_dim = 3 # x, y and z dim
-		self.obs_dim = 28#26
+		self.action_dim = 6 #actual robot
+		self.action_network_dim = 3 # Gripper pose
+		self.obs_dim = 34#28#26
 		self.q_pos_last = np.zeros(self.action_dim)
 		self.observation_current = None
 		self.observation_last = None
@@ -73,7 +72,7 @@ class D3_pick_place_env(object):
 		self.action_network_high = np.array([0.00005]*self.action_network_dim)
 		self.action_network_low = np.array([-0.00005]*self.action_network_dim)	 
 
-		self._max_episode_steps = 9000#20000
+		self._max_episode_steps = 11000#9000#20000
 
 		pass
 
@@ -96,11 +95,11 @@ class D3_pick_place_env(object):
 				j2c[i]=j1[i]+aDiff2
 		return j2c
 
-	def set_env(self,phone_x,phone_speed):
+	def set_env(self,phone_x,phone_speed,phone_orient):
 
 		self.phone_x = phone_x
 		self.phone_speed = phone_speed
-
+		self.phone_orient = phone_orient
 		self.world = MujocoWorldBase()
 		self.mujoco_robot = Wombat_arm()
 
@@ -110,9 +109,10 @@ class D3_pick_place_env(object):
 		self.mujoco_arena =EmptyArena()
 		# mujoco_arena.set_origin([0.8, 0, 0])
 		self.world.merge(self.mujoco_arena)
-
-		self.iphonebox = BoxObject(name="iphonebox",size=[0.035,0.07,0.02],rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
-		self.iphonebox.set('pos', '{} -2 1'.format(self.phone_x)) #0.75
+		##iphone xr dimensions
+		self.iphonebox = BoxObject(name="iphonebox",size=[0.03785,0.07545,0.00415],rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
+		self.iphonebox.set('pos', '{} 1.35 1'.format(self.phone_x)) #0.75
+		self.iphonebox.set('quat', '{} 0 0 1'.format(self.phone_orient)) #0
 		self.world.worldbody.append(self.iphonebox)
 
 		self.box = BoxObject(name="box",size=[0.35,9.7,0.37],rgba=[0.5,0.5,0.5,1],friction=[1,1,1]).get_obj()
@@ -172,9 +172,9 @@ class D3_pick_place_env(object):
 		return PD_signal
 
 
-	def reset(self,phone_x=0.75,phone_speed=0.2):
+	def reset(self,phone_x=0.578,phone_speed=-0.2,phone_orient=0):
 		# ipdb.set_trace()
-		obs = self.set_env(phone_x,phone_speed)
+		obs = self.set_env(phone_x,phone_speed,phone_orient)
 		return obs
 
 	def grip_signal(self,des_state,obs_last,obs_last2last):
@@ -275,11 +275,13 @@ class D3_pick_place_env(object):
 
 		observation[12:19] = self.sim.data.get_joint_qpos('iphonebox_joint0')
 		observation[19:26] = self.sim.data.sensordata[0:7]	#gripper base link pose
+		observation[19] = observation[19] + 0.02
 		observation[26] = self.sim.data.get_joint_qpos('robot0_gripper_left_finger_joint')
 		observation[27] = self.sim.data.get_joint_qpos('robot0_gripper_right_finger_joint')
+		observation[28:34] = self.sim.data.get_joint_qvel('iphonebox_joint0')
 		# observation[28:31] = self.sim.render(width=200, height=200, camera_name='frontview', mode='offscreen')[::-1,:]
 
-		goal = 0.83		#z value of the phone should be at 0.83 m from floor
+		goal = 0.88#0.83		#z value of the phone should be at 0.83 m from floor
 		achieved_goal = observation[14] #Current z value of the iPhone
 		observation = {'observation':observation,'desired_goal':np.array([goal]),'achieved_goal': np.array([achieved_goal])}
 
@@ -314,11 +316,20 @@ class D3_pick_place_env(object):
 		# print(obs[21]-obs[14] <= 0.11)
 		# print(obs[26] > 0)
 		# print(obs[21] > 0.99)
+		# for i in range(obs.shape[0]):
+		# 	if (obs[21]-obs[14] <= 0.11) and (obs[26] > 0) and (obs[21] > 0.99):
+		# 		reward_grasp.append(20)
+		# 		# print("Reward: +20")
+		# 	elif (obs[21]-obs[14] <= 0.16) and (obs[21]-obs[14] > 0.11) and (obs[26] > 0) and (obs[21] > 0.94):
+		# 		reward_grasp.append(5)
+		# 		# print("Reward: +5")
+		# 	else:
+		# 		reward_grasp.append(0)
 		for i in range(obs.shape[0]):
-			if (obs[21]-obs[14] <= 0.11) and (obs[26] > 0) and (obs[21] > 0.99):
-				reward_grasp.append(20)
-				# print("Reward: +20")
-			elif (obs[21]-obs[14] <= 0.16) and (obs[21]-obs[14] > 0.11) and (obs[26] > 0) and (obs[21] > 0.94):
+			if obs[14]>=0.88 and (obs[21]-obs[14] <= 0.12) and (abs(obs[19]-obs[12]) <= 0.04) and obs[26] > -0.29:
+				reward_grasp.append(50)
+				# print("Reward: +50")
+			elif obs[14] >= 0.83 and obs[26] > -0.29 and (obs[21]-obs[14] <= 0.18):
 				reward_grasp.append(5)
 				# print("Reward: +5")
 			else:
@@ -439,7 +450,7 @@ if __name__ == '__main__':
 	print("Current Time =", current_time)
 	# args = parser.parse_args()
 	# args.log = os.path.join(args.log)
-	pick_place_env = D3_pick_place_env(args,is_render=False)
+	pick_place_env = D3_pick_place_env(args,is_render=True)
 	# pick_place_env = PickPlace_env(args)
 	# pick_place_env.run()
 	launch(args,pick_place_env)
