@@ -67,6 +67,7 @@ if __name__ == '__main__':
     actor_network = actor(env_params)
     actor_network.load_state_dict(model)
     actor_network.eval()
+    #partial success is when phone is picked up in a hanging pose whereas full success is when phone is horizontal( or almost horizontal) after getting picked up
     Partial_success = 0
     Full_success = 0
     for i in range(args.demo_length):
