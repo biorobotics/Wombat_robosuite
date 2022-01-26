@@ -38,6 +38,7 @@ from robosuite.models.objects import BoxObject
 from robosuite.models.robots import Wombat_arm
 from robosuite.models.arenas import EmptyArena
 from robosuite.models.grippers import gripper_factory
+from robosuite.models.objects.objects import MujocoXMLObject
 import math
 from mujoco_py import MjSim, MjViewer
 import numpy as np
@@ -54,7 +55,7 @@ class D3_pick_place_env(object):
 
 	def __init__ (self,args=None,is_render=False):
 
-		self.is_render = is_render
+		self.is_render = True#is_render
 		self.action_dim = 6 #actual robot
 		self.action_network_dim = 3 # Gripper pose
 		self.obs_dim = 34#28#26
@@ -102,15 +103,19 @@ class D3_pick_place_env(object):
 		self.phone_orient = phone_orient
 		self.world = MujocoWorldBase()
 		self.mujoco_robot = Wombat_arm()
-
+		
 		self.mujoco_robot.set_base_xpos([0, 0.0, 0])
+		
 		self.world.merge(self.mujoco_robot)
-
+		
 		self.mujoco_arena =EmptyArena()
 		# mujoco_arena.set_origin([0.8, 0, 0])
 		self.world.merge(self.mujoco_arena)
+		# self.iphonebox = BoxObject(name="iphonebox",size=[0.035,0.07,0.015],rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
+		##iphone 12 pro max dimensions
+		self.iphonebox = BoxObject(name="iphonebox",size=[0.039,0.08,0.0037],rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
 		##iphone xr dimensions
-		self.iphonebox = BoxObject(name="iphonebox",size=[0.03785,0.07545,0.00415],rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
+		# self.iphonebox = BoxObject(name="iphonebox",size=[0.03785,0.07545,0.00415],rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
 		self.iphonebox.set('pos', '{} 1.35 1'.format(self.phone_x)) #0.75
 		self.iphonebox.set('quat', '{} 0 0 1'.format(self.phone_orient)) #0
 		self.world.worldbody.append(self.iphonebox)
@@ -120,6 +125,10 @@ class D3_pick_place_env(object):
 		self.world.worldbody.append(self.box)
 
 		self.model = self.world.get_model(mode="mujoco_py")
+
+		# self.iPhone = MujocoXMLObject("/home/yashraghav/robosuite/robosuite/models/assets/objects/iPhone12ProMax.xml",name="iPhone12ProMaxObject")
+
+		# self.world.merge(self.iPhone)
 
 		self.sim = MjSim(self.model)
 		
@@ -179,14 +188,18 @@ class D3_pick_place_env(object):
 
 	def grip_signal(self,des_state,obs_last,obs_last2last):
 		if des_state=='open':
-			left_finger_open = -0.287884
-			right_finger_open = -0.295456
+			# left_finger_open = -0.287884
+			# right_finger_open = -0.295456
+			left_finger_open = -0.5
+			right_finger_open = 0.5
 
 			grip_signal=[self.Gripper_PD_controller(left_finger_open,obs_last[26],obs_last2last[26]),
 						 self.Gripper_PD_controller(right_finger_open,obs_last[27],obs_last2last[27])]
 		if des_state=='close':
-			left_finger_close = 0.246598
-			right_finger_close = 0.241764
+			# left_finger_close = 0.246598
+			# right_finger_close = 0.241764
+			left_finger_close = 0.5
+			right_finger_close = -0.5
 
 			grip_signal=[self.Gripper_PD_controller(left_finger_close,obs_last[26],obs_last2last[26]),
 						 self.Gripper_PD_controller(right_finger_close,obs_last[27],obs_last2last[27])]
@@ -276,8 +289,10 @@ class D3_pick_place_env(object):
 		observation[12:19] = self.sim.data.get_joint_qpos('iphonebox_joint0')
 		observation[19:26] = self.sim.data.sensordata[0:7]	#gripper base link pose
 		observation[19] = observation[19] + 0.02
-		observation[26] = self.sim.data.get_joint_qpos('robot0_gripper_left_finger_joint')
-		observation[27] = self.sim.data.get_joint_qpos('robot0_gripper_right_finger_joint')
+		# observation[26] = self.sim.data.get_joint_qpos('robot0_gripper_left_finger_joint')
+		# observation[27] = self.sim.data.get_joint_qpos('robot0_gripper_right_finger_joint')
+		observation[26] = self.sim.data.get_joint_qpos('robot0_base_left_short_joint')
+		observation[27] = self.sim.data.get_joint_qpos('robot0_base_right_short_joint')
 		observation[28:34] = self.sim.data.get_joint_qvel('iphonebox_joint0')
 		# observation[28:31] = self.sim.render(width=200, height=200, camera_name='frontview', mode='offscreen')[::-1,:]
 
@@ -377,14 +392,23 @@ class D3_pick_place_env(object):
 		return pos
 
 	def clip_grip_action(self):
-		if self.sim.data.get_joint_qpos('robot0_gripper_left_finger_joint')>0.25:
-			self.sim.data.set_joint_qpos('robot0_gripper_left_finger_joint', 0.246598)
-		if self.sim.data.get_joint_qpos('robot0_gripper_right_finger_joint')>0.25:
-			self.sim.data.set_joint_qpos('robot0_gripper_right_finger_joint', 0.241764)
-		if self.sim.data.get_joint_qpos('robot0_gripper_left_finger_joint')<-0.29:
-			self.sim.data.set_joint_qpos('robot0_gripper_left_finger_joint', -0.287884)
-		if self.sim.data.get_joint_qpos('robot0_gripper_right_finger_joint')<-0.30:
-			self.sim.data.set_joint_qpos('robot0_gripper_right_finger_joint', -0.295456)
+		# if self.sim.data.get_joint_qpos('robot0_gripper_left_finger_joint')>0.25:
+		# 	self.sim.data.set_joint_qpos('robot0_gripper_left_finger_joint', 0.246598)
+		# if self.sim.data.get_joint_qpos('robot0_gripper_right_finger_joint')>0.25:
+		# 	self.sim.data.set_joint_qpos('robot0_gripper_right_finger_joint', 0.241764)
+		# if self.sim.data.get_joint_qpos('robot0_gripper_left_finger_joint')<-0.29:
+		# 	self.sim.data.set_joint_qpos('robot0_gripper_left_finger_joint', -0.287884)
+		# if self.sim.data.get_joint_qpos('robot0_gripper_right_finger_joint')<-0.30:
+		# 	self.sim.data.set_joint_qpos('robot0_gripper_right_finger_joint', -0.295456)
+
+		if self.sim.data.get_joint_qpos('robot0_base_left_short_joint')>0.5:
+			self.sim.data.set_joint_qpos('robot0_base_left_short_joint', 0.5)
+		if self.sim.data.get_joint_qpos('robot0_base_right_short_joint')>0.5:
+			self.sim.data.set_joint_qpos('robot0_base_right_short_joint', 0.5)
+		if self.sim.data.get_joint_qpos('robot0_base_left_short_joint')<-0.5:
+			self.sim.data.set_joint_qpos('robot0_base_left_short_joint', -0.5)
+		if self.sim.data.get_joint_qpos('robot0_base_right_short_joint')<-0.5:
+			self.sim.data.set_joint_qpos('robot0_base_right_short_joint', -0.5)
 
 	def seed(self, seed=None):
 		"""

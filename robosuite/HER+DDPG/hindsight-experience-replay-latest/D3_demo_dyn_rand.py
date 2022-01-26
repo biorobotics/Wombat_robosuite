@@ -36,8 +36,8 @@ def _preproc_inputs(obs, g):
         inputs = inputs.cuda()
     return inputs
 def dyn_rand():
-	phone_x = 0.428#np.random.uniform(0.428, 0.728)
-	phone_speed = -0.18#np.random.uniform(-0.14, -0.18)
+	phone_x = 0.578#np.random.uniform(0.428, 0.728)
+	phone_speed = -0.22#np.random.uniform(-0.14, -0.18)
 	phone_orient = 0.0
 	# phone_orient = np.random.uniform(-0.05, 0.05)
 	return phone_x, phone_speed, phone_orient
@@ -67,7 +67,6 @@ if __name__ == '__main__':
     actor_network = actor(env_params)
     actor_network.load_state_dict(model)
     actor_network.eval()
-    #partial success is when phone is picked up in a hanging pose whereas full success is when phone is horizontal( or almost horizontal) after getting picked up
     Partial_success = 0
     Full_success = 0
     for i in range(args.demo_length):
@@ -84,7 +83,7 @@ if __name__ == '__main__':
         # create the normalizer
         o_norm = normalizer(size=env_params['obs'], default_clip_range=args.clip_range)
         g_norm = normalizer(size=env_params['goal'], default_clip_range=args.clip_range)
-        action_zero = np.array([0,0,0.6,0,0,0,-0.2,-0.2])
+        action_zero = np.array([0,0,0.6,0,0,0,-0.5,0.5])
         obs_current = np.zeros(34)
         obs_last = obs_current.copy()
         pp = 0
@@ -108,6 +107,8 @@ if __name__ == '__main__':
                 if np.linalg.norm(obs_current[19]-obs_current[12])>0.001:
                     pos_x_dir = (obs_current[19]-obs_current[12])/np.abs(obs_current[19]-obs_current[12])
                     pos_x += 0.0001*pos_x_dir  #motion happening here
+                    print("x",obs_current[26])
+                    print(obs_current[27])
                 action_zero[0] = pos_x
                 # ipdb.set_trace()  
                 obs,reward,done,_ = env.step(action_zero)
@@ -125,14 +126,14 @@ if __name__ == '__main__':
             ### calculate target velocity ###
             elif t == 1800 and pp==0:
                 action_network = np.zeros(3)
-                vel_z = (obs_current[21] - 0.875)/int(steps_to_reach)
+                vel_z = (obs_current[21] - 0.885)/int(steps_to_reach)
                 vel_y = (obs_current[20] - 0.0)/int(steps_to_reach)
                 # print("Stage 3 ",pp)
             ### Start snatch motion ###
             elif np.linalg.norm(obs_current[20]-obs_current[13])<0.001 or pp == 1:
                 # print("Stage 4 ",pp)
-                if action_zero[2]>=0.75:
-                    action_zero[2]=0.75
+                if action_zero[2]>=0.76:
+                    action_zero[2]=0.76
                 obs,reward,done,_ = env.step(action_zero)
                 obs_current = obs['observation']
                 with torch.no_grad():
@@ -153,11 +154,13 @@ if __name__ == '__main__':
                 # action_zero[3]+= action_network[3] #adding orient_x to current_motion
                 # action_zero[4]+= action_network[4] #adding orient_y to motion
                 # action_zero[5]+= action_network[5]  #adding orient_z to motion
-                if np.linalg.norm(obs_current[21]-0.875)<0.001 and pp == 1 and obs_current[26]< -0.29:
+                if np.linalg.norm(obs_current[21]-0.885)<0.001 and pp == 1 and obs_current[26]< -0.29:
                     # print("stay!!")
                     action_zero[2] = pos_z
-                    action_zero[6] = 0.4
-                    action_zero[7] = 0.4
+                    # action_zero[6] = 0.4
+                    # action_zero[7] = 0.4
+                    action_zero[6] = 0.5
+                    action_zero[7] = -0.5
                                 
                 elif obs_current[26]> -0.29 and action_zero[2]>0.55:
                     # print("go up!! ship is sinking")
@@ -165,8 +168,10 @@ if __name__ == '__main__':
                     if time_reset<=0:
                         pos_z -= 0.0005 #motion happening here
                         action_zero[2] = pos_z
-                        action_zero[6] = 0.4
-                        action_zero[7] = 0.4
+                        # action_zero[6] = 0.4
+                        # action_zero[7] = 0.4
+                        action_zero[6] = 0.5
+                        action_zero[7] = -0.5
                                 
                 elif action_zero[2]<0.55:
                     # print("breaking up of the loop")
@@ -176,23 +181,23 @@ if __name__ == '__main__':
             # re-assign the observation
             else:
                 # print("no snatching")
-                if action_zero[2]>=0.75:
-                    action_zero[2]=0.75
+                if action_zero[2]>=0.76:
+                    action_zero[2]=0.76
                 obs,reward,done,_ = env.step(action_zero)
                 obs_current = obs['observation']
                 # print("stage 5 {}, {}".format(pp,np.linalg.norm(obs_current[20]-obs_current[13])))
                 action_network = np.zeros(3)
             obs_last = obs_current.copy()
-            T_sim_real[0:3,3] = [0,0.03175,0]
+            # T_sim_real[0:3,3] = [0,0.03175,0]
 
-            # T_sim_target[0:3,0:3] = t3d.euler.euler2mat(target_sim[3],target_sim[4],target_sim[5],'szyx')
-            T_sim_target[0:3,3] = [obs_current[19],obs_current[20],obs_current[21]]
+            # # T_sim_target[0:3,0:3] = t3d.euler.euler2mat(target_sim[3],target_sim[4],target_sim[5],'szyx')
+            # T_sim_target[0:3,3] = [obs_current[19],obs_current[20],obs_current[21]]
 
-            T_real_target = np.matmul(np.linalg.inv(T_sim_real),T_sim_target)
+            # T_real_target = np.matmul(np.linalg.inv(T_sim_real),T_sim_target)
 
-            t_real[0],t_real[1],t_real[2] = T_real_target[0:3,3]
-            observation_x[t] = t_real[0]
-            t_arr[t] = t
+            # t_real[0],t_real[1],t_real[2] = T_real_target[0:3,3]
+            # observation_x[t] = t_real[0]
+            # t_arr[t] = t
                         
         print("Expected goal: ",g)
         print("Actual position: ",obs['achieved_goal'])
@@ -203,5 +208,5 @@ if __name__ == '__main__':
         if reward[1]==50:
             Full_success = Full_success + 1
         print("Run no.: {}, Partial_successes: {}, Full_successes: {}".format(i+1,Partial_success,Full_success))
-        plt.plot(t_arr, observation_x)
-        plt.show()
+        # plt.plot(t_arr, observation_x)
+        # plt.show()
