@@ -34,10 +34,15 @@
 
         <material name='MatPlane' reflectance='0.5' texture="texplane" texrepeat="1 1" texuniform="true"/>
         <material name='wood' reflectance='0.1' texture="wooden" texrepeat="1 1" texuniform="true"/>
-        <mesh name="gripper_base_link" file="/home/yashraghav/robosuite/robosuite/models/assets/grippers/meshes/D3_gripper_v2/base_link.STL" /> 
-        <mesh name="gripper_left_finger" file="/home/yashraghav/robosuite/robosuite/models/assets/grippers/meshes/D3_gripper_v2/left_finger.STL" />
-        <mesh name="gripper_right_finger" file="/home/yashraghav/robosuite/robosuite/models/assets/grippers/meshes/D3_gripper_v2/right_finger.STL" />
-
+        <mesh name="gripper_base_link" file="meshes/v2_realistic/base_link.STL" />
+        <mesh name="left_short_link" file="meshes/v2_realistic/left_short_link.STL" />
+        <mesh name="left_gripper_finger" file="meshes/v2_realistic/left_gripper_finger.STL" />
+        <mesh name="left_torque_transfer" file="meshes/v2_realistic/left_torque_transfer.STL" />
+        <mesh name="left_long_link" file="meshes/v2_realistic/left_long_link.STL" />
+        <mesh name="right_short_link" file="meshes/v2_realistic/right_short_link.STL" />
+        <mesh name="right_gripper_finger" file="meshes/v2_realistic/right_gripper_finger.STL" />
+        <mesh name="right_torque_transfer" file="meshes/v2_realistic/right_torque_transfer.STL" />
+        <mesh name="right_long_link" file="meshes/v2_realistic/right_long_link.STL" />
     </asset>
         <worldbody>
        <light directional='false' diffuse='1 1 1' specular='0.3 0.3 0.3' pos='0 0 10.0' castshadow="false" dir='0.0 -0.0 -1'/>
@@ -88,25 +93,57 @@
                                 <joint name="branch1_ee_joint" pos="0 0 0" axis="0 0 -1" damping="0.1" />
                                 <!--joint name="branch1_ee_joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.2 0.2" damping="10" /-->
                                 <geom name="branch1_ee_geom" quat="0.8775826 0 0.4794255 0" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.29804 0.29804 0.29804 1" mesh="branch1_ee_link" />
-                                <body name="gripper_base_link" pos="0 -0.01 0" quat="0.707 -0.707 0 0">
-                                <inertial pos="0.00060964 0.00042834 -0.033975" quat="0 0 0 1" mass="0.01" diaginertia="0.0029542 0.0050671 0.0027724" />
-                                <geom type="mesh" pos="0 0 0" quat="0 0 0 1" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_base_link"/>
-                                <!-- <geom type="mesh" pos="0 0 0" quat="0 0 0 1" group="0" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_base_link"/> -->
-                                    <!--added later-->
-                                    <!-- <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="gripper" /> -->
-                                    <joint name="gripper_base_link_joint" pos="0 0 0" axis="0 0 -1" damping="1000" />
-                                <body name="gripper_left_finger" pos="0.06564 0.0003995 -0.04775" quat="0.532933 0.464738 0.464739 0.532935">
-                                <inertial pos="-2.6008e-06 -0.021768 0.016191" quat="0.628186 0.324638 0.628177 0.324633" mass="0.010871" diaginertia="0.000610749 0.000548021 0.00012371" />
-                                <joint name="gripper_left_finger_joint" pos="0 0 0" axis="1 0 0" />
-                                <geom pos="-0.083 -0.145 -0.145" quat="0.500398 -0.499602 -0.5 -0.5" type="mesh" group="1" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_left_finger" />
-                                <!-- <geom pos="-0.083 -0.145 -0.145" quat="0.500398 -0.499602 -0.5 -0.5" type="mesh" group="0" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_left_finger" /> -->
-                                </body>
-                                <body name="gripper_right_finger" pos="-0.06436 0.0003995 -0.04775" quat="0.491121 0.508722 -0.508724 -0.491123">
-                                <inertial pos="-2.6008e-06 -0.021768 0.016191" quat="0.628186 0.324638 0.628177 0.324633" mass="0.010871" diaginertia="0.000610749 0.000548021 0.00012371" />
-                                <joint name="gripper_right_finger_joint" pos="0 0 0" axis="1 0 0" />
-                                <geom pos="0.083 -0.135 0.055" quat="0.42006 -0.568711 0.569164 0.419726" type="mesh" group="1" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_right_finger" />
-                                <!-- <geom pos="0.083 -0.135 0.055" quat="0.42006 -0.568711 0.569164 0.419726" type="mesh" group="0" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_right_finger" /> -->
-                                </body>
+                                <body name="gripper_base_link" pos="0.0 0.0 0.0" quat="0 0 1 1">
+        <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_base_link" />
+        <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_base_link" />
+        <body name="left_short_link" pos="-0.06436 0.00045 -0.04775">
+            <inertial pos="0 -0.00022 -0.0067619" quat="0.707107 0.707107 0 0" mass="0.016917" diaginertia="1.4281e-05 1.1483e-05 3.1599e-06" />
+            <joint name="base_left_short_joint" pos="0 0 0" axis="0 -1 0" />
+            <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="left_short_link" />
+            <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="left_short_link" />
+            <body name="left_gripper_finger" pos="-0.003 0 -0.039">
+                <inertial pos="0.0018228 -0.00018314 -0.0083165" quat="0.457285 0.537087 0.554654 0.441346" mass="0.032218" diaginertia="1.84182e-05 1.82648e-05 6.97848e-07" />
+                <joint name="left_short_gripper_joint" pos="0 0 0" axis="0 1 0" />
+                <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="left_gripper_finger" />
+                <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="left_gripper_finger" />
+            </body>
+        </body>
+        <body name="left_torque_transfer" pos="-0.06436 0.00045 -0.04775">
+            <inertial pos="-0.02908 0.0010114 0" quat="0.499372 0.500627 -0.499372 0.500627" mass="0.047419" diaginertia="0.00025664 0.000245251 1.44445e-05" />
+            <joint name="base_left_torque_joint" pos="0 0 0" axis="0 -1 0" />
+            <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.29804 0.29804 0.29804 1" mesh="left_torque_transfer" />
+            <geom type="mesh" rgba="0.29804 0.29804 0.29804 1" mesh="left_torque_transfer" />
+            <body name="left_long_link" pos="-0.039 0 0">
+                <inertial pos="-0.0045033 -0.00021999 -0.0085751" quat="0.699747 -0.101753 -0.101753 0.699747" mass="0.018801" diaginertia="6.4197e-06 5.88492e-06 7.30177e-07" />
+                <joint name="left_torque_long_joint" pos="0 0 0" axis="0 1 0" />
+                <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="left_long_link" />
+                <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="left_long_link" />
+            </body>
+        </body>
+        <body name="right_short_link" pos="0.06564 0.00045 -0.04775">
+            <inertial pos="0 0.016533 -0.0067619" quat="0.70813 0.706082 0 0" mass="0.016917" diaginertia="1.4281e-05 1.14831e-05 3.15983e-06" />
+            <joint name="base_right_short_joint" pos="0 0 0" axis="0 -1 0" />
+            <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="right_short_link" />
+            <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="right_short_link" />
+            <body name="right_gripper_finger" pos="0.003 0 -0.039">
+                <inertial pos="-0.0018228 0.023251 -0.0083165" quat="0.537087 0.457285 0.441346 0.554654" mass="0.032218" diaginertia="1.84182e-05 1.82648e-05 6.97848e-07" />
+                <joint name="right_short_gripper_joint" pos="0 0 0" axis="0 1 0" />
+                <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="right_gripper_finger" />
+                 <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="right_gripper_finger" />
+            </body>
+        </body>
+        <body name="right_torque_transfer" pos="0.06564 0.00045 -0.04775">
+            <inertial pos="0.02908 -0.0014514 0" quat="0.499372 0.500627 -0.499372 0.500627" mass="0.047419" diaginertia="0.00025664 0.000245251 1.44445e-05" />
+            <joint name="base_right_torque_joint" pos="0 0 0" axis="0 -1 0" />
+            <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.29804 0.29804 0.29804 1" mesh="right_torque_transfer" />
+            <geom type="mesh" rgba="0.29804 0.29804 0.29804 1" mesh="right_torque_transfer" />
+            <body name="right_long_link" pos="0.039 0 0">
+                <inertial pos="0.0045033 0.023287 -0.0085751" quat="0.699747 0.101753 0.101753 0.699747" mass="0.018801" diaginertia="6.4197e-06 5.88492e-06 7.30177e-07" />
+                <joint name="right_torque_long_joint" pos="0 0 0" axis="0 -1 0" />
+                <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="right_long_link" />
+                <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="right_long_link" />
+            </body>
+        </body>
                                 <body name="right_hand" pos="0 0 0" quat="0 0 0 0">
                                   <!--  This sites were added for visualization. They are all standardized between models -->
                                   <!--  Position mimics the gripper attachment point (right_hand)  -->
@@ -255,8 +292,12 @@
         <position gear="1.0" joint="branch1_linear_joint" kp="20" />
         <position gear="1.0" joint="branch2_linear_joint" kp="20"/>
         <position gear="1.0" joint="branch3_linear_joint" kp="20"/>
-        <motor gear="2.0" joint="gripper_left_finger_joint" name="gripper_left_finger_joint"/>
-        <motor gear="2.0" joint="gripper_right_finger_joint" name="gripper_right_finger_joint"/>
+        <position ctrllimited="true" ctrlrange="-0.74 0.74" joint="base_left_short_joint" kp="15" name="left_finger_joint" forcelimited="true" forcerange="-2 2"/>
+        <position ctrllimited="true" ctrlrange="-0.74 0.74" joint="base_right_short_joint" kp="15" name="right_finger_joint" forcelimited="true" forcerange="-2 2"/>
+        <position ctrllimited="true" ctrlrange="-0.0001 0.0001" joint="base_left_torque_joint" kp="2" name="left_torque_joint" forcelimited="true" forcerange="-2 2"/>
+        <position ctrllimited="true" ctrlrange="-0.0001 0.0001" joint="base_right_torque_joint" kp="2" name="right_torque_joint" forcelimited="true" forcerange="-2 2"/>
+        <!-- <motor gear="2.0" joint="gripper_left_finger_joint" name="gripper_left_finger_joint"/>
+        <motor gear="2.0" joint="gripper_right_finger_joint" name="gripper_right_finger_joint"/> -->
     </actuator>
 
     <equality>
@@ -285,6 +326,9 @@
 
 		<weld body1="ee_plate_2_link" body2="branch2_ee_link" active="true" solref='0.005 1' relpose="0 0 0 0 0 0 0"/>
 		<weld body1="ee_plate_3_link" body2="branch3_ee_link" active="true" solref='0.005 1' relpose="0 0 0 0 0 0 0"/>
+
+        <connect body1="left_long_link" body2="left_gripper_finger" active="true" solref='0.005 1' anchor="-0.005 0 -0.039"/>
+        <connect body1="right_long_link" body2="right_gripper_finger" active="true" solref='0.005 1' anchor="0.005 0 -0.039"/>
 
 
 <!--         <distance geom1="ee_plate_2_geom" geom2="branch2_ee_geom" distance="0.015" active="true"/>
@@ -343,18 +387,62 @@
         <exclude body1="base_link" body2="branch2_clevis_link"/><!--original-->
         <exclude body1="base_link" body2="branch1_clevis_link"/><!--original-->
         <exclude body1="base_link" body2="branch3_clevis_link"/><!--original-->
-        <!--  <exclude body1="base_link" body2="gripper_base_link"/> --> <!--original-->
+        
         
         <exclude body1="branch1_link" body2="branch1_linear_link"/> <!--original-->
-         <exclude body1="branch1_link" body2="gripper_base_link"/> <!--original-->
+         
         
         <exclude body1="branch2_link" body2="branch2_linear_link"/> <!--original-->
-         <exclude body1="branch2_link" body2="gripper_base_link"/> <!--original-->
+         
         
         <exclude body1="branch3_link" body2="branch3_linear_link"/> <!--original-->
-         <exclude body1="branch3_link" body2="gripper_base_link"/> <!--original-->
+         
         <pair name="branch1" geom1="branch1_linear_geom" geom2="branch2_linear_geom" />
         <pair name="branch2" geom1="branch2_linear_geom" geom2="branch3_linear_geom" />
+
+        <exclude body1="gripper_base_link" body2="left_short_link"/>
+        <exclude body1="gripper_base_link" body2="right_short_link"/>
+        <exclude body1="gripper_base_link" body2="left_torque_transfer"/>
+        <exclude body1="gripper_base_link" body2="right_torque_transfer"/>
+        <exclude body1="gripper_base_link" body2="left_long_link"/>
+        <exclude body1="gripper_base_link" body2="right_long_link"/>
+        <exclude body1="gripper_base_link" body2="left_gripper_finger"/>
+        <exclude body1="gripper_base_link" body2="right_gripper_finger"/>
+
+        <exclude body1="left_long_link" body2="left_short_link"/>
+        <exclude body1="left_long_link" body2="right_short_link"/>
+        <exclude body1="left_long_link" body2="left_torque_transfer"/>
+        <exclude body1="left_long_link" body2="right_torque_transfer"/>
+        <exclude body1="left_long_link" body2="right_long_link"/>
+        <exclude body1="left_long_link" body2="left_gripper_finger"/>
+        <exclude body1="left_long_link" body2="right_gripper_finger"/>
+
+        <exclude body1="left_short_link" body2="right_short_link"/>
+        <exclude body1="left_short_link" body2="left_torque_transfer"/>
+        <exclude body1="left_short_link" body2="right_torque_transfer"/>
+        <exclude body1="left_short_link" body2="right_long_link"/>
+        <exclude body1="left_short_link" body2="left_gripper_finger"/>
+        <exclude body1="left_short_link" body2="right_gripper_finger"/>
+
+        <exclude body1="left_torque_transfer" body2="right_short_link"/>
+        <exclude body1="left_torque_transfer" body2="right_torque_transfer"/>
+        <exclude body1="left_torque_transfer" body2="right_long_link"/>
+        <exclude body1="left_torque_transfer" body2="left_gripper_finger"/>
+        <exclude body1="left_torque_transfer" body2="right_gripper_finger"/>
+
+        <exclude body1="left_gripper_finger" body2="right_short_link"/>
+        <exclude body1="left_gripper_finger" body2="right_long_link"/>
+        <exclude body1="left_gripper_finger" body2="right_torque_transfer"/>
+        <exclude body1="left_gripper_finger" body2="right_gripper_finger"/>
+
+        <exclude body1="right_long_link" body2="right_short_link"/>
+        <exclude body1="right_long_link" body2="right_torque_transfer"/>
+        <exclude body1="right_long_link" body2="right_gripper_finger"/>
+
+        <exclude body1="right_short_link" body2="right_torque_transfer"/>
+        <exclude body1="right_short_link" body2="right_gripper_finger"/>
+
+        <exclude body1="right_torque_transfer" body2="right_gripper_finger"/>
 
     </contact>
 
