@@ -51,6 +51,7 @@ from robosuite.models import MujocoWorldBase
 
 
 
+
 class D3_pick_place_env(object):
 
 	def __init__ (self,args=None,is_render=False):
@@ -107,7 +108,7 @@ class D3_pick_place_env(object):
 		self.mujoco_robot.set_base_xpos([0, 0.0, 0])
 		
 		self.world.merge(self.mujoco_robot)
-		
+
 		self.mujoco_arena =EmptyArena()
 		# mujoco_arena.set_origin([0.8, 0, 0])
 		self.world.merge(self.mujoco_arena)
@@ -177,6 +178,7 @@ class D3_pick_place_env(object):
 			   self.PD_controller_lin(self.joint_sim[2],obs_last[5],obs_last2last[5],PD_scale[5])]
 
 		self.joint_real_last = joint_real
+		# self.sim.data.set_joint_qvel("robot0_iPhone12_joint", -0.5)
 
 		return PD_signal
 
