@@ -1,6 +1,6 @@
 <mujoco model="wombat_arm">
     <compiler angle="radian" meshdir="./" inertiafromgeom='auto' />
-    <option collision="predefined" timestep='0.0005' iterations="500" solver="Newton" integrator="RK4">
+    <option collision="predefined" timestep='0.0005' gravity="0 0 -9.81" iterations="500" solver="Newton" integrator="RK4">
         <flag energy="enable"/>
     </option>
 	<!--old options-->
@@ -43,12 +43,13 @@
         <mesh name="right_gripper_finger" file="meshes/v2_realistic/right_gripper_finger.STL" />
         <mesh name="right_torque_transfer" file="meshes/v2_realistic/right_torque_transfer.STL" />
         <mesh name="right_long_link" file="meshes/v2_realistic/right_long_link.STL" />
+        <mesh name="iPhone12_Pro_Max" file="meshes/v2_realistic/iPhone12_pro_max.STL" />
     </asset>
         <worldbody>
-       <light directional='false' diffuse='1 1 1' specular='0.3 0.3 0.3' pos='0 0 10.0' castshadow="false" dir='0.0 -0.0 -1'/>
+            <light directional='false' diffuse='1 1 1' specular='0.3 0.3 0.3' pos='0 0 10.0' castshadow="false" dir='0.0 -0.0 -1'/>
         <geom name='floor' pos='0 0 -1.6' size='20 20 .125' type='plane' material="MatPlane" condim='3'/>
         <!-- <geom name='table' pos='0 -0.05 -0.8' size='0.59 0.6 .125' type='plane' material="wood" condim='3'/> -->
-
+        
         <body name="base_link" pos="0.0 0.0 0.0" quat="1 0 0 0">
             <inertial pos="0 5.0391e-05 -1.2461e-09" quat="0.653281 0.270598 0.270598 0.653281" mass="0.1" diaginertia="0.1 0.1 0.1" />
             <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.49804 0.49804 0.49804 1" mesh="base_link" />
@@ -58,6 +59,8 @@
             <camera name="realsense2" mode="fixed" pos="-0.6 0 -0.3" quat="0.9238 0 -0.3826 0" />
             <camera name="realsense_top" mode="fixed" pos="0.0 0 -0.3" quat="1 0 0 0" />
             <camera name="realsense_front" mode="fixed" pos="1.2 -0.8 -0.5" quat="1.57 1.57 0.785 0.785" />
+            
+                
             <body name="branch1_link" pos="0 0.19685 0.0015" quat="0.707105 0.707108 0 0">
                 <inertial pos="0 5.0391e-05 -1.2461e-09" quat="0.653281 0.270598 0.270598 0.653281" mass="1.69" fullinertia="0.069423 0.071863 0.003860 0.0 0.000001 -0.004373" />
                 <joint name="branch1_joint" pos="0 0 0" axis="0 -1 0" damping="15"/>
@@ -92,58 +95,59 @@
                                 <inertial pos="9.6253e-09 -0.00024705 2.9244e-08" quat="0.706964 0.0142035 0.0142035 0.706964" mass="0.1066" fullinertia="4.818e-05 6.913e-05 6.913e-05 0.0 0.0 2.095e-05" />
                                 <joint name="branch1_ee_joint" pos="0 0 0" axis="0 0 -1" damping="0.1" />
                                 <!--joint name="branch1_ee_joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.2 0.2" damping="10" /-->
-                                <geom name="branch1_ee_geom" quat="0.8775826 0 0.4794255 0" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.29804 0.29804 0.29804 1" mesh="branch1_ee_link" />
+                                <geom name="branch1_ee_geom" quat="0.8775826 0 0.4794255 0" type="mesh" contype="1" conaffinity="0" group="1" rgba="0.29804 0.29804 0.29804 1" mesh="branch1_ee_link" />
                                 <body name="gripper_base_link" pos="0.0 0.0 0.0" quat="0 0 1 1">
-        <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_base_link" />
+        <geom type="mesh" group="1" contype="1" conaffinity="1" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_base_link" />
         <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_base_link" />
         <body name="left_short_link" pos="-0.06436 0.00045 -0.04775">
             <inertial pos="0 -0.00022 -0.0067619" quat="0.707107 0.707107 0 0" mass="0.016917" diaginertia="1.4281e-05 1.1483e-05 3.1599e-06" />
             <joint name="base_left_short_joint" pos="0 0 0" axis="0 -1 0" />
-            <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="left_short_link" />
+            <geom type="mesh" group="1" contype="1" conaffinity="1" rgba="0.79216 0.81961 0.93333 1" mesh="left_short_link" />
             <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="left_short_link" />
             <body name="left_gripper_finger" pos="-0.003 0 -0.039">
                 <inertial pos="0.0018228 -0.00018314 -0.0083165" quat="0.457285 0.537087 0.554654 0.441346" mass="0.032218" diaginertia="1.84182e-05 1.82648e-05 6.97848e-07" />
                 <joint name="left_short_gripper_joint" pos="0 0 0" axis="0 1 0" />
-                <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="left_gripper_finger" />
+                <geom type="mesh" group="1" contype="1" conaffinity="1" rgba="0.79216 0.81961 0.93333 1" mesh="left_gripper_finger" />
                 <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="left_gripper_finger" />
             </body>
         </body>
         <body name="left_torque_transfer" pos="-0.06436 0.00045 -0.04775">
             <inertial pos="-0.02908 0.0010114 0" quat="0.499372 0.500627 -0.499372 0.500627" mass="0.047419" diaginertia="0.00025664 0.000245251 1.44445e-05" />
             <joint name="base_left_torque_joint" pos="0 0 0" axis="0 -1 0" />
-            <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.29804 0.29804 0.29804 1" mesh="left_torque_transfer" />
+            <geom type="mesh" group="1" contype="1" conaffinity="0" rgba="0.29804 0.29804 0.29804 1" mesh="left_torque_transfer" />
             <geom type="mesh" rgba="0.29804 0.29804 0.29804 1" mesh="left_torque_transfer" />
             <body name="left_long_link" pos="-0.039 0 0">
                 <inertial pos="-0.0045033 -0.00021999 -0.0085751" quat="0.699747 -0.101753 -0.101753 0.699747" mass="0.018801" diaginertia="6.4197e-06 5.88492e-06 7.30177e-07" />
                 <joint name="left_torque_long_joint" pos="0 0 0" axis="0 1 0" />
-                <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="left_long_link" />
+                <geom type="mesh" group="1" contype="1" conaffinity="1" rgba="0.79216 0.81961 0.93333 1" mesh="left_long_link" />
                 <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="left_long_link" />
             </body>
         </body>
         <body name="right_short_link" pos="0.06564 0.00045 -0.04775">
             <inertial pos="0 0.016533 -0.0067619" quat="0.70813 0.706082 0 0" mass="0.016917" diaginertia="1.4281e-05 1.14831e-05 3.15983e-06" />
             <joint name="base_right_short_joint" pos="0 0 0" axis="0 -1 0" />
-            <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="right_short_link" />
+            <geom type="mesh" group="1" contype="1" conaffinity="1" rgba="0.79216 0.81961 0.93333 1" mesh="right_short_link" />
             <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="right_short_link" />
             <body name="right_gripper_finger" pos="0.003 0 -0.039">
                 <inertial pos="-0.0018228 0.023251 -0.0083165" quat="0.537087 0.457285 0.441346 0.554654" mass="0.032218" diaginertia="1.84182e-05 1.82648e-05 6.97848e-07" />
                 <joint name="right_short_gripper_joint" pos="0 0 0" axis="0 1 0" />
-                <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="right_gripper_finger" />
+                <geom type="mesh" group="1" contype="1" conaffinity="1" rgba="0.79216 0.81961 0.93333 1" mesh="right_gripper_finger" />
                  <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="right_gripper_finger" />
             </body>
         </body>
         <body name="right_torque_transfer" pos="0.06564 0.00045 -0.04775">
             <inertial pos="0.02908 -0.0014514 0" quat="0.499372 0.500627 -0.499372 0.500627" mass="0.047419" diaginertia="0.00025664 0.000245251 1.44445e-05" />
             <joint name="base_right_torque_joint" pos="0 0 0" axis="0 -1 0" />
-            <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.29804 0.29804 0.29804 1" mesh="right_torque_transfer" />
+            <geom type="mesh" group="1" contype="1" conaffinity="1" rgba="0.29804 0.29804 0.29804 1" mesh="right_torque_transfer" />
             <geom type="mesh" rgba="0.29804 0.29804 0.29804 1" mesh="right_torque_transfer" />
             <body name="right_long_link" pos="0.039 0 0">
                 <inertial pos="0.0045033 0.023287 -0.0085751" quat="0.699747 0.101753 0.101753 0.699747" mass="0.018801" diaginertia="6.4197e-06 5.88492e-06 7.30177e-07" />
                 <joint name="right_torque_long_joint" pos="0 0 0" axis="0 -1 0" />
-                <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="right_long_link" />
+                <geom type="mesh" group="1" contype="1" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="right_long_link" />
                 <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="right_long_link" />
             </body>
         </body>
+
                                 <body name="right_hand" pos="0 0 0" quat="0 0 0 0">
                                   <!--  This sites were added for visualization. They are all standardized between models -->
                                   <!--  Position mimics the gripper attachment point (right_hand)  -->
@@ -267,10 +271,25 @@
                     <geom name="branch3_revolute_geom" type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="branch3_linear_link" />
                     <geom type="mesh" rgba="0.752941 0.752941 0.752941 1" mesh="branch3_linear_link" />
                     </body> -->
+
             </body>
+
         </body>
+        <!-- <body name="conveyor" pos="0 0 -1.23" quat="1 0 0 0">
+                <joint name="conveyor_joint" type="slide" pos="0 0 0" axis="0 1 0" damping="15"/>
+                <inertial pos="0 5.0391e-05 -1.2461e-09" quat="0.653281 0.270598 0.270598 0.653281" mass="0.1" diaginertia="0.1 0.1 0.1" />
+                <geom name="conveyor" type="box" contype="1" conaffinity="1" group="1" rgba="0.75294 0.75294 0.75294 1" size="0.35 9.7 0.37" friction="1 1 1"/> 
+            </body> -->
+            <body name="iPhone12_Pro_Max" pos="0 0 -0.85" quat="1 0 0 0">
+                        <joint name="iPhone12_joint" pos="0 0 0" type="slide"/> 
+                        <inertial pos="0 0 0" quat="1 0 0 0" mass="0.228" diaginertia="1.23167e-06 1.22412e-06 1.04211e-06" />
+                        <geom pos="0 0 0" mesh="iPhone12_Pro_Max" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.1 0.1 0.1" contype="1" conaffinity="1" group="1" />
+                        <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="iPhone12_Pro_Max" />
+            
+
+        
         </body>
-    
+            </body>
 
         <!-- <body name="table" pos='0 -0.05 -0.9' quat="1 0 0 0">
                 <inertial pos="0 5.0391e-05 -1.2461e-09" quat="0.653281 0.270598 0.270598 0.653281" mass="5" diaginertia="0.1 0.1 0.1" />
@@ -281,6 +300,7 @@
                 <inertial pos="0 5.0391e-05 -1.2461e-09" quat="0.653281 0.270598 0.270598 0.653281" mass="0.1" diaginertia="0.1 0.1 0.1" />
                 <geom name="phone" type="box" contype="1" conaffinity="1" group="1" rgba="0.75294 0.75294 0.75294 1" size="0.04 0.08 0.01" />
         </body> -->
+        
 
     </worldbody>
     <actuator>
@@ -298,6 +318,8 @@
         <position ctrllimited="true" ctrlrange="-0.0001 0.0001" joint="base_right_torque_joint" kp="2" name="right_torque_joint" forcelimited="true" forcerange="-2 2"/>
         <!-- <motor gear="2.0" joint="gripper_left_finger_joint" name="gripper_left_finger_joint"/>
         <motor gear="2.0" joint="gripper_right_finger_joint" name="gripper_right_finger_joint"/> -->
+        <!-- <position gear="1.0" joint="conveyor_joint" kp="20"/> -->
+        <!-- <position gear="1.0" joint="iPhone12_joint" kp="20"/> -->
     </actuator>
 
     <equality>
