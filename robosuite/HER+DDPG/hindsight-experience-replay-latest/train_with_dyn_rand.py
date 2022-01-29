@@ -125,11 +125,15 @@ class D3_pick_place_env(object):
 		self.box.set('pos', '0.6 -2 0')
 		self.world.worldbody.append(self.box)
 
+		self.iPhone_collision = MujocoXMLObject("/home/yashraghav/robosuite/robosuite/models/assets/objects/iphone12promax.xml",name="iPhone12ProMaxObject")
+		# self.iPhone_visual = MujocoXMLObject("/home/yashraghav/robosuite/robosuite/models/assets/objects/can-visual.xml",name="CanVisualObject")
+		
+		self.world.merge(self.iPhone_collision)
+		# self.world.merge(self.iPhone_visual)
+
 		self.model = self.world.get_model(mode="mujoco_py")
 
-		# self.iPhone = MujocoXMLObject("/home/yashraghav/robosuite/robosuite/models/assets/objects/iPhone12ProMax.xml",name="iPhone12ProMaxObject")
-
-		# self.world.merge(self.iPhone)
+		
 
 		self.sim = MjSim(self.model)
 		
