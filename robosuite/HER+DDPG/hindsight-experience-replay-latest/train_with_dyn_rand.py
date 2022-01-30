@@ -131,8 +131,8 @@ class D3_pick_place_env(object):
 		self.iPhone_collision = iPhone12ProMaxObject(name="iPhone12ProMax")
 		self.iPhone_visual = iPhone12ProMaxVisualObject(name="iPhone12ProMaxVisual")
 
-		# self.iPhone_collision = CanObject(name="Can")#.get_obj()
-		# self.iPhone_visual = CanVisualObject(name="CanVisual")#.get_obj()
+		# self.iPhone_collision = CanObject(name="Can")
+		# self.iPhone_visual = CanVisualObject(name="CanVisual")
 
 		# self.world.worldbody.append(self.iPhone_collision)
 		# self.world.worldbody.append(self.iPhone_visual)

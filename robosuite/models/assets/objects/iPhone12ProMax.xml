@@ -9,7 +9,9 @@
       <body name="object">
         <!-- <inertial pos="0 -0.7 0" quat="0.653281 0.270598 0.270598 0.653281" mass="0.1" diaginertia="0.1 0.1 0.1" /> -->
         <!-- <geom pos="0.5 1.0 0.9" mesh="iPhone12ProMax_mesh" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" material="iPhone_back" group="0" condim="4"/> --> 
-        <geom pos="0.5 0.5 0.70" mesh="iPhone12ProMax_mesh" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" material="iPhone_back" group="0" condim="4" contype="1" conaffinity="1"/>
+        <geom pos="0.5 0.5 0.70" mesh="iPhone12ProMax_mesh" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1"  material="iPhone_back" group="0" condim="4" contype="1" conaffinity="1" mass="0.1"/>
+        <!-- <geom pos="0.5 0.5 0.70" mesh="iPhone12ProMax_mesh" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1"  friction="0.95 0.3 0.1" material="iPhone_back" group="0" condim="4" contype="1" conaffinity="1" mass="0.1"/> -->
+
         <!-- <geom pos="0 0 0" type="box" size="0.05 0.02 0.005" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.95 0.3 0.1" material="iPhone_back" group="0" condim="3"/> -->
       </body>
       <site rgba="0 0 0 0" size="0.0005" pos="0 0 -0.06" name="bottom_site"/>
