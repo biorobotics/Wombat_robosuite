@@ -46,6 +46,19 @@ class iPhone12ProMaxObject(MujocoXMLObject):
                          obj_type="all", duplicate_collision_geoms=True)
 
 
+class iPhone12ProMaxVisualObject(MujocoXMLObject):
+    """
+    Visual fiducial of iPhone (used in PickPlace)
+
+    Fiducial objects are not involved in collision physics.
+    They provide a point of reference to indicate a position.
+    """
+
+    def __init__(self, name):
+        super().__init__(xml_path_completion("objects/iPhone12ProMax-visual.xml"),
+                         name=name, joints=None, obj_type="visual", duplicate_collision_geoms=True)
+
+
 class LemonObject(MujocoXMLObject):
     """
     Lemon object
@@ -205,17 +218,7 @@ class iPhoneVisualObject(MujocoXMLObject):
         super().__init__(xml_path_completion("objects/iPhone-visual.xml"),
                          name=name, joints=None, obj_type="visual", duplicate_collision_geoms=True)
 
-class iPhone12ProMaxVisualObject(MujocoXMLObject):
-    """
-    Visual fiducial of iPhone (used in PickPlace)
 
-    Fiducial objects are not involved in collision physics.
-    They provide a point of reference to indicate a position.
-    """
-
-    def __init__(self, name):
-        super().__init__(xml_path_completion("objects/iPhone12ProMax-visual.xml"),
-                         name=name, joints=None, obj_type="visual", duplicate_collision_geoms=True)
 
 
 

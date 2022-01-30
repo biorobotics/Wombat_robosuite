@@ -30,7 +30,7 @@
         <texture name="texplane" type="2d" builtin="checker" rgb1=".2 .3 .4" rgb2=".1 0.15 0.2" 
             width="512" height="512"/>  
 
-        <texture name="wooden" type="2d" builtin="none" file="/home/yashraghav/mujoco-py/examples/wombat_simulation-thomas/wombat_simulation-main/wombat_arm/texture/wood_texture.png" rgb1=".2 .3 .4" rgb2=".1 0.15 0.2" /> 
+        <texture name="wooden" type="2d" builtin="none" file="wood_texture.png" rgb1=".2 .3 .4" rgb2=".1 0.15 0.2" /> 
 
         <material name='MatPlane' reflectance='0.5' texture="texplane" texrepeat="1 1" texuniform="true"/>
         <material name='wood' reflectance='0.1' texture="wooden" texrepeat="1 1" texuniform="true"/>
@@ -280,7 +280,7 @@
                 <inertial pos="0 5.0391e-05 -1.2461e-09" quat="0.653281 0.270598 0.270598 0.653281" mass="0.1" diaginertia="0.1 0.1 0.1" />
                 <geom name="conveyor" type="box" contype="1" conaffinity="1" group="1" rgba="0.75294 0.75294 0.75294 1" size="0.35 9.7 0.37" friction="1 1 1"/> 
             </body> -->
-            <body name="iPhone12_Pro_Max" pos="0 0 -0.85" quat="1 0 0 0">
+            <!-- <body name="iPhone12_Pro_Max" pos="0 0 -0.85" quat="1 0 0 0">
                         <joint name="iPhone12_joint" pos="0 0 0" type="slide"/> 
                         <inertial pos="0 0 0" quat="1 0 0 0" mass="0.228" diaginertia="1.23167e-06 1.22412e-06 1.04211e-06" />
                         <geom pos="0 0 0" mesh="iPhone12_Pro_Max" type="mesh" solimp="0.998 0.998 0.001" solref="0.001 1" density="100" friction="0.1 0.1 0.1" contype="1" conaffinity="1" group="1" />
@@ -288,7 +288,7 @@
             
 
         
-        </body>
+        </body> -->
             </body>
 
         <!-- <body name="table" pos='0 -0.05 -0.9' quat="1 0 0 0">

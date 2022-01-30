@@ -34,7 +34,7 @@ from D3_controller.interpolateTraj import interpolateTraj
 import D3_controller.invK as invK
 
 import robosuite
-from robosuite.models.objects import BoxObject
+from robosuite.models.objects import BoxObject, iPhone12ProMaxObject, iPhone12ProMaxVisualObject, CanObject, CanVisualObject
 from robosuite.models.robots import Wombat_arm
 from robosuite.models.arenas import EmptyArena
 from robosuite.models.grippers import gripper_factory
@@ -125,12 +125,26 @@ class D3_pick_place_env(object):
 		self.box.set('pos', '0.6 -2 0')
 		self.world.worldbody.append(self.box)
 
-		self.iPhone_collision = MujocoXMLObject("/home/yashraghav/robosuite/robosuite/models/assets/objects/iphone12promax.xml",name="iPhone12ProMaxObject")
+		# self.iPhone_collision = MujocoXMLObject("/home/biorobotics-ms/catkin_ws/src/Wombat_robosuite/robosuite/models/assets/objects/iphone12promax.xml",name="iPhone12ProMaxObject")
 		# self.iPhone_visual = MujocoXMLObject("/home/yashraghav/robosuite/robosuite/models/assets/objects/can-visual.xml",name="CanVisualObject")
-		
-		self.world.merge(self.iPhone_collision)
+
+		self.iPhone_collision = iPhone12ProMaxObject(name="iPhone12ProMax")
+		self.iPhone_visual = iPhone12ProMaxVisualObject(name="iPhone12ProMaxVisual")
+
+		# self.iPhone_collision = CanObject(name="Can")#.get_obj()
+		# self.iPhone_visual = CanVisualObject(name="CanVisual")#.get_obj()
+
+		# self.world.worldbody.append(self.iPhone_collision)
+		# self.world.worldbody.append(self.iPhone_visual)
+		# self.world.merge(self.iPhone_collision)
 		# self.world.merge(self.iPhone_visual)
 
+		self.objects = [self.iPhone_collision,self.iPhone_visual]
+
+		for mujoco_obj in self.objects:
+			self.world.merge_assets(mujoco_obj)
+			self.world.worldbody.append(mujoco_obj.get_obj())
+		
 		self.model = self.world.get_model(mode="mujoco_py")
 
 		
@@ -187,7 +201,7 @@ class D3_pick_place_env(object):
 		return PD_signal
 
 
-	def reset(self,phone_x=0.578,phone_speed=-0.2,phone_orient=0):
+	def reset(self,phone_x=0.78,phone_speed=-0.2,phone_orient=0):
 		# ipdb.set_trace()
 		obs = self.set_env(phone_x,phone_speed,phone_orient)
 		return obs
