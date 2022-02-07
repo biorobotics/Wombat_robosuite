@@ -21,7 +21,7 @@ import matplotlib.pyplot as plt
 """
 ddpg with HER (MPI-version)
 """
-class ddpg_agent:
+class grasping_agent:
 	def __init__(self, args, env, env_params):
 		self.args = args
 		self.env = env
@@ -102,6 +102,26 @@ class ddpg_agent:
 			for n_cycles in range(self.args.n_cycles):
 				mb_obs, mb_ag, mb_g, mb_actions = [], [], [], []
 				for r_mpi in range(self.args.num_rollouts_per_mpi):
+                    
+					#TODO: Set up the flags for baseline loop
+					#Pre Reach 
+					# This stage will move the robot so that the orientation and pos_x 
+					# of the robot matches the phone
+
+
+					#Pre Grasp 
+					#If the phone has entered -> init the pick dmp motion
+					# till DMP convergence 
+
+					#RL for Grasping
+
+
+					#Pick up on success 
+
+
+
+
+
 					# reset the rollouts
 					ep_obs, ep_ag, ep_g, ep_actions = [], [], [], []
 					phone_x, phone_speed, phone_orient = self.dyn_rand()

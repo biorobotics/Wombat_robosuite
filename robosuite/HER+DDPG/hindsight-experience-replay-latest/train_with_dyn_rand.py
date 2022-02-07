@@ -65,7 +65,6 @@ class D3_pick_place_env(object):
 		self.observation_last = None
 		self.observation_last2last = None
 		self.joint_sim_last = None
-
 		self.done = False
 
 		self.action_high = np.array([0.00005]*self.action_dim)
@@ -304,11 +303,14 @@ class D3_pick_place_env(object):
 		observation[9] = self.sim.data.get_joint_qvel("robot0_branch1_linear_joint")
 		observation[10] = self.sim.data.get_joint_qvel("robot0_branch2_linear_joint")
 		observation[11] = self.sim.data.get_joint_qvel("robot0_branch3_linear_joint")
+		
 
+		# iphone_pos_test = self.sim.data.get_joint_qpos('iPhone12ProMax_joint0')
+		# print(f"Position{iphone_pos_test}")
 
 		observation[12:19] = self.sim.data.get_joint_qpos('iphonebox_joint0')
 		observation[19:26] = self.sim.data.sensordata[0:7]	#gripper base link pose
-		observation[19] = observation[19] + 0.02
+		observation[19] = observation[19] + 0.02   #!why is the 0.02 here
 		# observation[26] = self.sim.data.get_joint_qpos('robot0_gripper_left_finger_joint')
 		# observation[27] = self.sim.data.get_joint_qpos('robot0_gripper_right_finger_joint')
 		observation[26] = self.sim.data.get_joint_qpos('robot0_base_left_short_joint')

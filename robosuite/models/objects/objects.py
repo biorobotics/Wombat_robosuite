@@ -305,7 +305,6 @@ class MujocoXMLObject(MujocoObject, MujocoXML):
         # Set obj type and duplicate args
         assert obj_type in GEOM_GROUPS, "object type must be one in {}, got: {} instead.".format(GEOM_GROUPS, obj_type)
         self.obj_type = obj_type
-        print(f"init in mujoco_XML_object")
         self.duplicate_collision_geoms = duplicate_collision_geoms
 
         # Set name
@@ -332,7 +331,6 @@ class MujocoXMLObject(MujocoObject, MujocoXML):
 
     def _get_object_subtree(self):
         # Parse object]
-        print(f"Done the get object subtree")
         obj = copy.deepcopy(self.worldbody.find("./body/body[@name='object']"))
         # Rename this top level object body (will have self.naming_prefix added later)
         obj.attrib["name"] = "main"
