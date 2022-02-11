@@ -18,6 +18,13 @@ import transforms3d as t3d
 import matplotlib.pyplot as plt
 
 
+from wombat_dmp.srv import *
+import rospy
+from geometry_msgs.msg import Pose, Vector3 
+from std_msgs.msg import String
+from scipy.spatial.transform import Rotation as R
+
+
 """
 ddpg with HER (MPI-version)
 """
@@ -89,6 +96,19 @@ class grasping_agent:
 		return transition_new
 		# pass
 
+	def dmp_client(self, start, goal, mode, phone_velocity):
+		rospy.wait_for_service('dmp_calc_path')
+		try:
+			dmp_calc_path = rospy.ServiceProxy('dmp_calc_path', dmpPath)
+			resp1 = dmp_calc_path(start,goal, mode, phone_velocity)
+			return resp1.traj
+		except rospy.ServiceException as e:
+			print("Service call failed: %s"%e)
+	def quat_to_euler(self, quat):
+		r_quat = R.from_quat([quat.x,quat.y,quat.z,quat.w])
+		e_angles = r_quat.as_euler('zyx', degrees=False)
+		return e_angles
+
 	def learn(self):
 		"""
 		train the network
@@ -155,6 +175,7 @@ class grasping_agent:
 					R_ie = np.array([[-1,0,0],[0,1,0],[0,0,-1]])
 					if n_cycles == self.args.n_cycles - 1 and MPI.COMM_WORLD.Get_rank() == 0 and r_mpi == 1 and self.record_video:
 						video_writer = imageio.get_writer('saved_models/Gripping_policy_dyn_rand/epoch_{}.mp4'.format(epoch+1), fps=60)
+					traj_index = 0
 					for t in range(self.env_params['max_timesteps']):
 						# pp = 0
 						# feed the actions into the environment
@@ -163,6 +184,96 @@ class grasping_agent:
 						# 	print(t)
 						# print("action_zero", action_zero)
 						obs,reward,done,_ = self.env.step(action_zero)
+
+						#TODO: Set up the flags for baseline loop
+						#Pre Reach 
+						# This stage will move the robot so that the orientation and pos_x 
+						# of the robot matches the phone
+
+
+						#Pre Grasp 
+						#If the phone has entered -> init the pick dmp motion
+						# till DMP convergence 
+						
+
+						# flags
+						pre_grasp_pos = NotImplemented
+						proximal_tol = NotImplemented
+
+
+						phone_pos = obs_current[12:19]
+
+						if phone_pos[1]<pre_grasp_pos:
+							pass
+
+
+						if phone_pos[1]>pre_grasp_pos:
+							plan_flag = NotImplemented
+
+
+							# Init DMP traj 
+							if(plan_flag):
+								gripper_pos = obs_current[19:26]
+								
+								start_pose = Pose()
+								start_pose.position.x = gripper_pos[0]
+								start_pose.position.y = gripper_pos[1]
+								start_pose.position.z = gripper_pos[2]
+								start_pose.orientation.x = 0
+								start_pose.orientation.y = 0
+								start_pose.orientation.z = 0
+								start_pose.orientation.w = 1
+
+								
+								end_pose = Pose()
+								end_pose.position.x = phone_pos[0]
+								end_pose.position.y = phone_pos[1]
+								end_pose.position.z = phone_pos[2]
+								end_pose.orientation.x = 0
+								end_pose.orientation.y = 0
+								end_pose.orientation.z = 0
+								end_pose.orientation.w =1
+								mode = String()
+								mode.data = "pick"
+
+								phone_velo = Vector3()
+								phone_velo.x = 0
+								phone_velo.y = 0.2
+								phone_velo.z = 0
+
+								traj = self.dmp_client(start_pose, end_pose, mode, phone_velo)
+								desired_traj = np.zeros((len(traj), 6))
+								for i in range(len(traj)):
+									desired_traj[i][0] =traj[i].position.x 
+									desired_traj[i][1] =traj[i].position.y 
+									desired_traj[i][2] =traj[i].position.z
+									desired_traj[i][5] = self.quat_to_euler(traj[i].orientation)[0]
+									desired_traj[i][4] = self.quat_to_euler(traj[i].orientation)[1]
+									desired_traj[i][3] = self.quat_to_euler(traj[i].orientation)[2]
+								traj_index = 0
+
+
+							# Execute this traj
+
+							# Calculate current position in the trajectory : i^th index 
+
+							waypoint = desired_traj[traj_index,:]
+
+
+							delta = waypoint[0:3] - gripper_pos[0:3]
+							# Give actionzero that command to follow that
+							
+
+
+
+						#RL for Grasping
+
+
+						#Pick up on success 
+						
+
+						# add a pre grasping stage here where we initialize the 
+						# DMP for a couple of seconds 
 						if t>=0 and t<1700 and pp==0:
 							# print(t)
 							action_network = np.zeros(3)
