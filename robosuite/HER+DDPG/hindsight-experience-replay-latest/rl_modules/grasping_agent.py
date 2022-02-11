@@ -238,7 +238,7 @@ class grasping_agent:
 
 								phone_velo = Vector3()
 								phone_velo.x = 0
-								phone_velo.y = 0.2
+								phone_velo.y = NotImplemented #TODO
 								phone_velo.z = 0
 
 								traj = self.dmp_client(start_pose, end_pose, mode, phone_velo)
@@ -253,16 +253,14 @@ class grasping_agent:
 								traj_index = 0
 
 
-							# Execute this traj
+							# ! -> Execute this traj
 
 							# Calculate current position in the trajectory : i^th index 
+							action_zero[0:3] = desired_traj[traj_index, :]
+							obs,reward,done,_ = self.env.step(action_zero)
+							obs_current = obs['observation'] 
 
-							waypoint = desired_traj[traj_index,:]
 
-
-							delta = waypoint[0:3] - gripper_pos[0:3]
-							# Give actionzero that command to follow that
-							
 
 
 
