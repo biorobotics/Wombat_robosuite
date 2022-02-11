@@ -96,8 +96,7 @@
                                 <joint name="branch1_ee_joint" pos="0 0 0" axis="0 0 -1" damping="0.1" />
                                 <!--joint name="branch1_ee_joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.2 0.2" damping="10" /-->
                                 <geom name="branch1_ee_geom" quat="0.8775826 0 0.4794255 0" type="mesh" contype="1" conaffinity="0" group="1" rgba="0.29804 0.29804 0.29804 1" mesh="branch1_ee_link" />
-                                <body name="gripper_base_link" pos="0.0 0.0 0.0" quat="0 0 0.951 1">
-                                    <inertial pos="0 0 0" quat="0 0 0 1" mass="5.016917" diaginertia="1.4281e-05 1.1483e-05 3.1599e-06" />
+                                <body name="gripper_base_link" pos="0.0 0.0 0.0" quat="0 0 1 1">
         <geom type="mesh" group="1" contype="1" conaffinity="1" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_base_link" />
         <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_base_link" />
         <body name="left_short_link" pos="-0.06436 0.00045 -0.04775">
@@ -108,56 +107,8 @@
             <body name="left_gripper_finger" pos="-0.003 0 -0.039">
                 <inertial pos="0.0018228 -0.00018314 -0.0083165" quat="0.457285 0.537087 0.554654 0.441346" mass="0.032218" diaginertia="1.84182e-05 1.82648e-05 6.97848e-07" />
                 <joint name="left_short_gripper_joint" pos="0 0 0" axis="0 1 0" />
-                <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="left_gripper_finger" />
-                <!-- <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="left_gripper_finger" /> -->
-                <body name="finger_L1" pos="0.03058 0.0938 -0.01361">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00627 0.006 0.00601" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_L1_pad"/>
-                </body>
-                <body name="finger_L1_top" pos="0.03864 0.0938 -0.00812">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_L1_pad_top"/>
-                </body>
-                <body name="finger_L1_bot" pos="0.03864 0.0938 -0.01916">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_L1_pad_bot"/>
-                </body>
-                <body name="finger_L2" pos="0.03058 0.02026 -0.01361">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00627 0.006 0.00601" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_L2_pad"/>
-                </body>
-                <body name="finger_L2_top" pos="0.03864 0.02026 -0.00812">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_L2_pad_top"/>
-                </body>
-                <body name="finger_L2_bot" pos="0.03864 0.02026 -0.01916">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_L2_pad_bot"/>
-                </body>
-                <body name="finger_L3" pos="0.03058 -0.02026 -0.01361">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00627 0.006 0.00601" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_L3_pad"/>
-                </body>
-                <body name="finger_L3_top" pos="0.03864 -0.02026 -0.00812">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_L3_pad_top"/>
-                </body>
-                <body name="finger_L3_bot" pos="0.03864 -0.02026 -0.01916">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_L3_pad_bot"/>
-                </body>
-                <body name="finger_L4" pos="0.03058 -0.0938 -0.01361">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00627 0.006 0.00601" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_L4_pad"/>
-                </body>
-                <body name="finger_L4_top" pos="0.03864 -0.0938 -0.00812">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_L4_pad_top"/>
-                </body>
-                <body name="finger_L4_bot" pos="0.03864 -0.0938 -0.01916">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_L4_pad_bot"/>
-                </body>
+                <geom type="mesh" group="1" contype="1" conaffinity="1" rgba="0.79216 0.81961 0.93333 1" mesh="left_gripper_finger" />
+                <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="left_gripper_finger" />
             </body>
         </body>
         <body name="left_torque_transfer" pos="-0.06436 0.00045 -0.04775">
@@ -180,56 +131,8 @@
             <body name="right_gripper_finger" pos="0.003 0 -0.039">
                 <inertial pos="-0.0018228 0.023251 -0.0083165" quat="0.537087 0.457285 0.441346 0.554654" mass="0.032218" diaginertia="1.84182e-05 1.82648e-05 6.97848e-07" />
                 <joint name="right_short_gripper_joint" pos="0 0 0" axis="0 1 0" />
-                <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="right_gripper_finger" />
-                 <!-- <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="right_gripper_finger" /> -->
-                 <body name="finger_R1" pos="-0.03058 0.0938 -0.01361">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00627 0.006 0.00601" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_R1_pad"/>
-                </body>
-                <body name="finger_R1_top" pos="-0.03864 0.0938 -0.00812">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_R1_pad_top"/>
-                </body>
-                <body name="finger_R1_bot" pos="-0.03864 0.0938 -0.01916">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_R1_pad_bot"/>
-                </body>
-                <body name="finger_R2" pos="-0.03058 0.03199 -0.01361">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00627 0.006 0.00601" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_R2_pad"/>
-                </body>
-                <body name="finger_R2_top" pos="-0.03864 0.03199 -0.00812">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_R2_pad_top"/>
-                </body>
-                <body name="finger_R2_bot" pos="-0.03864 0.03199 -0.01916">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_R2_pad_bot"/>
-                </body>
-                <body name="finger_R3" pos="-0.03058 0 -0.01361">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00627 0.006 0.00601" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_R3_pad"/>
-                </body>
-                <body name="finger_R3_top" pos="-0.03864 0 -0.00812">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_R3_pad_top"/>
-                </body>
-                <body name="finger_R3_bot" pos="-0.03864 0 -0.01916">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_R3_pad_bot"/>
-                </body>
-                <body name="finger_R4" pos="-0.03058 -0.03243 -0.01361">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00627 0.006 0.00601" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_R4_pad"/>
-                </body>
-                <body name="finger_R4_top" pos="-0.03864 -0.03243 -0.00812">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_R4_pad_top"/>
-                </body>
-                <body name="finger_R4_bot" pos="-0.03864 -0.03243 -0.01916">
-                    <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
-                    <geom size="0.00175 0.006 0.00049" pos="0 0 0" quat="0 0 0 1" type="box" group="0" solref="0.01 0.5" friction = "2 0.05 0.0001" conaffinity="1" contype="1" name="finger_R4_pad_bot"/>
-                </body>
+                <geom type="mesh" group="1" contype="1" conaffinity="1" rgba="0.79216 0.81961 0.93333 1" mesh="right_gripper_finger" />
+                 <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="right_gripper_finger" />
             </body>
         </body>
         <body name="right_torque_transfer" pos="0.06564 0.00045 -0.04775">
@@ -409,8 +312,8 @@
         <position gear="1.0" joint="branch1_linear_joint" kp="20" />
         <position gear="1.0" joint="branch2_linear_joint" kp="20"/>
         <position gear="1.0" joint="branch3_linear_joint" kp="20"/>
-        <position ctrllimited="true" ctrlrange="-0.74 0.74" joint="base_left_short_joint" kp="15" name="left_finger_joint" forcelimited="true" forcerange="-5 5"/>
-        <position ctrllimited="true" ctrlrange="-0.74 0.74" joint="base_right_short_joint" kp="15" name="right_finger_joint" forcelimited="true" forcerange="-5 5"/>
+        <position ctrllimited="true" ctrlrange="-0.74 0.74" joint="base_left_short_joint" kp="15" name="left_finger_joint" forcelimited="true" forcerange="-2 2"/>
+        <position ctrllimited="true" ctrlrange="-0.74 0.74" joint="base_right_short_joint" kp="15" name="right_finger_joint" forcelimited="true" forcerange="-2 2"/>
         <position ctrllimited="true" ctrlrange="-0.0001 0.0001" joint="base_left_torque_joint" kp="2" name="left_torque_joint" forcelimited="true" forcerange="-2 2"/>
         <position ctrllimited="true" ctrlrange="-0.0001 0.0001" joint="base_right_torque_joint" kp="2" name="right_torque_joint" forcelimited="true" forcerange="-2 2"/>
         <!-- <motor gear="2.0" joint="gripper_left_finger_joint" name="gripper_left_finger_joint"/>
