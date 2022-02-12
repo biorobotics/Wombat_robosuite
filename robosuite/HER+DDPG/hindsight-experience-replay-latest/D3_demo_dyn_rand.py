@@ -148,7 +148,7 @@ if __name__ == '__main__':
                     # print("action_network", action_network)
 
                 #residual trajectory added here
-                # action_network = np.zeros(3)
+                action_network = np.zeros(3)
                 # print("action_zero just before Stage 4", action_zero)
                 action_zero[0]+= action_network[0] #adding del_x to current_motion
                 action_zero[1]+= (vel_iPhone_rt)*0.002 + action_network[1] #adding del_y to motion
