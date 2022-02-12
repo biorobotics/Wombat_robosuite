@@ -96,7 +96,8 @@
                                 <joint name="branch1_ee_joint" pos="0 0 0" axis="0 0 -1" damping="0.1" />
                                 <!--joint name="branch1_ee_joint" pos="0 0 0" axis="0 0 -1" limited="true" range="-0.2 0.2" damping="10" /-->
                                 <geom name="branch1_ee_geom" quat="0.8775826 0 0.4794255 0" type="mesh" contype="1" conaffinity="0" group="1" rgba="0.29804 0.29804 0.29804 1" mesh="branch1_ee_link" />
-                                <body name="gripper_base_link" pos="0.0 0.0 0.0" quat="0 0 0.951 1">
+                                <!-- <body name="gripper_base_link" pos="0.0 0.0 0.0" quat="0 0 0.951 1"> -->
+                                <body name="gripper_base_link" pos="0.0 0.0 0.0" quat="0 0 0.981 1">
                                     <inertial pos="0 0 0" quat="0 0 0 1" mass="5.016917" diaginertia="1.4281e-05 1.1483e-05 3.1599e-06" />
         <geom type="mesh" group="1" contype="1" conaffinity="1" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_base_link" />
         <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="gripper_base_link" />
