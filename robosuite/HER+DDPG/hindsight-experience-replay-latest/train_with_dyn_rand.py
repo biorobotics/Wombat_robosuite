@@ -330,7 +330,7 @@ class D3_pick_place_env(object):
 
 		observation[12:19] = self.sim.data.get_joint_qpos('iphonebox_joint0')
 		observation[19:26] = self.sim.data.sensordata[0:7]	#gripper base link pose
-		observation[19] = observation[19] + 0.02
+		observation[19] = observation[19] + 0.021
 		
 		observation[26] = self.sim.data.get_joint_qpos('robot0_base_left_short_joint')
 		observation[27] = self.sim.data.get_joint_qpos('robot0_base_right_short_joint')
