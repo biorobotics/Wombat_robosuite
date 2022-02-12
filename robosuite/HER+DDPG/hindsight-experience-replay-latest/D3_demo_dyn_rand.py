@@ -67,8 +67,7 @@ if __name__ == '__main__':
     actor_network = actor(env_params)
     actor_network.load_state_dict(model)
     actor_network.eval()
-    Partial_success = 0
-    Full_success = 0
+    success = 0
     for i in range(args.demo_length):
         phone_x, phone_speed, phone_orient = dyn_rand()
         # reset the environment
@@ -86,10 +85,12 @@ if __name__ == '__main__':
         action_zero = np.array([0,0,0.6,0,0,0,-0.5,0.5])
         obs_current = np.zeros(34)
         obs_last = obs_current.copy()
-        pp = 0
+        pp_snatch = 0
+        pp_grip = 0
         pos_y = 0
         pos_x = 0
-        time_reset = 250
+        time_reset = 50
+        time_stay = 100
         ##to plot
         observation_x = np.zeros(11000)
         t_arr = np.linspace(0,11000,11000)
@@ -99,23 +100,24 @@ if __name__ == '__main__':
             #     print(t)
             # print("action_zero", action_zero)
             obs,reward,done,_ = env.step(action_zero)
-            if t>=0 and t<1700 and pp==0:
+            if t>=0 and t<1700 and pp_snatch==0:
                 action_network = np.zeros(3)
                 action_zero[1] += 0.0002 #motion happening here
                 if action_zero[1]>0.05:
                     action_zero[1]=0.05
-                if np.linalg.norm(obs_current[19]-obs_current[12])>0.001:
+                if np.linalg.norm(obs_current[19]-obs_current[12])>0.002:
                     pos_x_dir = (obs_current[19]-obs_current[12])/np.abs(obs_current[19]-obs_current[12])
                     pos_x += 0.0001*pos_x_dir  #motion happening here
-                    print("x",obs_current[26])
-                    print(obs_current[27])
+                    # print("x",obs_current[26])
+                    # print(obs_current[27])
                 action_zero[0] = pos_x
                 # ipdb.set_trace()  
+                print(action_zero)
                 obs,reward,done,_ = env.step(action_zero)
                 obs_current = obs['observation'] 
                 # print("Stage 1 ",pp)
             ### Calculate variables to pick ###
-            elif t>=1700 and t<1800 and pp==0:
+            elif t>=1700 and t<1800 and pp_snatch==0:
                 action_network = np.zeros(3)
                 obs,reward,done,_ = env.step(action_zero) 
                 obs_current = obs['observation']
@@ -124,16 +126,16 @@ if __name__ == '__main__':
                 vel_iPhone_rt = (obs_current[13] - obs_last[13])/(0.002) #rt ==> real_time
                 # print("Stage 2 ",pp)
             ### calculate target velocity ###
-            elif t == 1800 and pp==0:
+            elif t == 1800 and pp_snatch==0:
                 action_network = np.zeros(3)
                 vel_z = (obs_current[21] - 0.885)/int(steps_to_reach)
                 vel_y = (obs_current[20] - 0.0)/int(steps_to_reach)
                 # print("Stage 3 ",pp)
             ### Start snatch motion ###
-            elif np.linalg.norm(obs_current[20]-obs_current[13])<0.001 or pp == 1:
+            elif np.linalg.norm(obs_current[20]-obs_current[13])<0.001 or pp_snatch == 1:
                 # print("Stage 4 ",pp)
-                if action_zero[2]>=0.76:
-                    action_zero[2]=0.76
+                if action_zero[2]>=0.763:
+                    action_zero[2]=0.763
                 obs,reward,done,_ = env.step(action_zero)
                 obs_current = obs['observation']
                 with torch.no_grad():
@@ -146,7 +148,7 @@ if __name__ == '__main__':
                     # print("action_network", action_network)
 
                 #residual trajectory added here
-                action_network = np.zeros(3)
+                # action_network = np.zeros(3)
                 # print("action_zero just before Stage 4", action_zero)
                 action_zero[0]+= action_network[0] #adding del_x to current_motion
                 action_zero[1]+= (vel_iPhone_rt)*0.002 + action_network[1] #adding del_y to motion
@@ -154,15 +156,18 @@ if __name__ == '__main__':
                 # action_zero[3]+= action_network[3] #adding orient_x to current_motion
                 # action_zero[4]+= action_network[4] #adding orient_y to motion
                 # action_zero[5]+= action_network[5]  #adding orient_z to motion
-                if np.linalg.norm(obs_current[21]-0.885)<0.001 and pp == 1 and obs_current[26]< -0.29:
+                if np.linalg.norm(obs_current[21]-0.837)<0.001 and pp_snatch == 1 and pp_grip == 0:
                     # print("stay!!")
                     action_zero[2] = pos_z
                     # action_zero[6] = 0.4
                     # action_zero[7] = 0.4
                     action_zero[6] = 0.5
                     action_zero[7] = -0.5
+                    time_stay-=1
+                    if time_stay<=0:
+                        pp_grip=1
                                 
-                elif obs_current[26]> -0.29 and action_zero[2]>0.55:
+                elif pp_grip==1 and action_zero[2]>0.55:
                     # print("go up!! ship is sinking")
                     time_reset-=1
                     if time_reset<=0:
@@ -172,21 +177,23 @@ if __name__ == '__main__':
                         # action_zero[7] = 0.4
                         action_zero[6] = 0.5
                         action_zero[7] = -0.5
+                    if time_reset<=-100:
+                        env.clip_grip_vel()
                                 
                 elif action_zero[2]<0.55:
                     # print("breaking up of the loop")
                     break
                 pos_z = action_zero[2]
-                pp =1
+                pp_snatch =1
             # re-assign the observation
             else:
                 # print("no snatching")
-                if action_zero[2]>=0.76:
-                    action_zero[2]=0.76
+                if action_zero[2]>=0.763:
+                    action_zero[2]=0.763
                 obs,reward,done,_ = env.step(action_zero)
                 obs_current = obs['observation']
                 # print("stage 5 {}, {}".format(pp,np.linalg.norm(obs_current[20]-obs_current[13])))
-                action_network = np.zeros(3)
+                # action_network = np.zeros(3)
             obs_last = obs_current.copy()
             # T_sim_real[0:3,3] = [0,0.03175,0]
 
@@ -203,10 +210,9 @@ if __name__ == '__main__':
         print("Actual position: ",obs['achieved_goal'])
         reward = env.compute_reward(obs['observation'],obs['observation'],None)
         print("Reward is: ",reward)
-        if reward[1]==5:
-            Partial_success = Partial_success + 1
+        
         if reward[1]==50:
-            Full_success = Full_success + 1
-        print("Run no.: {}, Partial_successes: {}, Full_successes: {}".format(i+1,Partial_success,Full_success))
+            success = success + 1
+        print("Run no.: {}, Total_successes: {}".format(i+1,success))
         # plt.plot(t_arr, observation_x)
         # plt.show()

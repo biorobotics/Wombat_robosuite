@@ -65,6 +65,7 @@ class D3_pick_place_env(object):
 		self.observation_last = None
 		self.observation_last2last = None
 		self.joint_sim_last = None
+
 		self.done = False
 
 		self.action_high = np.array([0.00005]*self.action_dim)
@@ -78,13 +79,14 @@ class D3_pick_place_env(object):
 		pass
 
 	def angDiff(self,a1,a2):
-		d1=(a1-a2)%(2*np.pi)
-		d2=(a2-a1)%(2*np.pi)
-		if d1<d2:
-			return -d1
-		return d2
-		#given two pairs of joint values, finds the rotary values for j2 that
-		#are closest to j1. Assumes values are in rad
+			d1=(a1-a2)%(2*np.pi)
+			d2=(a2-a1)%(2*np.pi)
+			if d1<d2:
+				return -d1
+			return d2
+			#given two pairs of joint values, finds the rotary values for j2 that
+			#are closest to j1. Assumes values are in rad
+
 	def nextClosestJointRad(self,j1,j2):
 		j2c=np.copy(j2)
 		for i in range(0,3):
@@ -116,9 +118,28 @@ class D3_pick_place_env(object):
 		self.iphonebox = BoxObject(name="iphonebox",size=[0.039,0.08,0.0037],rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
 		##iphone xr dimensions
 		# self.iphonebox = BoxObject(name="iphonebox",size=[0.03785,0.07545,0.00415],rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
+		##iphone se/5/5s dimensions
+		# self.iphonebox = BoxObject(name="iphonebox",size=[0.0293,0.0619,0.0038],rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
 		self.iphonebox.set('pos', '{} 1.35 1'.format(self.phone_x)) #0.75
 		self.iphonebox.set('quat', '{} 0 0 1'.format(self.phone_orient)) #0
 		self.world.worldbody.append(self.iphonebox)
+
+
+		##Apple watch dimensions
+		# self.watch_x = self.phone_x
+		# self.watch_orient = self.phone_orient
+		# self.watchbox = BoxObject(name="iphonebox",size=[0.01665,0.0193,0.00525], rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
+		# self.watchbox.set('pos', '{} 1.35 1'.format(self.phone_x)) #0.75
+		# self.watchbox.set('quat', '{} 0 0 1'.format(self.phone_orient)) #0
+		# self.world.worldbody.append(self.watchbox)
+
+		##Apple iPad 10.2 9th gen. dimensions
+		# self.ipad_x = self.phone_x
+		# self.ipad_orient = self.phone_orient
+		# self.ipadbox = BoxObject(name="iphonebox",size=[0.08705,0.1253,0.00375], rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
+		# self.ipadbox.set('pos', '{} 1.35 1'.format(self.ipad_x)) #0.75
+		# self.ipadbox.set('quat', '{} 0 0 1'.format(self.ipad_orient)) #0
+		# self.world.worldbody.append(self.ipadbox)
 
 		self.box = BoxObject(name="box",size=[0.35,9.7,0.37],rgba=[0.5,0.5,0.5,1],friction=[1,1,1]).get_obj()
 		self.box.set('pos', '0.6 -2 0')
@@ -127,8 +148,8 @@ class D3_pick_place_env(object):
 		# self.iPhone_collision = MujocoXMLObject("/home/biorobotics-ms/catkin_ws/src/Wombat_robosuite/robosuite/models/assets/objects/iphone12promax.xml",name="iPhone12ProMaxObject")
 		# self.iPhone_visual = MujocoXMLObject("/home/yashraghav/robosuite/robosuite/models/assets/objects/can-visual.xml",name="CanVisualObject")
 
-		self.iPhone_collision = iPhone12ProMaxObject(name="iPhone12ProMax")
-		self.iPhone_visual = iPhone12ProMaxVisualObject(name="iPhone12ProMaxVisual")
+		# self.iPhone_collision = iPhone12ProMaxObject(name="iPhone12ProMax")
+		# self.iPhone_visual = iPhone12ProMaxVisualObject(name="iPhone12ProMaxVisual")
 
 		# self.iPhone_collision = CanObject(name="Can")
 		# self.iPhone_visual = CanVisualObject(name="CanVisual")
@@ -138,11 +159,11 @@ class D3_pick_place_env(object):
 		# self.world.merge(self.iPhone_collision)
 		# self.world.merge(self.iPhone_visual)
 
-		self.objects = [self.iPhone_collision,self.iPhone_visual]
+		# self.objects = [self.iPhone_collision,self.iPhone_visual]
 
-		for mujoco_obj in self.objects:
-			self.world.merge_assets(mujoco_obj)
-			self.world.worldbody.append(mujoco_obj.get_obj())
+		# for mujoco_obj in self.objects:
+		# 	self.world.merge_assets(mujoco_obj)
+		# 	self.world.worldbody.append(mujoco_obj.get_obj())
 		
 		self.model = self.world.get_model(mode="mujoco_py")
 
@@ -154,6 +175,11 @@ class D3_pick_place_env(object):
 			self.viewer = MjViewer(self.sim)
 			self.viewer.vopt.geomgroup[0] = 0 # disable visualization of collision mesh
 			self.viewer.render()
+
+		# if self.is_render:
+		# 	self.viewer1 = MjViewer(self.sim)
+		# 	self.viewer1.vopt.geomgroup[0] = 0 # disable visualization of collision mesh
+		# 	self.viewer1.render()
 
 		self.timestep= 0.0005
 		self.sim_state = self.sim.get_state()
@@ -179,8 +205,7 @@ class D3_pick_place_env(object):
 			joint_real=joint_real_last
 
 		ee_pose=invK.real2sim_wrapper(action[0])
-		# print("action[0] in get_signal", action[0])
-		# print("joint_real[0] in get_signal", joint_real[0])
+		
 		self.joint_sim=invK.ik_wrapper(joint_real[0])
 		j1 = np.array([self.sim.data.get_joint_qpos("robot0_branch1_joint"),self.sim.data.get_joint_qpos("robot0_branch2_joint"),self.sim.data.get_joint_qpos("robot0_branch3_joint")])
 		j2 = np.array([self.joint_sim[3],self.joint_sim[4],self.joint_sim[5]])
@@ -195,8 +220,7 @@ class D3_pick_place_env(object):
 			   self.PD_controller_lin(self.joint_sim[2],obs_last[5],obs_last2last[5],PD_scale[5])]
 
 		self.joint_real_last = joint_real
-		# self.sim.data.set_joint_qvel("robot0_iPhone12_joint", -0.5)
-
+		
 		return PD_signal
 
 
@@ -209,16 +233,16 @@ class D3_pick_place_env(object):
 		if des_state=='open':
 			# left_finger_open = -0.287884
 			# right_finger_open = -0.295456
-			left_finger_open = -0.5
-			right_finger_open = 0.5
+			left_finger_open = -0.5#-0.6
+			right_finger_open = 0.5#0.6
 
 			grip_signal=[self.Gripper_PD_controller(left_finger_open,obs_last[26],obs_last2last[26]),
 						 self.Gripper_PD_controller(right_finger_open,obs_last[27],obs_last2last[27])]
 		if des_state=='close':
 			# left_finger_close = 0.246598
 			# right_finger_close = 0.241764
-			left_finger_close = 0.5
-			right_finger_close = -0.5
+			left_finger_close = 0.5#0.5
+			right_finger_close = -0.5#-0.5
 
 			grip_signal=[self.Gripper_PD_controller(left_finger_close,obs_last[26],obs_last2last[26]),
 						 self.Gripper_PD_controller(right_finger_close,obs_last[27],obs_last2last[27])]
@@ -256,9 +280,7 @@ class D3_pick_place_env(object):
 
 
 		self.observation_last = self.observation_current['observation']
-		# print("action", action)
-		# action = self.action2robot(action_RL,action_robot)
-		# print("action,obs_last,obs_last2last in train.py step()", action,self.observation_last,self.observation_last2last)
+		
 		PD_signal = self.get_signal(action,self.observation_last,self.observation_last2last)
 
 		self.sim.data.ctrl[0:6] = PD_signal[0:6]
@@ -268,19 +290,20 @@ class D3_pick_place_env(object):
 			des_state='open'
 		self.sim.data.ctrl[6:8] = self.grip_signal(des_state,self.observation_last,self.observation_last2last)
 		self.clip_grip_action()
-		# print("torque reading: ",self.sim.data.ctrl[0:6])
-		# print("action", action)
+		
 		self.sim.step()
 		if self.is_render:
 			# pass
 			self.viewer.render()
+		
 		# print("sending steps")
 		self.observation_current = self.get_observation()
 		self.reward = self.compute_reward(self.observation_current['observation'],self.observation_current['observation'],None)
 		self.sim.data.set_joint_qvel('box_joint0', [0, self.phone_speed, 0, 0, 0, 0])
+		# self.sim.data.set_joint_qpos('robot0_base_left_torque_joint',0)
+		# self.sim.data.set_joint_qpos('robot0_base_right_torque_joint',0)
 		self.done = self.is_done
-		# ipdb.set_trace()
-		# print("sensor data: ",self.sim.data.sensordata)
+		
 		return self.observation_current,self.reward,self.done,None
 
 
@@ -303,65 +326,28 @@ class D3_pick_place_env(object):
 		observation[9] = self.sim.data.get_joint_qvel("robot0_branch1_linear_joint")
 		observation[10] = self.sim.data.get_joint_qvel("robot0_branch2_linear_joint")
 		observation[11] = self.sim.data.get_joint_qvel("robot0_branch3_linear_joint")
-		
 
-		# iphone_pos_test = self.sim.data.get_joint_qpos('iPhone12ProMax_joint0')
-		# print(f"Position{iphone_pos_test}")
 
 		observation[12:19] = self.sim.data.get_joint_qpos('iphonebox_joint0')
 		observation[19:26] = self.sim.data.sensordata[0:7]	#gripper base link pose
-		observation[19] = observation[19] + 0.02   #!why is the 0.02 here
-		# observation[26] = self.sim.data.get_joint_qpos('robot0_gripper_left_finger_joint')
-		# observation[27] = self.sim.data.get_joint_qpos('robot0_gripper_right_finger_joint')
+		observation[19] = observation[19] + 0.02
+		
 		observation[26] = self.sim.data.get_joint_qpos('robot0_base_left_short_joint')
 		observation[27] = self.sim.data.get_joint_qpos('robot0_base_right_short_joint')
 		observation[28:34] = self.sim.data.get_joint_qvel('iphonebox_joint0')
-		# observation[28:31] = self.sim.render(width=200, height=200, camera_name='frontview', mode='offscreen')[::-1,:]
-
+		# print(self.sim.data.get_joint_qpos('robot0_base_left_torque_joint'))
+		# print(self.sim.data.get_joint_qpos('robot0_base_right_torque_joint'))
 		goal = 0.88#0.83		#z value of the phone should be at 0.83 m from floor
 		achieved_goal = observation[14] #Current z value of the iPhone
 		observation = {'observation':observation,'desired_goal':np.array([goal]),'achieved_goal': np.array([achieved_goal])}
-
-		# goal = np.array([True, True, True])		#fingers closed, dist(gripper-phone)<0.11, gripper away from conveyor
-		# achieved_goal = np.array([observation[26]>0, observation[21]-observation[14]<= 0.11, observation[21]>0.99])
-		## raises error
-		# goal = np.array([1, 1, 1])		#fingers closed, dist(gripper-phone)<0.11, gripper away from conveyor
-		# achieved_goal = np.array([1 if observation[26]>0 else 0, 1 if observation[21]-observation[14]<= 0.11 else 0, 1 if observation[21]>0.99 else 0])
-		# observation = {'observation':observation,'desired_goal':goal,'achieved_goal': achieved_goal}
 		
-		# ipdb.set_trace()
-		# print("gripper pose: ",self.sim.data.get_joint_qpos('robot0_gripper_base_link_joint'))
 		return observation
 
 		pass
 
 	def compute_reward(self,obs,obs2,obs3):
-		# reward_grasp = []
-		# for i in range(obs.shape[0]):
-		# 	if np.linalg.norm(obs[i]-obs[i]) < 0.005:
-		# 		reward_grasp.append(10)
-		# 	else:
-		# 		reward_grasp.append(10)
-
-		# reward_grasp = np.array(reward_grasp)
 		##modified reward function
 		reward_grasp = []
-		# print("obs.shape[0]", obs.shape[0])
-		# print("obs[21]-obs[14]", obs[21]-obs[14])
-		# print("obs[21]", obs[21])
-		# ipdb.set_trace()
-		# print(obs[21]-obs[14] <= 0.11)
-		# print(obs[26] > 0)
-		# print(obs[21] > 0.99)
-		# for i in range(obs.shape[0]):
-		# 	if (obs[21]-obs[14] <= 0.11) and (obs[26] > 0) and (obs[21] > 0.99):
-		# 		reward_grasp.append(20)
-		# 		# print("Reward: +20")
-		# 	elif (obs[21]-obs[14] <= 0.16) and (obs[21]-obs[14] > 0.11) and (obs[26] > 0) and (obs[21] > 0.94):
-		# 		reward_grasp.append(5)
-		# 		# print("Reward: +5")
-		# 	else:
-		# 		reward_grasp.append(0)
 		for i in range(obs.shape[0]):
 			if obs[14]>=0.88 and (obs[21]-obs[14] <= 0.12) and (abs(obs[19]-obs[12]) <= 0.04) and obs[26] > -0.29:
 				reward_grasp.append(50)
@@ -381,56 +367,80 @@ class D3_pick_place_env(object):
 		return False
 
 	def PD_controller_rot(self,des,current,q_pos_last,scale):
-	
-		kp=20*scale #10 #20 
-		kd=8 #4 #1
+		
+		#kp = 10
+		#kp=10
+		#kp = 1
+		#kd = 0.3
+		#kp = 5
+		#kd = 0.6
+		kp=90*scale#10*scale #20*scale ####10
+		kd=900#4 #0.6 ####4
 		qpos = des+kp*(des-current)-kd*(current-q_pos_last)
 		# print(kp*(des-current))
 		return qpos
 
+	# return np.array(points)
 	def PD_controller_lin(self,des,current,q_pos_last,scale):
 		
-		kp=1000 #1000 #200
-		kd=1500 #1500
+		#kp = 10
+		#kd = 0.8
+		#kp=10
+		#kd=0.1
+		kp=4000#800 ####1000
+		kd=6000#1500 ####1500
 		qpos = des+kp*(des-current)-kd*(current-q_pos_last)
 		# print(kp*(des-current))
 		return qpos
 
-	def PD_signal_scale(self,ee_pos,joint_vals):
-
-		#scales the PD signal based on the ee pos or joint values; wombat_arm needs
-		#different PD values depending on where it is, position-wise
-
-		ee_xy_disp=np.array([math.sqrt(ee_pos[0]**2+ee_pos[1]**2)]*6)+1.0
-		lin_vals=np.array([joint_vals[2],joint_vals[0],joint_vals[1]]*2)+1.0
-		scale=7
-		PD_scale_factor=((np.multiply(ee_xy_disp,lin_vals)**2)-1)*scale
-		return PD_scale_factor
-
+	##Gripper PD controller below
 	def Gripper_PD_controller(self,des,current,last):
 		kp=10
 		kd=2
 		pos = des+kp*(des-current)-kd*(current-last)
 		return pos
 
-	def clip_grip_action(self):
-		# if self.sim.data.get_joint_qpos('robot0_gripper_left_finger_joint')>0.25:
-		# 	self.sim.data.set_joint_qpos('robot0_gripper_left_finger_joint', 0.246598)
-		# if self.sim.data.get_joint_qpos('robot0_gripper_right_finger_joint')>0.25:
-		# 	self.sim.data.set_joint_qpos('robot0_gripper_right_finger_joint', 0.241764)
-		# if self.sim.data.get_joint_qpos('robot0_gripper_left_finger_joint')<-0.29:
-		# 	self.sim.data.set_joint_qpos('robot0_gripper_left_finger_joint', -0.287884)
-		# if self.sim.data.get_joint_qpos('robot0_gripper_right_finger_joint')<-0.30:
-		# 	self.sim.data.set_joint_qpos('robot0_gripper_right_finger_joint', -0.295456)
 
-		if self.sim.data.get_joint_qpos('robot0_base_left_short_joint')>0.5:
-			self.sim.data.set_joint_qpos('robot0_base_left_short_joint', 0.5)
-		if self.sim.data.get_joint_qpos('robot0_base_right_short_joint')>0.5:
-			self.sim.data.set_joint_qpos('robot0_base_right_short_joint', 0.5)
-		if self.sim.data.get_joint_qpos('robot0_base_left_short_joint')<-0.5:
-			self.sim.data.set_joint_qpos('robot0_base_left_short_joint', -0.5)
-		if self.sim.data.get_joint_qpos('robot0_base_right_short_joint')<-0.5:
-			self.sim.data.set_joint_qpos('robot0_base_right_short_joint', -0.5)
+	#scales the PD signal based on the ee pos or joint values; wombat_arm needs
+	#different PD values depending on where it is, position-wise
+	def PD_signal_scale(self,ee_pos,joint_vals):
+		ee_xy_disp=np.array([math.sqrt(ee_pos[0]**2+ee_pos[1]**2)]*6)+1.0
+		lin_vals=np.array([joint_vals[2],joint_vals[0],joint_vals[1]]*2)+1.0
+		scale=7
+		PD_scale_factor=((np.multiply(ee_xy_disp,lin_vals)**2)-1)*scale
+		
+		return PD_scale_factor
+
+	def clip_grip_action(self):
+		self.j_pos = 0.5
+		if self.sim.data.get_joint_qpos('robot0_base_left_short_joint')>self.j_pos:
+			self.sim.data.set_joint_qpos('robot0_base_left_short_joint', self.j_pos)
+			# print(1)
+		if self.sim.data.get_joint_qpos('robot0_base_right_short_joint')>self.j_pos:
+			self.sim.data.set_joint_qpos('robot0_base_right_short_joint', self.j_pos)
+			# print(2)
+		if self.sim.data.get_joint_qpos('robot0_base_left_short_joint')<-self.j_pos:
+			self.sim.data.set_joint_qpos('robot0_base_left_short_joint', -self.j_pos)
+			# print(3)
+		if self.sim.data.get_joint_qpos('robot0_base_right_short_joint')<-self.j_pos:
+			self.sim.data.set_joint_qpos('robot0_base_right_short_joint', -self.j_pos)
+			# print(4)
+
+		if self.sim.data.get_joint_qpos('robot0_base_left_torque_joint')>0.1:
+			self.sim.data.set_joint_qpos('robot0_base_left_torque_joint', 0.1)
+		if self.sim.data.get_joint_qpos('robot0_base_right_torque_joint')>0.1:
+			self.sim.data.set_joint_qpos('robot0_base_right_torque_joint', 0.1)
+		if self.sim.data.get_joint_qpos('robot0_base_left_torque_joint')<-0.1:
+			self.sim.data.set_joint_qpos('robot0_base_left_torque_joint', -0.1)
+		if self.sim.data.get_joint_qpos('robot0_base_right_torque_joint')<-0.1:
+			self.sim.data.set_joint_qpos('robot0_base_right_torque_joint', -0.1)
+
+	def clip_grip_vel(self):
+		
+		self.sim.data.set_joint_qvel('robot0_base_left_short_joint', 0.005)
+		self.sim.data.set_joint_qvel('robot0_base_right_short_joint', -0.005)
+		# print("left",self.sim.data.get_joint_qvel('robot0_base_left_short_joint'))
+		# print("right",self.sim.data.get_joint_qvel('robot0_base_right_short_joint'))
 
 	def seed(self, seed=None):
 		"""
