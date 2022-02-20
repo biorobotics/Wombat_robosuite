@@ -197,38 +197,44 @@ class grasping_agent:
 						
 
 						# flags
-						pre_grasp_pos = NotImplemented
-						proximal_tol = NotImplemented
+						pre_grasp_pos = 0.5
+						proximal_tol = 0.1
 
 
-						phone_pos = obs_current[12:19]
+						gripper_pos = obs_current[19:22] 
+						phone_pos = obs_current[12:15] 
 
-						if phone_pos[1]<pre_grasp_pos:
+						delta = gripper_pos - action_zero[0:3]
+
+						if phone_pos[1]>pre_grasp_pos:
 							pass
 
 
-						if phone_pos[1]>pre_grasp_pos:
-							plan_flag = NotImplemented
+						if (phone_pos[1]<pre_grasp_pos and path_executed==False):
 
 
 							# Init DMP traj 
-							if(plan_flag):
-								gripper_pos = obs_current[19:26]
-								
+							if(plan_flag):          
+								start= action_zero[0:3]
 								start_pose = Pose()
-								start_pose.position.x = gripper_pos[0]
-								start_pose.position.y = gripper_pos[1]
-								start_pose.position.z = gripper_pos[2]
+
+								start_pose.position.x = start[0]
+								start_pose.position.y = start[1]
+								start_pose.position.z = start[2]
 								start_pose.orientation.x = 0
 								start_pose.orientation.y = 0
 								start_pose.orientation.z = 0
 								start_pose.orientation.w = 1
 
-								
+
+								goal = np.zeros(3)
+								goal[0] = phone_pos[0] - delta[0]
+								goal[1] = phone_pos[1] - delta[1]
+								goal[2] = phone_pos[2]        
 								end_pose = Pose()
-								end_pose.position.x = phone_pos[0]
-								end_pose.position.y = phone_pos[1]
-								end_pose.position.z = phone_pos[2]
+								end_pose.position.x = goal[0]
+								end_pose.position.y = goal[1]
+								end_pose.position.z = goal[2]
 								end_pose.orientation.x = 0
 								end_pose.orientation.y = 0
 								end_pose.orientation.z = 0
@@ -238,28 +244,34 @@ class grasping_agent:
 
 								phone_velo = Vector3()
 								phone_velo.x = 0
-								phone_velo.y = NotImplemented #TODO
+								phone_velo.y =obs_current[29]
 								phone_velo.z = 0
 
-								traj = self.dmp_client(start_pose, end_pose, mode, phone_velo)
+								traj =self.dmp_client(start_pose, end_pose, mode, phone_velo)
 								desired_traj = np.zeros((len(traj), 6))
 								for i in range(len(traj)):
 									desired_traj[i][0] =traj[i].position.x 
 									desired_traj[i][1] =traj[i].position.y 
 									desired_traj[i][2] =traj[i].position.z
-									desired_traj[i][5] = self.quat_to_euler(traj[i].orientation)[0]
-									desired_traj[i][4] = self.quat_to_euler(traj[i].orientation)[1]
-									desired_traj[i][3] = self.quat_to_euler(traj[i].orientation)[2]
+									desired_traj[i][5] =self.quat_to_euler(traj[i].orientation)[0]
+									desired_traj[i][4] =self.quat_to_euler(traj[i].orientation)[1]
+									desired_traj[i][3] =self.quat_to_euler(traj[i].orientation)[2]
 								traj_index = 0
-
+								plan_flag = False
 
 							# ! -> Execute this traj
 
 							# Calculate current position in the trajectory : i^th index 
-							action_zero[0:3] = desired_traj[traj_index, :]
-							obs,reward,done,_ = self.env.step(action_zero)
-							obs_current = obs['observation'] 
-
+							
+							
+							path_executed = traj_index==desired_traj.shape[0]
+							print(f"Path Executed {path_executed}")
+							if(path_executed==False):
+								action_zero[0:3] = desired_traj[traj_index, 0:3]
+								print(f"action_zero {action_zero}")
+								obs,reward,done,_ = self.env.step(action_zero)
+								obs_current = obs['observation'] 
+								traj_index+=1
 
 
 
@@ -272,70 +284,70 @@ class grasping_agent:
 
 						# add a pre grasping stage here where we initialize the 
 						# DMP for a couple of seconds 
-						if t>=0 and t<1700 and pp==0:
-							# print(t)
-							action_network = np.zeros(3)
-							action_zero[1] += 0.0002 #motion happening here
-							if action_zero[1]>0.05:
-								action_zero[1]=0.05
-							# print(np.linalg.norm(obs_current[19] - obs_current[12]))
-							if np.linalg.norm(obs_current[19]-obs_current[12])>0.002:
-								pos_x_dir = (obs_current[19]-obs_current[12])/np.abs(obs_current[19]-obs_current[12])
-								pos_x += 0.0001*pos_x_dir  #motion happening here
-								# print(obs_current[19] - obs_current[12])
-								# if t>100:
-								# 	object_or = obs_current[15:19]
-								# 	R_bi = t3d.quaternions.quat2mat(object_or)
-								# 	R_br= np.matmul(R_bi,R_ie)
-								# 	ax_r = t3d.axangles.mat2axangle(R_br)
-								# 	# action_zero[3:6] = np.array([-ax_r[0][1]*ax_r[1],-ax_r[0][2]*ax_r[1],ax_r[0][0]*ax_r[1]])
-								# 	action_zero[3:6] = np.array([ax_r[0][1]*ax_r[1],-ax_r[0][2]*ax_r[1],ax_r[0][0]*ax_r[1]])
-									# action_zero[3:6] = np.array([-0.1, 0, 0.1])
-							action_zero[0] = pos_x
-							# ipdb.set_trace()	
-							obs,reward,done,_ = self.env.step(action_zero)
+						# if t>=0 and t<1700 and pp==0:
+						# 	# print(t)
+						# 	action_network = np.zeros(3)
+						# 	action_zero[1] += 0.0002 #motion happening here
+						# 	if action_zero[1]>0.05:
+						# 		action_zero[1]=0.05
+						# 	# print(np.linalg.norm(obs_current[19] - obs_current[12]))
+						# 	if np.linalg.norm(obs_current[19]-obs_current[12])>0.002:
+						# 		pos_x_dir = (obs_current[19]-obs_current[12])/np.abs(obs_current[19]-obs_current[12])
+						# 		pos_x += 0.0001*pos_x_dir  #motion happening here
+						# 		# print(obs_current[19] - obs_current[12])
+						# 		# if t>100:
+						# 		# 	object_or = obs_current[15:19]
+						# 		# 	R_bi = t3d.quaternions.quat2mat(object_or)
+						# 		# 	R_br= np.matmul(R_bi,R_ie)
+						# 		# 	ax_r = t3d.axangles.mat2axangle(R_br)
+						# 		# 	# action_zero[3:6] = np.array([-ax_r[0][1]*ax_r[1],-ax_r[0][2]*ax_r[1],ax_r[0][0]*ax_r[1]])
+						# 		# 	action_zero[3:6] = np.array([ax_r[0][1]*ax_r[1],-ax_r[0][2]*ax_r[1],ax_r[0][0]*ax_r[1]])
+						# 			# action_zero[3:6] = np.array([-0.1, 0, 0.1])
+						# 	action_zero[0] = pos_x
+						# 	# ipdb.set_trace()	
+						# 	obs,reward,done,_ = self.env.step(action_zero)
 							
 							
-							# print("real cmd",action_zero)
-							# print("sim", obs_current[19:22])
-							# print("sim2real", t_real[0:3])
-							# print(t)
-							obs_current = obs['observation'] 
-							# print(obs_current[14])
-							# print("Action", action_zero)
-							# print("Stage 1 ",pp)
-							# print("gripper pose", obs_current[19:26])
+						# 	# print("real cmd",action_zero)
+						# 	# print("sim", obs_current[19:22])
+						# 	# print("sim2real", t_real[0:3])
+						# 	# print(t)
+						# 	obs_current = obs['observation'] 
+						# 	# print(obs_current[14])
+						# 	# print("Action", action_zero)
+						# 	# print("Stage 1 ",pp)
+						# 	# print("gripper pose", obs_current[19:26])
 
 
 
-						### Calculate variables to pick ###
-						elif t>=1700 and t<1800 and pp==0:
-							action_network = np.zeros(3)
-							obs,reward,done,_ = self.env.step(action_zero) 
-							obs_current = obs['observation']
+						# ### Calculate variables to pick ###
+						# elif t>=1700 and t<1800 and pp==0:
+						# 	action_network = np.zeros(3)
+						# 	obs,reward,done,_ = self.env.step(action_zero) 
+						# 	obs_current = obs['observation']
 
-							vel_iPhone = (obs_current[13] - obs_last[13])
-							steps_to_reach = ((0.0 - obs_current[13])/vel_iPhone)
-							vel_iPhone_rt = (obs_current[13] - obs_last[13])/(0.002) #rt ==> real_time
-							# print("last and current iPhone : ",obs_current[13],obs_last[13])
-							# print("steps to reach: ",steps_to_reach)
-							# print("Stage 2 ",pp)
-
-
+						# 	vel_iPhone = (obs_current[13] - obs_last[13])
+						# 	steps_to_reach = ((0.0 - obs_current[13])/vel_iPhone)
+						# 	vel_iPhone_rt = (obs_current[13] - obs_last[13])/(0.002) #rt ==> real_time
+						# 	# print("last and current iPhone : ",obs_current[13],obs_last[13])
+						# 	# print("steps to reach: ",steps_to_reach)
+						# 	# print("Stage 2 ",pp)
 
 
 
-						### calculate target velocity ###
-						elif t == 1800 and pp==0:
-							action_network = np.zeros(3)
-							vel_z = (obs_current[21] - 0.875)/int(steps_to_reach)
-							vel_y = (obs_current[20] - 0.0)/int(steps_to_reach)
-							# print("Stage 3 ",pp)
+
+
+						# ### calculate target velocity ###
+						# elif t == 1800 and pp==0:
+						# 	vel_z = (obs_current[21] - 0.875)/int(steps_to_reach)
+						# 	vel_y = (obs_current[20] - 0.0)/int(steps_to_reach)
+						# 	# print("Stage 3 ",pp)
 
 
 
 						### Start snatch motion ###
-						elif np.linalg.norm(obs_current[20]-obs_current[13])<0.001 or pp == 1:
+						elif path_executed or np.linalg.norm(obs_current[20]-obs_current[13])<0.001 or pp == 1:
+							action_network = np.zeros(3)
 							# print(abs(obs_current[19]-obs_current[12]))
 							# print("Stage 4 ",pp)
 							# print("in stage 4: ", obs_current[21]-obs_current[14])
@@ -362,8 +374,8 @@ class grasping_agent:
 							# action_network = np.zeros(3)
 							# print("action_zero just before Stage 4", action_zero)
 							action_zero[0]+= action_network[0] #adding del_x to current_motion
-							action_zero[1]+= (vel_iPhone_rt)*0.002 + action_network[1] #adding del_y to motion
-							action_zero[2]+= vel_z*10 + action_network[2]  #adding del_z to motion
+							action_zero[1]+=  action_network[1] #adding del_y to motion
+							action_zero[2]+=  action_network[2]  #adding del_z to motion
 							# action_zero[3]+= action_network[3] #adding orient_x to current_motion
 							# action_zero[4]+= action_network[4] #adding orient_y to motion
 							# action_zero[5]+= action_network[5]  #adding orient_z to motion

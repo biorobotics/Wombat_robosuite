@@ -45,7 +45,7 @@ def _preproc_inputs(obs, g):
     return inputs
 def dyn_rand():
 	phone_x = 0.578#np.random.uniform(0.428, 0.728)
-	phone_speed = -0.22#np.random.uniform(-0.14, -0.18)
+	phone_speed = -0.20#np.random.uniform(-0.14, -0.18)
 	phone_orient = 0.0
 	# phone_orient = np.random.uniform(-0.05, 0.05)
 	return phone_x, phone_speed, phone_orient
@@ -115,6 +115,7 @@ if __name__ == '__main__':
         time_reset = 50
         time_stay = 100
         ##to plot
+        # ! how do these numbers are calculated?
         observation_x = np.zeros(11000)
         t_arr = np.linspace(0,11000,11000)
         plan_flag= True
@@ -125,8 +126,8 @@ if __name__ == '__main__':
             obs_current = obs['observation']
             
             # When phone crosses this point, planner will get started
-            pre_grasp_pos = 0.50
-            proximal_tol = 0.01
+            pre_grasp_pos = 0.5
+            proximal_tol = 0.1
             
             gripper_pos = obs_current[19:22] 
             phone_pos = obs_current[12:15] 
@@ -171,7 +172,7 @@ if __name__ == '__main__':
 
                     phone_velo = Vector3()
                     phone_velo.x = 0
-                    phone_velo.y = obs_current[29]
+                    phone_velo.y =obs_current[29]
                     phone_velo.z = 0
 
                     traj =dmp_client(start_pose, end_pose, mode, phone_velo)
@@ -240,7 +241,8 @@ if __name__ == '__main__':
             #     # print("Stage 3 ",pp)
             ### Start snatch motion ###
             elif path_executed or np.linalg.norm(obs_current[20]-obs_current[13])<0.001 or pp_snatch == 1:
-                # print("Stage 4 ",pp)
+                print("Stage 4 : Agent starts")
+
                 if action_zero[2]>=0.763:
                     action_zero[2]=0.763
                 obs,reward,done,_ = env.step(action_zero)
