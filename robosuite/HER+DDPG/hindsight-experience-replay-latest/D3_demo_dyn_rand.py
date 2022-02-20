@@ -265,6 +265,7 @@ if __name__ == '__main__':
                 # action_zero[3]+= action_network[3] #adding orient_x to current_motion
                 # action_zero[4]+= action_network[4] #adding orient_y to motion
                 # action_zero[5]+= action_network[5]  #adding orient_z to motion
+                
                 if np.linalg.norm(obs_current[21]-0.837)<0.001 and pp_snatch == 1 and pp_grip == 0:
                     # print("stay!!")
                     action_zero[2] = pos_z

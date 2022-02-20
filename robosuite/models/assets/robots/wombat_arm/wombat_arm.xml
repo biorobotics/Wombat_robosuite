@@ -30,7 +30,7 @@
         <texture name="texplane" type="2d" builtin="checker" rgb1=".2 .3 .4" rgb2=".1 0.15 0.2" 
             width="512" height="512"/>  
 
-        <texture name="wooden" type="2d" builtin="none" file="/home/yashraghav/mujoco-py/examples/wombat_simulation-thomas/wombat_simulation-main/wombat_arm/texture/wood_texture.png" rgb1=".2 .3 .4" rgb2=".1 0.15 0.2" /> 
+        <texture name="wooden" type="2d" builtin="none" file="wood_texture.png" rgb1=".2 .3 .4" rgb2=".1 0.15 0.2" /> 
 
         <material name='MatPlane' reflectance='0.5' texture="texplane" texrepeat="1 1" texuniform="true"/>
         <material name='wood' reflectance='0.1' texture="wooden" texrepeat="1 1" texuniform="true"/>

@@ -4,6 +4,8 @@ import os, sys
 from arguments import get_args
 from mpi4py import MPI
 from rl_modules.ddpg_agent import ddpg_agent
+from rl_modules.grasping_agent import grasping_agent
+
 import random
 import torch
 
@@ -484,8 +486,8 @@ def launch(args,env):
 		torch.cuda.manual_seed(args.seed + MPI.COMM_WORLD.Get_rank())
 	# get the environment parameters
 	env_params = get_env_params(env)
-	ddpg_trainer = ddpg_agent(args, env, env_params)
-	ddpg_trainer.learn()
+	grasping_trainer = grasping_agent(args, env, env_params)
+	grasping_trainer.learn()
 	# create the ddpg agent to interact with the environment 
 	#####################################################works till this point############################################
 	####### not yet there ##########

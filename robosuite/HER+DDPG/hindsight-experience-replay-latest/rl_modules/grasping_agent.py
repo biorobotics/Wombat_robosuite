@@ -176,6 +176,10 @@ class grasping_agent:
 					if n_cycles == self.args.n_cycles - 1 and MPI.COMM_WORLD.Get_rank() == 0 and r_mpi == 1 and self.record_video:
 						video_writer = imageio.get_writer('saved_models/Gripping_policy_dyn_rand/epoch_{}.mp4'.format(epoch+1), fps=60)
 					traj_index = 0
+
+					plan_flag= True
+					path_executed = False
+
 					for t in range(self.env_params['max_timesteps']):
 						# pp = 0
 						# feed the actions into the environment
@@ -259,7 +263,6 @@ class grasping_agent:
 								traj_index = 0
 								plan_flag = False
 
-							# ! -> Execute this traj
 
 							# Calculate current position in the trajectory : i^th index 
 							
@@ -469,21 +472,21 @@ class grasping_agent:
 						observation_y[t] = t_real[1]
 						observation_z[t] = t_real[2]
 						t_arr[t] = t*0.002
-					plt.plot(t_arr, observation_x)
-					plt.title('End-effector x-coordinate vs. time')
-					plt.xlabel('time(in seconds)')
-					plt.ylabel('End-effector x-coordinate(in meter)')
-					plt.show()
-					plt.plot(t_arr, observation_y)
-					plt.title('End-effector y-coordinate vs. time')
-					plt.xlabel('time(in seconds)')
-					plt.ylabel('End-effector y-coordinate(in meter)')
-					plt.show()
-					plt.plot(t_arr, observation_z)
-					plt.title('End-effector z-coordinate vs. time')
-					plt.xlabel('time(in seconds)')
-					plt.ylabel('End-effector z-coordinate(in meter)')
-					plt.show()
+					# plt.plot(t_arr, observation_x)
+					# plt.title('End-effector x-coordinate vs. time')
+					# plt.xlabel('time(in seconds)')
+					# plt.ylabel('End-effector x-coordinate(in meter)')
+					# plt.show()
+					# plt.plot(t_arr, observation_y)
+					# plt.title('End-effector y-coordinate vs. time')
+					# plt.xlabel('time(in seconds)')
+					# plt.ylabel('End-effector y-coordinate(in meter)')
+					# plt.show()
+					# plt.plot(t_arr, observation_z)
+					# plt.title('End-effector z-coordinate vs. time')
+					# plt.xlabel('time(in seconds)')
+					# plt.ylabel('End-effector z-coordinate(in meter)')
+					# plt.show()
 					
 					Total_episodes = Total_episodes +1
 					if reward[1] == 5:
@@ -544,7 +547,7 @@ class grasping_agent:
 				# print('[{}] epoch is: {}, eval success rate is: {:.3f}'.format(datetime.now(), epoch, success_rate))
 				# self.writer.add_scalar(success_rate,epoch)
 				torch.save([self.o_norm.mean, self.o_norm.std, self.g_norm.mean, self.g_norm.std, self.actor_network.state_dict()], \
-							self.model_path + '/Modelnew_dynamics_epoch_{}.pt'.format(epoch+1))
+							self.model_path + '/new_grasping_policy_epoch_{}.pt'.format(epoch+1))
 
 	# pre_process the inputs
 	def _preproc_inputs(self, obs, g):
