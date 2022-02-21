@@ -188,6 +188,7 @@ class grasping_agent:
 						# 	print(t)
 						# print("action_zero", action_zero)
 						obs,reward,done,_ = self.env.step(action_zero)
+						obs_current = obs['observation']
 
 						#TODO: Set up the flags for baseline loop
 						#Pre Reach 
@@ -201,13 +202,12 @@ class grasping_agent:
 						
 
 						# flags
-						pre_grasp_pos = 0.5
+						pre_grasp_pos = 0.6
 						proximal_tol = 0.1
 
 
 						gripper_pos = obs_current[19:22] 
 						phone_pos = obs_current[12:15] 
-
 						delta = gripper_pos - action_zero[0:3]
 
 						if phone_pos[1]>pre_grasp_pos:
@@ -233,7 +233,7 @@ class grasping_agent:
 
 								goal = np.zeros(3)
 								goal[0] = phone_pos[0] - delta[0]
-								goal[1] = phone_pos[1] - delta[1]
+								goal[1] = phone_pos[1] - delta[1] - 0.05
 								goal[2] = phone_pos[2]        
 								end_pose = Pose()
 								end_pose.position.x = goal[0]

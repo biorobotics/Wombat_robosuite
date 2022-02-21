@@ -105,7 +105,7 @@ if __name__ == '__main__':
         # create the normalizer
         o_norm = normalizer(size=env_params['obs'], default_clip_range=args.clip_range)
         g_norm = normalizer(size=env_params['goal'], default_clip_range=args.clip_range)
-        action_zero = np.array([0,0,0.6,0,0,0,-0.5,0.5])
+        action_zero = np.array([0,0,0.6,0,0,0,-0.75,0.75])
         obs_current = np.zeros(34)
         obs_last = obs_current.copy()
         pp_snatch = 0
@@ -119,6 +119,7 @@ if __name__ == '__main__':
         observation_x = np.zeros(11000)
         t_arr = np.linspace(0,11000,11000)
         plan_flag= True
+        wait_flag = False
         path_executed = False
         for t in range(env._max_episode_steps):
 
@@ -157,12 +158,12 @@ if __name__ == '__main__':
 
                     goal = np.zeros(3)
                     goal[0] = phone_pos[0] - delta[0]
-                    goal[1] = phone_pos[1] - delta[1]
+                    goal[1] = phone_pos[1] - delta[1] 
                     goal[2] = phone_pos[2]        
                     end_pose = Pose()
-                    end_pose.position.x = goal[0]
+                    end_pose.position.x = goal[0] + 0.003
                     end_pose.position.y = goal[1]
-                    end_pose.position.z = goal[2]
+                    end_pose.position.z = 0.78#goal[2]
                     end_pose.orientation.x = 0
                     end_pose.orientation.y = 0
                     end_pose.orientation.z = 0
@@ -197,6 +198,10 @@ if __name__ == '__main__':
                 if(path_executed==False):
                     action_zero[0:3] = desired_traj[traj_index, 0:3]
                     print(f"action_zero {action_zero}")
+
+
+                    if action_zero[2]>=0.762:
+                        action_zero[2]=0.762
                     obs,reward,done,_ = env.step(action_zero)
                     obs_current = obs['observation'] 
                     traj_index+=1
@@ -241,38 +246,51 @@ if __name__ == '__main__':
             #     # print("Stage 3 ",pp)
             ### Start snatch motion ###
             elif path_executed or np.linalg.norm(obs_current[20]-obs_current[13])<0.001 or pp_snatch == 1:
-                print("Stage 4 : Agent starts")
-
+                # print("Stage 4 : Agent starts")
+                if(wait_flag==False):
+                    completion_time = t
+                    wait_flag =True
                 if action_zero[2]>=0.763:
                     action_zero[2]=0.763
                 obs,reward,done,_ = env.step(action_zero)
                 obs_current = obs['observation']
-                with torch.no_grad():
-                    # ipdb.set_trace()
-                    input_tensor = _preproc_inputs(obs_current, g)
-                    pi = actor_network(input_tensor)
-                    action_network = pi.detach().numpy().squeeze()
-                    # print("input_tensor", input_tensor)
-                    # print("pi", pi)
-                    # print("action_network", action_network)
-
-                #residual trajectory added here
-                action_network = np.zeros(3)
-                # print("action_zero just before Stage 4", action_zero)
-                action_zero[0]+= action_network[0] #adding del_x to current_motion
-                action_zero[1]+= action_network[1] #adding del_y to motion
-                action_zero[2]+= action_network[2]  #adding del_z to motion
-                # action_zero[3]+= action_network[3] #adding orient_x to current_motion
-                # action_zero[4]+= action_network[4] #adding orient_y to motion
-                # action_zero[5]+= action_network[5]  #adding orient_z to motion
                 
-                if np.linalg.norm(obs_current[21]-0.837)<0.001 and pp_snatch == 1 and pp_grip == 0:
+                
+                
+                # with torch.no_grad():
+                #     # ipdb.set_trace()
+                #     input_tensor = _preproc_inputs(obs_current, g)
+                #     pi = actor_network(input_tensor)
+                #     action_network = pi.detach().numpy().squeeze()
+                #     # print("input_tensor", input_tensor)
+                #     # print("pi", pi)
+                #     # print("action_network", action_network)
+
+                # #residual trajectory added here
+                # action_network = np.zeros(3)
+                # # print("action_zero just before Stage 4", action_zero)
+                # action_zero[0]+= action_network[0] #adding del_x to current_motion
+                # action_zero[1]+= action_network[1] #adding del_y to motion
+                # action_zero[2]+= action_network[2]  #adding del_z to motion
+                # # action_zero[3]+= action_network[3] #adding orient_x to current_motion
+                # # action_zero[4]+= action_network[4] #adding orient_y to motion
+                # # action_zero[5]+= action_network[5]  #adding orient_z to motion
+
+
+                # print(f"phone_y {phone_pos[1]}")
+                # print(f"gripper_y {gripper_pos[1]}")
+                resume_flag=False
+                if(wait_flag==True):
+                    if(t-completion_time)>50:
+                        resume_flag = True
+
+                if path_executed and  pp_snatch == 1 and pp_grip == 0 and resume_flag:
                     # print("stay!!")
                     action_zero[2] = pos_z
                     # action_zero[6] = 0.4
                     # action_zero[7] = 0.4
-                    action_zero[6] = 0.5
-                    action_zero[7] = -0.5
+                    action_zero[6] = 0.45
+                    action_zero[7] = -0.45
                     time_stay-=1
                     if time_stay<=0:
                         pp_grip=1
@@ -285,8 +303,8 @@ if __name__ == '__main__':
                         action_zero[2] = pos_z
                         # action_zero[6] = 0.4
                         # action_zero[7] = 0.4
-                        action_zero[6] = 0.5
-                        action_zero[7] = -0.5
+                        action_zero[6] = 0.45
+                        action_zero[7] = -0.45
                     if time_reset<=-100:
                         env.clip_grip_vel()
                                 
