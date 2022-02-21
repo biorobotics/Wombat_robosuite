@@ -168,15 +168,15 @@ class grasping_agent:
 					T_sim_actual = np.eye(4)
 					t_real = [0]*6
 					max_time_steps = self.env_params['max_timesteps']
-					observation_x = np.zeros(max_time_steps)
-					observation_y = np.zeros(max_time_steps)
-					observation_z = np.zeros(max_time_steps)
+					observation_x = np.zeros(max_time_steps+1)
+					observation_y = np.zeros(max_time_steps+1)
+					observation_z = np.zeros(max_time_steps+1)
 					t_arr = np.linspace(0,max_time_steps,max_time_steps+1)
 					R_ie = np.array([[-1,0,0],[0,1,0],[0,0,-1]])
 					if n_cycles == self.args.n_cycles - 1 and MPI.COMM_WORLD.Get_rank() == 0 and r_mpi == 1 and self.record_video:
 						video_writer = imageio.get_writer('saved_models/Gripping_policy_dyn_rand/epoch_{}.mp4'.format(epoch+1), fps=60)
 					traj_index = 0
-
+					wait_flag = False
 					plan_flag= True
 					path_executed = False
 
@@ -236,9 +236,9 @@ class grasping_agent:
 								goal[1] = phone_pos[1] - delta[1] - 0.05
 								goal[2] = phone_pos[2]        
 								end_pose = Pose()
-								end_pose.position.x = goal[0]
+								end_pose.position.x = goal[0] + 0.003
 								end_pose.position.y = goal[1]
-								end_pose.position.z = goal[2]
+								end_pose.position.z =0.78# goal[2]
 								end_pose.orientation.x = 0
 								end_pose.orientation.y = 0
 								end_pose.orientation.z = 0
@@ -271,6 +271,8 @@ class grasping_agent:
 							print(f"Path Executed {path_executed}")
 							if(path_executed==False):
 								action_zero[0:3] = desired_traj[traj_index, 0:3]
+								if action_zero[2]>=0.762:
+									action_zero[2]=0.762								
 								print(f"action_zero {action_zero}")
 								obs,reward,done,_ = self.env.step(action_zero)
 								obs_current = obs['observation'] 
@@ -355,6 +357,9 @@ class grasping_agent:
 							# print("Stage 4 ",pp)
 							# print("in stage 4: ", obs_current[21]-obs_current[14])
 							# print("len of ep_obs: ",len(mb_obs))
+							if(wait_flag==False):
+								completion_time = t
+								wait_flag =True
 							if action_zero[2]>=0.75: ################SURYA CHANGES####################
 								action_zero[2]=0.75
 							obs,reward,done,_ = self.env.step(action_zero)
@@ -364,31 +369,40 @@ class grasping_agent:
 							# print("gripper pose", obs_current[19:26])
 							# print("Action", action_zero)
 
-							with torch.no_grad():
-								# ipdb.set_trace()
-								input_tensor = self._preproc_inputs(obs_current, g)
-								pi = self.actor_network(input_tensor)
-								action_network = self._select_actions(pi)
-								# print("input_tensor", input_tensor)
-								# print("pi", pi)
-								# print("action_network", action_network)
 
-							#residual trajectory added here
-							# action_network = np.zeros(3)
-							# print("action_zero just before Stage 4", action_zero)
-							action_zero[0]+= action_network[0] #adding del_x to current_motion
-							action_zero[1]+=  action_network[1] #adding del_y to motion
-							action_zero[2]+=  action_network[2]  #adding del_z to motion
-							# action_zero[3]+= action_network[3] #adding orient_x to current_motion
-							# action_zero[4]+= action_network[4] #adding orient_y to motion
-							# action_zero[5]+= action_network[5]  #adding orient_z to motion
-							# print("action_zero just after Stage 4", action_zero)
+							# with torch.no_grad():
+							# 	# ipdb.set_trace()
+							# 	input_tensor = self._preproc_inputs(obs_current, g)
+							# 	pi = self.actor_network(input_tensor)
+							# 	action_network = self._select_actions(pi)
+							# 	# print("input_tensor", input_tensor)
+							# 	# print("pi", pi)
+							# 	# print("action_network", action_network)
 
-							# print("obs_current[26]:", obs_current[26])
-							# print("action_zero[2]:", action_zero[2])
-							# print("obs_current[26]: ",obs_current[26],np.linalg.norm(obs_current[21]-0.83))
-							# print("before stay: ", obs_current[21]-0.875)
-							if np.linalg.norm(obs_current[21]-0.875)<0.001 and pp == 1 and obs_current[26]< -0.29:
+							# #residual trajectory added here
+							# # action_network = np.zeros(3)
+							# # print("action_zero just before Stage 4", action_zero)
+							# action_zero[0]+= action_network[0] #adding del_x to current_motion
+							# action_zero[1]+=  action_network[1] #adding del_y to motion
+							# action_zero[2]+=  action_network[2]  #adding del_z to motion
+							# # action_zero[3]+= action_network[3] #adding orient_x to current_motion
+							# # action_zero[4]+= action_network[4] #adding orient_y to motion
+							# # action_zero[5]+= action_network[5]  #adding orient_z to motion
+							# # print("action_zero just after Stage 4", action_zero)
+
+							# # print("obs_current[26]:", obs_current[26])
+							# # print("action_zero[2]:", action_zero[2])
+							# # print("obs_current[26]: ",obs_current[26],np.linalg.norm(obs_current[21]-0.83))
+							# # print("before stay: ", obs_current[21]-0.875)
+
+							resume_flag=False
+							if(wait_flag==True):
+								if(t-completion_time)>50:
+									resume_flag = True
+							# if np.linalg.norm(obs_current[21]-0.875)<0.001 and pp == 1 and obs_current[26]< -0.29:
+							if path_executed and pp == 1 and obs_current[26]< -0.29:
+
+
 								# print("stay!!")
 								action_zero[2] = pos_z
 								action_zero[6] = 0.4
@@ -472,21 +486,21 @@ class grasping_agent:
 						observation_y[t] = t_real[1]
 						observation_z[t] = t_real[2]
 						t_arr[t] = t*0.002
-					# plt.plot(t_arr, observation_x)
-					# plt.title('End-effector x-coordinate vs. time')
-					# plt.xlabel('time(in seconds)')
-					# plt.ylabel('End-effector x-coordinate(in meter)')
-					# plt.show()
-					# plt.plot(t_arr, observation_y)
-					# plt.title('End-effector y-coordinate vs. time')
-					# plt.xlabel('time(in seconds)')
-					# plt.ylabel('End-effector y-coordinate(in meter)')
-					# plt.show()
-					# plt.plot(t_arr, observation_z)
-					# plt.title('End-effector z-coordinate vs. time')
-					# plt.xlabel('time(in seconds)')
-					# plt.ylabel('End-effector z-coordinate(in meter)')
-					# plt.show()
+					plt.plot(t_arr, observation_x)
+					plt.title('End-effector x-coordinate vs. time')
+					plt.xlabel('time(in seconds)')
+					plt.ylabel('End-effector x-coordinate(in meter)')
+					plt.show()
+					plt.plot(t_arr, observation_y)
+					plt.title('End-effector y-coordinate vs. time')
+					plt.xlabel('time(in seconds)')
+					plt.ylabel('End-effector y-coordinate(in meter)')
+					plt.show()
+					plt.plot(t_arr, observation_z)
+					plt.title('End-effector z-coordinate vs. time')
+					plt.xlabel('time(in seconds)')
+					plt.ylabel('End-effector z-coordinate(in meter)')
+					plt.show()
 					
 					Total_episodes = Total_episodes +1
 					if reward[1] == 5:

@@ -117,7 +117,22 @@ if __name__ == '__main__':
         ##to plot
         # ! how do these numbers are calculated?
         observation_x = np.zeros(11000)
-        t_arr = np.linspace(0,11000,11000)
+        max_time_steps = 11000
+        t_arr = np.linspace(0,max_time_steps,max_time_steps+1)
+        observation_x_commanded = np.zeros(max_time_steps+1)
+        observation_y_commanded  = np.zeros(max_time_steps+1)
+        observation_z_commanded  = np.zeros(max_time_steps+1)
+
+        observation_x_real = np.zeros(max_time_steps+1)
+        observation_y_real = np.zeros(max_time_steps+1)
+        observation_z_real = np.zeros(max_time_steps+1)
+
+        T_sim_real = np.eye(4)
+        T_real_actual = np.eye(4)
+        T_sim_actual = np.eye(4)
+        t_real = [0]*6
+
+
         plan_flag= True
         wait_flag = False
         path_executed = False
@@ -127,7 +142,7 @@ if __name__ == '__main__':
             obs_current = obs['observation']
             
             # When phone crosses this point, planner will get started
-            pre_grasp_pos = 0.5
+            pre_grasp_pos = 0.3
             proximal_tol = 0.1
             
             gripper_pos = obs_current[19:22] 
@@ -162,7 +177,7 @@ if __name__ == '__main__':
                     goal[2] = phone_pos[2]        
                     end_pose = Pose()
                     end_pose.position.x = goal[0] + 0.003
-                    end_pose.position.y = goal[1]
+                    end_pose.position.y = goal[1] - 0.05
                     end_pose.position.z = 0.78#goal[2]
                     end_pose.orientation.x = 0
                     end_pose.orientation.y = 0
@@ -279,32 +294,34 @@ if __name__ == '__main__':
 
                 # print(f"phone_y {phone_pos[1]}")
                 # print(f"gripper_y {gripper_pos[1]}")
-                resume_flag=False
-                if(wait_flag==True):
-                    if(t-completion_time)>50:
-                        resume_flag = True
+                resume_flag=True
+                # if(wait_flag==True):
+                #     if(t-completion_time)>1:
+                #         resume_flag = True
 
                 if path_executed and  pp_snatch == 1 and pp_grip == 0 and resume_flag:
                     # print("stay!!")
                     action_zero[2] = pos_z
                     # action_zero[6] = 0.4
                     # action_zero[7] = 0.4
-                    action_zero[6] = 0.45
-                    action_zero[7] = -0.45
+                    action_zero[6] = 0.4
+                    action_zero[7] = -0.4
                     time_stay-=1
                     if time_stay<=0:
                         pp_grip=1
                                 
                 elif pp_grip==1 and action_zero[2]>0.55:
                     # print("go up!! ship is sinking")
+                    last_time = t
                     time_reset-=1
                     if time_reset<=0:
                         pos_z -= 0.0005 #motion happening here
                         action_zero[2] = pos_z
                         # action_zero[6] = 0.4
                         # action_zero[7] = 0.4
-                        action_zero[6] = 0.45
-                        action_zero[7] = -0.45
+                        action_zero[6] = 0.4
+                        action_zero[7] = -0.4
+
                     if time_reset<=-100:
                         env.clip_grip_vel()
                                 
@@ -319,20 +336,57 @@ if __name__ == '__main__':
                 if action_zero[2]>=0.763:
                     action_zero[2]=0.763
                 obs,reward,done,_ = env.step(action_zero)
+
                 obs_current = obs['observation']
                 # print("stage 5 {}, {}".format(pp,np.linalg.norm(obs_current[20]-obs_current[13])))
                 # action_network = np.zeros(3)
             obs_last = obs_current.copy()
-            # T_sim_real[0:3,3] = [0,0.03175,0]
-
-            # # T_sim_target[0:3,0:3] = t3d.euler.euler2mat(target_sim[3],target_sim[4],target_sim[5],'szyx')
-            # T_sim_target[0:3,3] = [obs_current[19],obs_current[20],obs_current[21]]
-
-            # T_real_target = np.matmul(np.linalg.inv(T_sim_real),T_sim_target)
-
-            # t_real[0],t_real[1],t_real[2] = T_real_target[0:3,3]
+            T_sim_real[0:3,0:3] = np.array([[-1,0,0],
+                            [0,1,0],
+                            [0,0,-1]])
+            T_sim_real[0:3,3] = [0.5983,0.1196,0.3987]
+            # T_sim_target[0:3,0:3] = t3d.euler.euler2mat(target_sim[3],target_sim[4],target_sim[5],'szyx')
+            T_sim_actual[0:3,3] = [obs_current[19],obs_current[20],obs_current[21]]
+            T_real_actual = np.matmul(np.linalg.inv(T_sim_real),T_sim_actual)
+            t_real[0],t_real[1],t_real[2] = T_real_actual[0:3,3]
+            t_real[2] = - t_real[2]
             # observation_x[t] = t_real[0]
-            # t_arr[t] = t
+            # observation_y[t] = t_real[1]
+            # observation_z[t] = t_real[2]
+            # t_arr[t] = t*0.002
+            observation_x_commanded[t] = action_zero[0]
+            observation_y_commanded[t] = action_zero[1]
+            observation_z_commanded[t] = action_zero[2]
+
+
+            observation_x_real[t] = gripper_pos[0] - delta[0]
+            observation_y_real[t] = gripper_pos[1] - delta[1]
+            observation_z_real[t] = gripper_pos[2] - delta[2]
+
+
+
+
+        plt.plot(t_arr[0:last_time]*0.002, observation_x_commanded[0:last_time])
+        plt.plot(t_arr[0:last_time]*0.002, observation_x_real[0:last_time])
+        plt.legend(["commanded", "real"])
+        plt.title('End-effector x-coordinate vs. time')
+        plt.xlabel('time(in seconds)')
+        plt.ylabel('End-effector x-coordinate(in meter)')
+        plt.show()
+        plt.plot(t_arr[0:last_time]*0.002, observation_y_commanded[0:last_time])
+        plt.plot(t_arr[0:last_time]*0.002, observation_y_real[0:last_time])
+        plt.legend(["commanded", "real"])
+        plt.title('End-effector y-coordinate vs. time')
+        plt.xlabel('time(in seconds)')
+        plt.ylabel('End-effector y-coordinate(in meter)')
+        plt.show()
+        plt.plot(t_arr[0:last_time]*0.002, observation_z_commanded[0:last_time])
+        plt.plot(t_arr[0:last_time]*0.002, observation_z_real[0:last_time])
+        plt.legend(["commanded", "real"])
+        plt.title('End-effector z-coordinate vs. time')
+        plt.xlabel('time(in seconds)')
+        plt.ylabel('End-effector z-coordinate(in meter)')
+        plt.show()
                         
         print("Expected goal: ",g)
         print("Actual position: ",obs['achieved_goal'])
