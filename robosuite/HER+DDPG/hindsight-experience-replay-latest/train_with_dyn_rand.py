@@ -392,8 +392,8 @@ class D3_pick_place_env(object):
 		#kd = 0.8
 		#kp=10
 		#kd=0.1
-		kp=4000#800 ####1000
-		kd=6000#1500 ####1500
+		kp=16000#800 ####1000
+		kd=18000#1500 ####1500
 		qpos = des+kp*(des-current)-kd*(current-q_pos_last)
 		# print(kp*(des-current))
 		return qpos

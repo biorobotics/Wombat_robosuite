@@ -44,11 +44,11 @@ def _preproc_inputs(obs, g):
         inputs = inputs.cuda()
     return inputs
 def dyn_rand():
-	phone_x = 0.578#np.random.uniform(0.428, 0.728)
-	phone_speed = -0.20#np.random.uniform(-0.14, -0.18)
-	phone_orient = 0.0
-	# phone_orient = np.random.uniform(-0.05, 0.05)
-	return phone_x, phone_speed, phone_orient
+    phone_x = 0.578#np.random.uniform(0.428, 0.728)
+    phone_speed = -0.20#np.random.uniform(-0.14, -0.18)
+    phone_orient = 0.0
+    # phone_orient = np.random.uniform(-0.05, 0.05)
+    return phone_x, phone_speed, phone_orient
 
 
 def dmp_client( start, goal, mode, phone_velocity):
@@ -126,6 +126,7 @@ if __name__ == '__main__':
         observation_x_real = np.zeros(max_time_steps+1)
         observation_y_real = np.zeros(max_time_steps+1)
         observation_z_real = np.zeros(max_time_steps+1)
+        
 
         T_sim_real = np.eye(4)
         T_real_actual = np.eye(4)
@@ -140,15 +141,17 @@ if __name__ == '__main__':
 
             obs,reward,done,_ = env.step(action_zero)
             obs_current = obs['observation']
-            
+            # print(obs_current[21])
+            vel_iPhone_rt = (obs_current[13] - obs_last[13])/(0.002) #rt ==> real_time
+            print("real_time_velocity:", vel_iPhone_rt)
             # When phone crosses this point, planner will get started
             pre_grasp_pos = 0.3
             proximal_tol = 0.1
             
-            gripper_pos = obs_current[19:22] 
+            gripper_pos = obs_current[19:26] 
             phone_pos = obs_current[12:15] 
 
-            delta = gripper_pos - action_zero[0:3]
+            delta = gripper_pos[0:3] - action_zero[0:3]
 
             if phone_pos[1]>pre_grasp_pos:
                 pass
@@ -215,8 +218,8 @@ if __name__ == '__main__':
                     print(f"action_zero {action_zero}")
 
 
-                    if action_zero[2]>=0.762:
-                        action_zero[2]=0.762
+                    if action_zero[2]>=0.763:
+                        action_zero[2]=0.763
                     obs,reward,done,_ = env.step(action_zero)
                     obs_current = obs['observation'] 
                     traj_index+=1
@@ -362,6 +365,8 @@ if __name__ == '__main__':
             observation_x_real[t] = gripper_pos[0] - delta[0]
             observation_y_real[t] = gripper_pos[1] - delta[1]
             observation_z_real[t] = gripper_pos[2] - delta[2]
+            
+
 
 
 
@@ -387,6 +392,7 @@ if __name__ == '__main__':
         plt.xlabel('time(in seconds)')
         plt.ylabel('End-effector z-coordinate(in meter)')
         plt.show()
+        
                         
         print("Expected goal: ",g)
         print("Actual position: ",obs['achieved_goal'])
