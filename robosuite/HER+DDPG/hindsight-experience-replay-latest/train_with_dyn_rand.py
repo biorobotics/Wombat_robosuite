@@ -26,6 +26,7 @@ import os
 from datetime import datetime
 from gym import spaces
 import random
+import glfw
 """
 train the agent, the MPI part code is copy from openai baselines(https://github.com/openai/baselines/blob/master/baselines/her)
 """
@@ -230,6 +231,9 @@ class D3_pick_place_env(object):
 		# ipdb.set_trace()
 		obs = self.set_env(phone_x,phone_speed,phone_orient)
 		return obs
+
+	def close_window(self):
+		glfw.destroy_window(self.viewer.window)
 
 	def grip_signal(self,des_state,obs_last,obs_last2last):
 		if des_state=='open':

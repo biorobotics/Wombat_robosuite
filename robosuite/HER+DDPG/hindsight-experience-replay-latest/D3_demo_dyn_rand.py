@@ -22,6 +22,7 @@ import os
 from datetime import datetime
 from gym import spaces
 import random
+import time
 
 from train_with_dyn_rand import D3_pick_place_env
 
@@ -72,36 +73,41 @@ if __name__ == '__main__':
     o_mean, o_std, g_mean, g_std, model = torch.load(model_path, map_location=lambda storage, loc: storage)
     # create the environment
     # env = PickPlace_env(args)
-    env = D3_pick_place_env(args,is_render=False)
     # env = gym.make(args.env_name)
     # get the env param
     # observation = env.reset()
     # obs = env.env.reset()
-    obs = env.reset()
-    # obs,_ = env.robot_obs2obs(obs)
-    # get the environment params
-    env_params = {'obs': obs['observation'].shape[0], 
-                  'goal': obs['desired_goal'].shape[0], 
-                  'action': env.action_network_dim, 
-                  'action_max': env.action_high[0],
-                  }
-    
-    # create the actor network
-    actor_network = actor(env_params)
-    actor_network.load_state_dict(model)
-    actor_network.eval()
+
     success = 0
     for i in range(args.demo_length):
+        print(f"Restarting the episode")
+        # obs = env.reset()
         phone_x, phone_speed, phone_orient = dyn_rand()
+        env = D3_pick_place_env(args,is_render=False)
+
+        env.set_env(phone_x,phone_speed,phone_orient)
+        obs = env.observation_current
+        # obs,_ = env.robot_obs2obs(obs)
+        # get the environment params
+        env_params = {'obs': obs['observation'].shape[0], 
+                    'goal': obs['desired_goal'].shape[0], 
+                    'action': env.action_network_dim, 
+                    'action_max': env.action_high[0],
+                    }
+        
+        # create the actor network
+        actor_network = actor(env_params)
+        actor_network.load_state_dict(model)
+        actor_network.eval()
         # reset the environment
-        observation = env.reset(phone_x, phone_speed, phone_orient)
+        # observation = env.reset(phone_x, phone_speed, phone_orient)
         # observation_,observation = env.robot_obs2obs(observation)
         # observation = env.reset()
         # start to do the demo
-        obs = observation['observation']
-        g = observation['desired_goal']#+ np.array([0.0,0.,0.03])
+        obs = obs['observation']
+        # g = obs['desired_goal']#+ np.array([0.0,0.,0.03])
         obs_current = obs.copy()#obs['observation']
-        ag = observation['achieved_goal']
+        # ag = obs['achieved_goal']
         # create the normalizer
         o_norm = normalizer(size=env_params['obs'], default_clip_range=args.clip_range)
         g_norm = normalizer(size=env_params['goal'], default_clip_range=args.clip_range)
@@ -137,13 +143,17 @@ if __name__ == '__main__':
         plan_flag= True
         wait_flag = False
         path_executed = False
+        time.sleep(0.1)
+
         for t in range(env._max_episode_steps):
 
-            obs,reward,done,_ = env.step(action_zero)
+            try:
+                obs,reward,done,_ = env.step(action_zero)
+            except:
+                print(f"obs1 : {obs_current[1]}")
             obs_current = obs['observation']
             # print(obs_current[21])
             vel_iPhone_rt = (obs_current[13] - obs_last[13])/(0.002) #rt ==> real_time
-            print("real_time_velocity:", vel_iPhone_rt)
             # When phone crosses this point, planner will get started
             pre_grasp_pos = 0.3
             proximal_tol = 0.1
@@ -154,7 +164,10 @@ if __name__ == '__main__':
             delta = gripper_pos[0:3] - action_zero[0:3]
 
             if phone_pos[1]>pre_grasp_pos:
-                pass
+
+                obs,reward,done,_ = env.step(action_zero)
+                obs_current = obs['observation'] 
+                
 
 
             if (phone_pos[1]<pre_grasp_pos and path_executed==False):
@@ -212,10 +225,11 @@ if __name__ == '__main__':
                 
                 
                 path_executed = traj_index==desired_traj.shape[0]
-                print(f"Path Executed {path_executed}")
+                if(path_executed==True):
+                    print(f"Path Executed {path_executed}")
                 if(path_executed==False):
                     action_zero[0:3] = desired_traj[traj_index, 0:3]
-                    print(f"action_zero {action_zero}")
+                    # print(f"action_zero {action_zero}")
 
 
                     if action_zero[2]>=0.763:
@@ -334,13 +348,14 @@ if __name__ == '__main__':
                 pos_z = action_zero[2]
                 pp_snatch =1
             # re-assign the observation
-            else:
-                # print("no snatching")
-                if action_zero[2]>=0.763:
-                    action_zero[2]=0.763
-                obs,reward,done,_ = env.step(action_zero)
+            # else:
+            #     print(f"if else last stage")
+            #     # print("no snatching")
+            #     if action_zero[2]>=0.763:
+            #         action_zero[2]=0.763
+            #     # obs,reward,done,_ = env.step(action_zero)
 
-                obs_current = obs['observation']
+            #     obs_current = obs['observation']
                 # print("stage 5 {}, {}".format(pp,np.linalg.norm(obs_current[20]-obs_current[13])))
                 # action_network = np.zeros(3)
             obs_last = obs_current.copy()
@@ -357,50 +372,51 @@ if __name__ == '__main__':
             # observation_y[t] = t_real[1]
             # observation_z[t] = t_real[2]
             # t_arr[t] = t*0.002
-            observation_x_commanded[t] = action_zero[0]
-            observation_y_commanded[t] = action_zero[1]
-            observation_z_commanded[t] = action_zero[2]
+            # observation_x_commanded[t] = action_zero[0]
+            # observation_y_commanded[t] = action_zero[1]
+            # observation_z_commanded[t] = action_zero[2]
 
 
-            observation_x_real[t] = gripper_pos[0] - delta[0]
-            observation_y_real[t] = gripper_pos[1] - delta[1]
-            observation_z_real[t] = gripper_pos[2] - delta[2]
+            # observation_x_real[t] = gripper_pos[0] - delta[0]
+            # observation_y_real[t] = gripper_pos[1] - delta[1]
+            # observation_z_real[t] = gripper_pos[2] - delta[2]
             
 
 
 
 
 
-        plt.plot(t_arr[0:last_time]*0.002, observation_x_commanded[0:last_time])
-        plt.plot(t_arr[0:last_time]*0.002, observation_x_real[0:last_time])
-        plt.legend(["commanded", "real"])
-        plt.title('End-effector x-coordinate vs. time')
-        plt.xlabel('time(in seconds)')
-        plt.ylabel('End-effector x-coordinate(in meter)')
-        plt.show()
-        plt.plot(t_arr[0:last_time]*0.002, observation_y_commanded[0:last_time])
-        plt.plot(t_arr[0:last_time]*0.002, observation_y_real[0:last_time])
-        plt.legend(["commanded", "real"])
-        plt.title('End-effector y-coordinate vs. time')
-        plt.xlabel('time(in seconds)')
-        plt.ylabel('End-effector y-coordinate(in meter)')
-        plt.show()
-        plt.plot(t_arr[0:last_time]*0.002, observation_z_commanded[0:last_time])
-        plt.plot(t_arr[0:last_time]*0.002, observation_z_real[0:last_time])
-        plt.legend(["commanded", "real"])
-        plt.title('End-effector z-coordinate vs. time')
-        plt.xlabel('time(in seconds)')
-        plt.ylabel('End-effector z-coordinate(in meter)')
-        plt.show()
+        # plt.plot(t_arr[0:last_time]*0.002, observation_x_commanded[0:last_time])
+        # plt.plot(t_arr[0:last_time]*0.002, observation_x_real[0:last_time])
+        # plt.legend(["commanded", "real"])
+        # plt.title('End-effector x-coordinate vs. time')
+        # plt.xlabel('time(in seconds)')
+        # plt.ylabel('End-effector x-coordinate(in meter)')
+        # plt.show()
+        # plt.plot(t_arr[0:last_time]*0.002, observation_y_commanded[0:last_time])
+        # plt.plot(t_arr[0:last_time]*0.002, observation_y_real[0:last_time])
+        # plt.legend(["commanded", "real"])
+        # plt.title('End-effector y-coordinate vs. time')
+        # plt.xlabel('time(in seconds)')
+        # plt.ylabel('End-effector y-coordinate(in meter)')
+        # plt.show()
+        # plt.plot(t_arr[0:last_time]*0.002, observation_z_commanded[0:last_time])
+        # plt.plot(t_arr[0:last_time]*0.002, observation_z_real[0:last_time])
+        # plt.legend(["commanded", "real"])
+        # plt.title('End-effector z-coordinate vs. time')
+        # plt.xlabel('time(in seconds)')
+        # plt.ylabel('End-effector z-coordinate(in meter)')
+        # plt.show()
         
                         
-        print("Expected goal: ",g)
-        print("Actual position: ",obs['achieved_goal'])
+        # print("Expected goal: ",g)
+        # print("Actual position: ",obs['achieved_goal'])
         reward = env.compute_reward(obs['observation'],obs['observation'],None)
         print("Reward is: ",reward)
         
         if reward[1]==50:
             success = success + 1
         print("Run no.: {}, Total_successes: {}".format(i+1,success))
+        env.close_window()
         # plt.plot(t_arr, observation_x)
         # plt.show()
