@@ -122,40 +122,15 @@ class grasping_agent:
 			for n_cycles in range(self.args.n_cycles):
 				mb_obs, mb_ag, mb_g, mb_actions = [], [], [], []
 				for r_mpi in range(self.args.num_rollouts_per_mpi):
-					
-					#TODO: Set up the flags for baseline loop
-					#Pre Reach 
-					# This stage will move the robot so that the orientation and pos_x 
-					# of the robot matches the phone
-
-
-					#Pre Grasp 
-					#If the phone has entered -> init the pick dmp motion
-					# till DMP convergence 
-
-					#RL for Grasping
-
-
-					#Pick up on success 
-
-
-
-
-
 					# reset the rollouts
 					ep_obs, ep_ag, ep_g, ep_actions = [], [], [], []
 					phone_x, phone_speed, phone_orient = self.dyn_rand()
-					# reset the environment
-					# obs = self.env.reset(phone_x, phone_speed, phone_orient)
+					# setting the environment
 					self.env.set_env(phone_x,phone_speed,phone_orient)
 					obs = self.env.observation_current
-					# obs = obs['observation']
 					obs_current = obs.copy()
-					# obs_current = obs['observation']
 					ag = obs['achieved_goal']
 					g = obs['desired_goal']
-					# g = self.env.get_goal(observation)
-					# ipdb.set_trace()
 					# start to collect samples
 					if MPI.COMM_WORLD.Get_rank() == 0:
 						image_new = []
@@ -181,37 +156,22 @@ class grasping_agent:
 					R_ie = np.array([[-1,0,0],[0,1,0],[0,0,-1]])
 					if n_cycles == self.args.n_cycles - 1 and MPI.COMM_WORLD.Get_rank() == 0 and r_mpi == 1 and self.record_video:
 						video_writer = imageio.get_writer('saved_models/New_Gripping_policy_dyn_rand/epoch_{}.mp4'.format(epoch+1), fps=60)
-					# traj_index = 0
+					
 					wait_flag = False
 					plan_flag= True
 					path_executed = False
 					time.sleep(0.1)
 
 					for t in range(self.env_params['max_timesteps']):
-						# pp = 0
-						# feed the actions into the environment
-						### go to starting position ###
-						# if t%1000==0:
-						# 	print(t)
-						# print("action_zero", action_zero)
+						
 						try:
 							obs,reward,done,_ = self.env.step(action_zero)
 						except:
 							print(f"obs1 : {obs_current[1]}")
-						# obs,reward,done,_ = self.env.step(action_zero)
+						
 						obs_current = obs['observation']
 						vel_iPhone_rt = (obs_current[13] - obs_last[13])/(0.002) #rt ==> real_time
-						#TODO: Set up the flags for baseline loop
-						#Pre Reach 
-						# This stage will move the robot so that the orientation and pos_x 
-						# of the robot matches the phone
-
-
-						#Pre Grasp 
-						#If the phone has entered -> init the pick dmp motion
-						# till DMP convergence 
 						
-
 						# flags
 						pre_grasp_pos = 0.3
 						proximal_tol = 0.1
@@ -278,10 +238,8 @@ class grasping_agent:
 							# ! -> Execute this traj
 
 							# Calculate current position in the trajectory : i^th index 
-							
-							
 							path_executed = traj_index==desired_traj.shape[0]
-							# print(f"Path Executed {path_executed}")
+							
 							if(path_executed==True):
 								print(f"Path Executed {path_executed}")
 							if(path_executed==False):
@@ -290,145 +248,34 @@ class grasping_agent:
 								##RL for Grasping
 								action_network=np.zeros(3)
 								with torch.no_grad():
-									# ipdb.set_trace()
 									input_tensor = self._preproc_inputs(obs_current, g)
 									pi = self.actor_network(input_tensor)
 									action_network = self._select_actions(pi)
 								action_zero[0]+= action_network[0] #adding del_x to current_motion
 								action_zero[1]+=  action_network[1] #adding del_y to motion
 								action_zero[2]+=  action_network[2]  #adding del_z to motion
-								# # action_zero[3]+= action_network[3] #adding orient_x to current_motion
-								# # action_zero[4]+= action_network[4] #adding orient_y to motion
-								# # action_zero[5]+= action_network[5]  #adding orient_z to motion
+								
 								if action_zero[2]>=0.763:
 									action_zero[2]=0.763								
-								# print(f"action_zero {action_zero}")
+								
 								obs,reward,done,_ = self.env.step(action_zero)
 								obs_current = obs['observation'] 
 								traj_index+=1
 
-
-
-
-						#RL for Grasping
-
-
-						#Pick up on success 
-						
-
-						# add a pre grasping stage here where we initialize the 
-						# DMP for a couple of seconds 
-						# if t>=0 and t<1700 and pp==0:
-						# 	# print(t)
-						# 	action_network = np.zeros(3)
-						# 	action_zero[1] += 0.0002 #motion happening here
-						# 	if action_zero[1]>0.05:
-						# 		action_zero[1]=0.05
-						# 	# print(np.linalg.norm(obs_current[19] - obs_current[12]))
-						# 	if np.linalg.norm(obs_current[19]-obs_current[12])>0.002:
-						# 		pos_x_dir = (obs_current[19]-obs_current[12])/np.abs(obs_current[19]-obs_current[12])
-						# 		pos_x += 0.0001*pos_x_dir  #motion happening here
-						# 		# print(obs_current[19] - obs_current[12])
-						# 		# if t>100:
-						# 		# 	object_or = obs_current[15:19]
-						# 		# 	R_bi = t3d.quaternions.quat2mat(object_or)
-						# 		# 	R_br= np.matmul(R_bi,R_ie)
-						# 		# 	ax_r = t3d.axangles.mat2axangle(R_br)
-						# 		# 	# action_zero[3:6] = np.array([-ax_r[0][1]*ax_r[1],-ax_r[0][2]*ax_r[1],ax_r[0][0]*ax_r[1]])
-						# 		# 	action_zero[3:6] = np.array([ax_r[0][1]*ax_r[1],-ax_r[0][2]*ax_r[1],ax_r[0][0]*ax_r[1]])
-						# 			# action_zero[3:6] = np.array([-0.1, 0, 0.1])
-						# 	action_zero[0] = pos_x
-						# 	# ipdb.set_trace()	
-						# 	obs,reward,done,_ = self.env.step(action_zero)
-							
-							
-						# 	# print("real cmd",action_zero)
-						# 	# print("sim", obs_current[19:22])
-						# 	# print("sim2real", t_real[0:3])
-						# 	# print(t)
-						# 	obs_current = obs['observation'] 
-						# 	# print(obs_current[14])
-						# 	# print("Action", action_zero)
-						# 	# print("Stage 1 ",pp)
-						# 	# print("gripper pose", obs_current[19:26])
-
-
-
-						# ### Calculate variables to pick ###
-						# elif t>=1700 and t<1800 and pp==0:
-						# 	action_network = np.zeros(3)
-						# 	obs,reward,done,_ = self.env.step(action_zero) 
-						# 	obs_current = obs['observation']
-
-						# 	vel_iPhone = (obs_current[13] - obs_last[13])
-						# 	steps_to_reach = ((0.0 - obs_current[13])/vel_iPhone)
-						# 	vel_iPhone_rt = (obs_current[13] - obs_last[13])/(0.002) #rt ==> real_time
-						# 	# print("last and current iPhone : ",obs_current[13],obs_last[13])
-						# 	# print("steps to reach: ",steps_to_reach)
-						# 	# print("Stage 2 ",pp)
-
-
-
-
-
-						# ### calculate target velocity ###
-						# elif t == 1800 and pp==0:
-						# 	vel_z = (obs_current[21] - 0.875)/int(steps_to_reach)
-						# 	vel_y = (obs_current[20] - 0.0)/int(steps_to_reach)
-						# 	# print("Stage 3 ",pp)
-
-
-
-						### Start snatch motion ###
+						## Start snatch motion ###
 						elif path_executed or np.linalg.norm(obs_current[20]-obs_current[13])<0.001 or pp_snatch == 1:
-							# action_network = np.zeros(3)
-							# print(abs(obs_current[19]-obs_current[12]))
-							# print("Stage 4 ",pp)
-							# print("in stage 4: ", obs_current[21]-obs_current[14])
-							# print("len of ep_obs: ",len(mb_obs))
+							
 							if(wait_flag==False):
 								completion_time = t
 								wait_flag =True
-							if action_zero[2]>=0.763: ################SURYA CHANGES####################
+							if action_zero[2]>=0.763: 
 								action_zero[2]=0.763
 							obs,reward,done,_ = self.env.step(action_zero)
 							obs_current = obs['observation']
-							# print("obs[14]",obs_current[14])
-							# print("obs[21]-obs[14]",obs_current[21]-obs_current[14])
-							# print("gripper pose", obs_current[19:26])
-							# print("Action", action_zero)
-
-
-							# with torch.no_grad():
-							# 	# ipdb.set_trace()
-							# 	input_tensor = self._preproc_inputs(obs_current, g)
-							# 	pi = self.actor_network(input_tensor)
-							# 	action_network = self._select_actions(pi)
-							# 	# print("input_tensor", input_tensor)
-							# 	# print("pi", pi)
-							# 	# print("action_network", action_network)
-
-							# #residual trajectory added here
-							# # action_network = np.zeros(3)
-							# # print("action_zero just before Stage 4", action_zero)
-							# action_zero[0]+= action_network[0] #adding del_x to current_motion
-							# action_zero[1]+=  action_network[1] #adding del_y to motion
-							# action_zero[2]+=  action_network[2]  #adding del_z to motion
-							# # action_zero[3]+= action_network[3] #adding orient_x to current_motion
-							# # action_zero[4]+= action_network[4] #adding orient_y to motion
-							# # action_zero[5]+= action_network[5]  #adding orient_z to motion
-							# # print("action_zero just after Stage 4", action_zero)
-
-							# # print("obs_current[26]:", obs_current[26])
-							# # print("action_zero[2]:", action_zero[2])
-							# # print("obs_current[26]: ",obs_current[26],np.linalg.norm(obs_current[21]-0.83))
-							# # print("before stay: ", obs_current[21]-0.875)
+							
 
 							resume_flag=True#False
-							# if(wait_flag==True):
-							# 	if(t-completion_time)>50:
-							# 		resume_flag = True
-							# if np.linalg.norm(obs_current[21]-0.875)<0.001 and pp == 1 and obs_current[26]< -0.29:
+							
 							if path_executed and pp_snatch == 1 and pp_grip == 0 and resume_flag:
 
 
@@ -466,49 +313,17 @@ class grasping_agent:
 							ep_g.append(obs['desired_goal'].copy())
 							ep_actions.append(action_network.copy())
 
-						# re-assign the observation
-
-
-						# else:
-						# 	# print("no snatching")
-						# 	if action_zero[2]>=0.75: ################SURYA CHANGES####################
-						# 		action_zero[2]=0.75
-						# 	obs,reward,done,_ = self.env.step(action_zero)
-						# 	obs_current = obs['observation']
-						# 	# print("stage 5 {}, {}".format(pp,np.linalg.norm(obs_current[20]-obs_current[13])))
-						# 	action_network = np.zeros(3)
-
-
+						
 						obs_last = obs_current.copy()
-						# ipdb.set_trace()
 						ag = obs['achieved_goal']
-						# ipdb.set_trace()				
-						# if n_cycles == self.args.n_cycles - 1 and MPI.COMM_WORLD.Get_rank() == 0:
-						# 	self._make_video(image_new,epoch)
+						
 						#write a video
 						if n_cycles == self.args.n_cycles - 1 and MPI.COMM_WORLD.Get_rank() == 0 and r_mpi == 1 and self.record_video:
 							video_img = self.env.sim.render(height=512, width=512, camera_name='robot0_realsense_front', mode='offscreen')[::-1]
 							video_writer.append_data(video_img)
 							if t%1000==0:
 								print("Video_making & t:",t)
-						# if n_cycles == self.args.n_cycles - 1 and MPI.COMM_WORLD.Get_rank() == 0:
-						# 	video_writer.close()
-						# if n_cycles == self.args.n_cycles - 1 and MPI.COMM_WORLD.Get_rank() == 0:
-						# 	self._make_video(image_new,epoch)
-						# observation_new, _, _, info = self.env.env.step(action_robot)
-
-						# if MPI.COMM_WORLD.Get_rank() == 0:
-						# 	image_new.append(observation_new['frontview_image'][::-1,:])
-						# if MPI.COMM_WORLD.Get_rank() == 0:
-						# 	image_new.append(self.env.sim.render(width=200, height=200, camera_name='frontview'))
-						# if self.args.is_render:
-						# 	self.env.env.render()
-						# observation_new_,observation_new = self.env.robot_obs2obs(observation_new)
-						# obs_new = observation_new_['observation']
-						# ag_new = observation_new_['achieved_goal']
-						# append rollouts
-												
-						# print("desired goal: {}, achieved_goal {}".format(g, ag))
+						
 						T_sim_real[0:3,0:3] = np.array([[-1,0,0],
 													[0,1,0],
 													[0,0,-1]])
@@ -554,16 +369,12 @@ class grasping_agent:
 					print("epoch: {}, cycles: {}, r_mpi: {}, Partial_success: {}, Full_success: {}, Episodes: {}".format(epoch,n_cycles,r_mpi,Partial_success,Full_success,Total_episodes))
 					current_time = strftime("%Y-%m-%d-%H-%M-%S", localtime())
 					self.env.close_window()
-					# print("Current Time =", current_time)
-
-					# time.sleep(5)
+					
 
 				# convert them into arrays
 				array_l = [len(mb_obs[0]),len(mb_obs[1])]
 				min_l = min(array_l)
 				for r_mpi in range(self.args.num_rollouts_per_mpi):
-					# print("self.args.num_rollouts_per_mpi", self.args.num_rollouts_per_mpi)
-					# time.sleep(5)
 					#done to equal the array out for concatenate
 					l = len(mb_obs[r_mpi])
 					mb_obs[r_mpi] = mb_obs[r_mpi][l-min_l:]	
@@ -572,9 +383,7 @@ class grasping_agent:
 					mb_actions[r_mpi] = mb_actions[r_mpi][l-min_l:]	
 					
 
-				# ipdb.set_trace()
-
-
+				
 				mb_obs = np.array(mb_obs)
 				mb_ag = np.array(mb_ag)
 				mb_g = np.array(mb_g)
@@ -582,7 +391,7 @@ class grasping_agent:
 				self.write_counter += 1
 
 				mb_obs, mb_ag, mb_g, mb_actions = self.add_padding([mb_obs, mb_ag, mb_g, mb_actions],['obs','ag','g','action'])
-				# ipdb.set_trace()
+				
 				# store the episodes
 				self.buffer.store_episode([mb_obs, mb_ag, mb_g, mb_actions])
 				self._update_normalizer([mb_obs, mb_ag, mb_g, mb_actions])
@@ -621,11 +430,9 @@ class grasping_agent:
 		 
 		for i in range(len(video_buffer)):
 			im_rgb = cv2.cvtColor(video_buffer[i], cv2.COLOR_BGR2RGB)
-			# im_rgb = cv2.resize(im_rgb,(720,720))
 			out.write(im_rgb)
 		out.release()
 
-		# self.plot(self.episode_rewards,"reward")
 		print("Video done")
 
 
@@ -723,18 +530,14 @@ class grasping_agent:
 		# the actor loss
 		# print("inputs_norm_tensor", torch.max(inputs_norm_tensor), torch.min(inputs_norm_tensor))
 		actions_real = self.actor_network(inputs_norm_tensor)
-		# print("actions_real", actions_real)
+		
 		actor_loss = -self.critic_network(inputs_norm_tensor, actions_real).mean()
-		# print("actor_loss", actor_loss)
-		# time.sleep(2)
+		
 		# actor_loss += self.args.action_l2 * (actions_real / self.env_params['action_max']).pow(2).mean()
 		# start to update the network
 		self.actor_optim.zero_grad()
 		actor_loss.backward()
-		# print("Actor_loss", actor_loss)
-
-		# print("MPI.COMM_WORLD.Get_rank(): ",MPI.COMM_WORLD.Get_rank())
-		# print("actor_loss: ",actor_loss)
+		
 		if MPI.COMM_WORLD.Get_rank() == 0:
 			print("Actor_loss: ", actor_loss)
 			self.writer.add_scalar('actor_loss/train',actor_loss,self.write_counter)
