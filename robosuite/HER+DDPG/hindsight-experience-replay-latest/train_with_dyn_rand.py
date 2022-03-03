@@ -184,7 +184,7 @@ class D3_pick_place_env(object):
 		# 	self.viewer1.vopt.geomgroup[0] = 0 # disable visualization of collision mesh
 		# 	self.viewer1.render()
 
-		self.timestep= 0.0005
+		self.timestep= 0.002#0.0005
 		self.sim_state = self.sim.get_state()
 		self.joint_names = ['robot0_branch1_linear_joint','robot0_branch2_linear_joint','robot0_branch3_linear_joint',
 							'robot0_branch1_joint','robot0_branch2_joint','robot0_branch3_joint']
