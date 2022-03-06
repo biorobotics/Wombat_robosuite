@@ -37,31 +37,40 @@ class grasping_agent:
 		# create the network
 		self.actor_network = actor(env_params)
 		self.critic_network = critic(env_params)
+
 		# sync the networks across the cpus
 		sync_networks(self.actor_network)
 		sync_networks(self.critic_network)
+		
 		# build up the target network
 		self.actor_target_network = actor(env_params)
 		self.critic_target_network = critic(env_params)
+		
 		# load the weights into the target networks
 		self.actor_target_network.load_state_dict(self.actor_network.state_dict())
 		self.critic_target_network.load_state_dict(self.critic_network.state_dict())
+		
 		# if use gpu
 		if self.args.cuda:
 			self.actor_network.cuda()
 			self.critic_network.cuda()
 			self.actor_target_network.cuda()
 			self.critic_target_network.cuda()
+		
 		# create the optimizer
 		self.actor_optim = torch.optim.Adam(self.actor_network.parameters(), lr=self.args.lr_actor)
 		self.critic_optim = torch.optim.Adam(self.critic_network.parameters(), lr=self.args.lr_critic)
+		
 		# her sampler
 		self.her_module = her_sampler(self.args.replay_strategy, self.args.replay_k, self.env.compute_reward)
+		
 		# create the replay buffer
 		self.buffer = replay_buffer(self.env_params, self.args.buffer_size, self.her_module.sample_her_transitions)
+		
 		# create the normalizer
 		self.o_norm = normalizer(size=env_params['obs'], default_clip_range=self.args.clip_range)
 		self.g_norm = normalizer(size=env_params['goal'], default_clip_range=self.args.clip_range)
+		
 		# create the dict for store the model
 		if MPI.COMM_WORLD.Get_rank() == 0:
 			if not os.path.exists(self.args.save_dir):
@@ -74,6 +83,7 @@ class grasping_agent:
 		self.writer = SummaryWriter()
 		self.write_counter = 0
 		self.record_video = False
+		#! timestep incosistent from 11000
 		self.timesteps = 5500#4000
 
 	def add_padding(self,transition,keys):
@@ -137,16 +147,12 @@ class grasping_agent:
 
 
 					#Pick up on success 
-
-
-
-
-
 					# reset the rollouts
 					ep_obs, ep_ag, ep_g, ep_actions = [], [], [], []
 					phone_x, phone_speed, phone_orient = self.dyn_rand()
 					# reset the environment
 					# obs = self.env.reset(phone_x, phone_speed, phone_orient)
+					
 					self.env.set_env(phone_x,phone_speed,phone_orient)
 					obs = self.env.observation_current
 					# obs = obs['observation']
@@ -185,7 +191,6 @@ class grasping_agent:
 					wait_flag = False
 					plan_flag= True
 					path_executed = False
-					time.sleep(0.1)
 
 					for t in range(self.env_params['max_timesteps']):
 						# pp = 0
@@ -200,8 +205,6 @@ class grasping_agent:
 							print(f"obs1 : {obs_current[1]}")
 						# obs,reward,done,_ = self.env.step(action_zero)
 						obs_current = obs['observation']
-						vel_iPhone_rt = (obs_current[13] - obs_last[13])/(0.002) #rt ==> real_time
-						#TODO: Set up the flags for baseline loop
 						#Pre Reach 
 						# This stage will move the robot so that the orientation and pos_x 
 						# of the robot matches the phone
@@ -306,8 +309,6 @@ class grasping_agent:
 								obs,reward,done,_ = self.env.step(action_zero)
 								obs_current = obs['observation'] 
 								traj_index+=1
-
-
 
 
 						#RL for Grasping

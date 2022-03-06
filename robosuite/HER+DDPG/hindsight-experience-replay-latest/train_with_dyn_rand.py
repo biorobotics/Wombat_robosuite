@@ -173,7 +173,7 @@ class D3_pick_place_env(object):
 		
 
 		self.sim = MjSim(self.model)
-		
+
 		if self.is_render:
 			self.viewer = MjViewer(self.sim)
 			self.viewer.vopt.geomgroup[0] = 0 # disable visualization of collision mesh
@@ -184,7 +184,7 @@ class D3_pick_place_env(object):
 		# 	self.viewer1.vopt.geomgroup[0] = 0 # disable visualization of collision mesh
 		# 	self.viewer1.render()
 
-		self.timestep= 0.0005
+		self.timestep= 0.002
 		self.sim_state = self.sim.get_state()
 		self.joint_names = ['robot0_branch1_linear_joint','robot0_branch2_linear_joint','robot0_branch3_linear_joint',
 							'robot0_branch1_joint','robot0_branch2_joint','robot0_branch3_joint']
@@ -226,14 +226,15 @@ class D3_pick_place_env(object):
 		
 		return PD_signal
 
+	def close_window(self):
+		glfw.destroy_window(self.viewer.window)
 
 	def reset(self,phone_x=0.78,phone_speed=-0.2,phone_orient=0):
 		# ipdb.set_trace()
+		self.close_window()
 		obs = self.set_env(phone_x,phone_speed,phone_orient)
 		return obs
 
-	def close_window(self):
-		glfw.destroy_window(self.viewer.window)
 
 	def grip_signal(self,des_state,obs_last,obs_last2last):
 		if des_state=='open':
@@ -396,8 +397,8 @@ class D3_pick_place_env(object):
 		#kd = 0.8
 		#kp=10
 		#kd=0.1
-		kp=16000#800 ####1000
-		kd=18000#1500 ####1500
+		kp=4000#800 ####1000
+		kd=6000#1500 ####1500
 		qpos = des+kp*(des-current)-kd*(current-q_pos_last)
 		# print(kp*(des-current))
 		return qpos

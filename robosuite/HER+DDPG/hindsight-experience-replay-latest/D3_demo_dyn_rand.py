@@ -278,7 +278,6 @@ if __name__ == '__main__':
             #     # print("Stage 3 ",pp)
             ### Start snatch motion ###
             elif path_executed or np.linalg.norm(obs_current[20]-obs_current[13])<0.001 or pp_snatch == 1:
-                # print("Stage 4 : Agent starts")
                 if(wait_flag==False):
                     completion_time = t
                     wait_flag =True
@@ -317,7 +316,6 @@ if __name__ == '__main__':
                 #         resume_flag = True
 
                 if path_executed and  pp_snatch == 1 and pp_grip == 0 and resume_flag:
-                    # print("stay!!")
                     action_zero[2] = pos_z
                     # action_zero[6] = 0.4
                     # action_zero[7] = 0.4
