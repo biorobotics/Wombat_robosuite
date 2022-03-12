@@ -45,7 +45,9 @@ def _preproc_inputs(obs, g):
         inputs = inputs.cuda()
     return inputs
 def dyn_rand():
-    phone_x = 0.578#np.random.uniform(0.428, 0.728)
+    # phone_x = 0.578#np.random.uniform(0.428, 0.728)
+    phone_x = 0.50
+
     phone_speed = -0.20#np.random.uniform(-0.14, -0.18)
     phone_orient = 0.0
     # phone_orient = np.random.uniform(-0.05, 0.05)
@@ -83,7 +85,7 @@ if __name__ == '__main__':
         print(f"Restarting the episode")
         # obs = env.reset()
         phone_x, phone_speed, phone_orient = dyn_rand()
-        env = D3_pick_place_env(args,is_render=False)
+        env = D3_pick_place_env(args,is_render=True)
 
         env.set_env(phone_x,phone_speed,phone_orient)
         obs = env.observation_current
@@ -188,11 +190,11 @@ if __name__ == '__main__':
 
 
                     goal = np.zeros(3)
-                    goal[0] = phone_pos[0] - delta[0]
+                    goal[0] = - phone_pos[0] + delta[0]
                     goal[1] = phone_pos[1] - delta[1] 
                     goal[2] = phone_pos[2]        
                     end_pose = Pose()
-                    end_pose.position.x = goal[0] + 0.003
+                    end_pose.position.x = goal[0] +0.003
                     end_pose.position.y = goal[1] - 0.05
                     end_pose.position.z = 0.78#goal[2]
                     end_pose.orientation.x = 0

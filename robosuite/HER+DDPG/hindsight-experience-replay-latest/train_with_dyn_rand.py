@@ -59,7 +59,7 @@ class D3_pick_place_env(object):
 
 	def __init__ (self,args=None,is_render=False):
 
-		self.is_render = True#is_render
+		self.is_render = is_render
 		self.action_dim = 6 #actual robot
 		self.action_network_dim = 3 # Gripper pose
 		self.obs_dim = 34#28#26
@@ -76,6 +76,10 @@ class D3_pick_place_env(object):
 
 		self.action_network_high = np.array([0.00005]*self.action_network_dim)
 		self.action_network_low = np.array([-0.00005]*self.action_network_dim)	 
+		# Action Limits for the gripper 
+		# self.action_network_high[3:5] = 0.7
+		# self.action_network_low[3:5] = 0.4
+		
 
 		self._max_episode_steps = 11000#9000#20000
 
@@ -173,7 +177,6 @@ class D3_pick_place_env(object):
 		
 
 		self.sim = MjSim(self.model)
-
 		if self.is_render:
 			self.viewer = MjViewer(self.sim)
 			self.viewer.vopt.geomgroup[0] = 0 # disable visualization of collision mesh
@@ -231,7 +234,7 @@ class D3_pick_place_env(object):
 
 	def reset(self,phone_x=0.78,phone_speed=-0.2,phone_orient=0):
 		# ipdb.set_trace()
-		self.close_window()
+		# self.close_window()
 		obs = self.set_env(phone_x,phone_speed,phone_orient)
 		return obs
 
@@ -477,9 +480,11 @@ def get_env_params(env):
 	params = {'obs': obs_dict['observation'].shape[0],
 			'goal': obs_dict['desired_goal'].shape[0],
 			'action': env.action_network_dim,
-			'action_max': env.action_high[0],
+			'action_max': env.action_network_high[0],
 			}
 	params['max_timesteps'] = env._max_episode_steps
+	if(env.is_render==True):
+		env.close_window()
 	return params
 
 def launch(args,env):
@@ -493,7 +498,7 @@ def launch(args,env):
 	if args.cuda:
 		torch.cuda.manual_seed(args.seed + MPI.COMM_WORLD.Get_rank())
 	# get the environment parameters
-	env_params = get_env_params(env)
+	env_params = get_env_params(env) # this calls a set env 
 	grasping_trainer = grasping_agent(args, env, env_params)
 	grasping_trainer.learn()
 	# create the ddpg agent to interact with the environment 
@@ -516,6 +521,7 @@ if __name__ == '__main__':
 	print("Current Time =", current_time)
 	# args = parser.parse_args()
 	# args.log = os.path.join(args.log)
+
 	pick_place_env = D3_pick_place_env(args,is_render=True)
 	# pick_place_env = PickPlace_env(args)
 	# pick_place_env.run()

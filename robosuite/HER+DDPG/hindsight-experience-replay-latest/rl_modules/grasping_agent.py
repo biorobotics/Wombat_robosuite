@@ -24,7 +24,6 @@ from geometry_msgs.msg import Pose, Vector3
 from std_msgs.msg import String
 from scipy.spatial.transform import Rotation as R
 
-
 """
 ddpg with HER (MPI-version)
 """
@@ -151,8 +150,6 @@ class grasping_agent:
 					ep_obs, ep_ag, ep_g, ep_actions = [], [], [], []
 					phone_x, phone_speed, phone_orient = self.dyn_rand()
 					# reset the environment
-					# obs = self.env.reset(phone_x, phone_speed, phone_orient)
-					
 					self.env.set_env(phone_x,phone_speed,phone_orient)
 					obs = self.env.observation_current
 					obs_current = obs.copy()
@@ -187,15 +184,18 @@ class grasping_agent:
 					wait_flag = False
 					plan_flag= True
 					path_executed = False
+					time.sleep(1)
 
 					for t in range(self.env_params['max_timesteps']):
 						
 						try:
 							obs,reward,done,_ = self.env.step(action_zero)
+							# print(f"action_zero {action_zero}")
 						except:
 							print(f"obs1 : {obs_current[1]}")
 						
 						obs_current = obs['observation']
+						print(f"Observation1 from self.env {obs_current[1]}, timestep {t}")
 						#Pre Reach 
 						# This stage will move the robot so that the orientation and pos_x 
 						# of the robot matches the phone
@@ -215,7 +215,12 @@ class grasping_agent:
 						delta = gripper_pos[0:3] - action_zero[0:3]
 
 						if phone_pos[1]>pre_grasp_pos:
+							# try:
 							obs,reward,done,_ = self.env.step(action_zero)
+							# 	print(f"action_zero {action_zero}")
+
+							# except:
+							# 	print(f"obs1 : {obs_current[1]}")
 							obs_current = obs['observation'] 
 
 
@@ -272,14 +277,18 @@ class grasping_agent:
 
 							# Calculate current position in the trajectory : i^th index 
 							path_executed = traj_index==desired_traj.shape[0]
+							action_network=np.zeros(5)
 							
 							if(path_executed==True):
 								print(f"Path Executed {path_executed}")
 							if(path_executed==False):
+								print(f"executing dmp, norm is:{np.linalg.norm(gripper_pos[0:3]- phone_pos)}")
 								action_zero[0:3] = desired_traj[traj_index, 0:3]
+							# if(norm (take the norm between obs 12:15 and obs 19:22)<threshold):
 
+							if(np.linalg.norm(gripper_pos[0:3]- phone_pos)<0.107):
+								print(f"executing agent actions")
 								##RL for Grasping
-								action_network=np.zeros(3)
 								with torch.no_grad():
 									input_tensor = self._preproc_inputs(obs_current, g)
 									pi = self.actor_network(input_tensor)
@@ -287,13 +296,18 @@ class grasping_agent:
 								action_zero[0]+= action_network[0] #adding del_x to current_motion
 								action_zero[1]+=  action_network[1] #adding del_y to motion
 								action_zero[2]+=  action_network[2]  #adding del_z to motion
+								# Instead these should be a boolean value for the signal to grasp  
+								# action_zero[6] += action_network[3]
+								# action_zero[7] += action_network[4]
+							
+							
+							# clip the action if its touching the conveyor
+							if action_zero[2]>=0.763:
+								action_zero[2]=0.763								
 								
-								if action_zero[2]>=0.763:
-									action_zero[2]=0.763								
-								
-								obs,reward,done,_ = self.env.step(action_zero)
-								obs_current = obs['observation'] 
-								traj_index+=1
+							obs,reward,done,_ = self.env.step(action_zero)
+							obs_current = obs['observation'] 
+							traj_index+=1
 
 						## Start snatch motion ###
 						elif path_executed or np.linalg.norm(obs_current[20]-obs_current[13])<0.001 or pp_snatch == 1:
@@ -370,21 +384,25 @@ class grasping_agent:
 						observation_y[t] = t_real[1]
 						observation_z[t] = t_real[2]
 						t_arr[t] = t*0.002
-					plt.plot(t_arr, observation_x)
-					plt.title('End-effector x-coordinate vs. time')
-					plt.xlabel('time(in seconds)')
-					plt.ylabel('End-effector x-coordinate(in meter)')
-					plt.show()
-					plt.plot(t_arr, observation_y)
-					plt.title('End-effector y-coordinate vs. time')
-					plt.xlabel('time(in seconds)')
-					plt.ylabel('End-effector y-coordinate(in meter)')
-					plt.show()
-					plt.plot(t_arr, observation_z)
-					plt.title('End-effector z-coordinate vs. time')
-					plt.xlabel('time(in seconds)')
-					plt.ylabel('End-effector z-coordinate(in meter)')
-					plt.show()
+					# plt.plot(t_arr, observation_x)
+					# plt.title('End-effector x-coordinate vs. time')
+					# plt.xlabel('time(in seconds)')
+					# plt.ylabel('End-effector x-coordinate(in meter)')
+					# plt.show()
+					# plt.plot(t_arr, observation_y)
+					# plt.title('End-effector y-coordinate vs. time')
+					# plt.xlabel('time(in seconds)')
+					# plt.ylabel('End-effector y-coordinate(in meter)')
+					# plt.show()
+					# plt.plot(t_arr, observation_z)
+					# plt.title('End-effector z-coordinate vs. time')
+					# plt.xlabel('time(in seconds)')
+					# plt.ylabel('End-effector z-coordinate(in meter)')
+					# plt.show()
+					# self.env.close_window()
+					if(self.env.is_render):
+						self.env.close_window()
+
 					
 					Total_episodes = Total_episodes +1
 					if reward[1] == 5:
@@ -401,7 +419,6 @@ class grasping_agent:
 					mb_actions.append(ep_actions)
 					print("epoch: {}, cycles: {}, r_mpi: {}, Partial_success: {}, Full_success: {}, Episodes: {}".format(epoch,n_cycles,r_mpi,Partial_success,Full_success,Total_episodes))
 					current_time = strftime("%Y-%m-%d-%H-%M-%S", localtime())
-					self.env.close_window()
 					
 
 				# convert them into arrays

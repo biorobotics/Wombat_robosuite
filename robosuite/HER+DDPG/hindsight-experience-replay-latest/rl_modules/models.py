@@ -4,7 +4,7 @@ import torch.nn.functional as F
 import time
 """
 the input x in both networks should be [o, g], where o is the observation and g is the goal.
-
+x -> state 
 """
 
 # define the actor network
