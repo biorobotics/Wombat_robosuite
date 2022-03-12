@@ -150,7 +150,7 @@ class grasping_agent:
 					ep_obs, ep_ag, ep_g, ep_actions = [], [], [], []
 					phone_x, phone_speed, phone_orient = self.dyn_rand()
 					# reset the environment
-					self.env.set_env(phone_x,phone_speed,phone_orient)
+					obs = self.env.reset(phone_x,phone_speed,phone_orient)
 					obs = self.env.observation_current
 					obs_current = obs.copy()
 					ag = obs['achieved_goal']
@@ -184,10 +184,10 @@ class grasping_agent:
 					wait_flag = False
 					plan_flag= True
 					path_executed = False
-					time.sleep(1)
+					# time.sleep(5)
 
 					for t in range(self.env_params['max_timesteps']):
-						
+
 						try:
 							obs,reward,done,_ = self.env.step(action_zero)
 							# print(f"action_zero {action_zero}")
@@ -195,7 +195,7 @@ class grasping_agent:
 							print(f"obs1 : {obs_current[1]}")
 						
 						obs_current = obs['observation']
-						print(f"Observation1 from self.env {obs_current[1]}, timestep {t}")
+						# print(f"Observation1 from self.env {obs_current[1]}, timestep {t}")
 						#Pre Reach 
 						# This stage will move the robot so that the orientation and pos_x 
 						# of the robot matches the phone
@@ -215,12 +215,12 @@ class grasping_agent:
 						delta = gripper_pos[0:3] - action_zero[0:3]
 
 						if phone_pos[1]>pre_grasp_pos:
-							# try:
-							obs,reward,done,_ = self.env.step(action_zero)
-							# 	print(f"action_zero {action_zero}")
+							try:
+								obs,reward,done,_ = self.env.step(action_zero)
+								print(f"action_zero {action_zero}")
 
-							# except:
-							# 	print(f"obs1 : {obs_current[1]}")
+							except:
+								print(f"obs1 : {obs_current[1]}")
 							obs_current = obs['observation'] 
 
 
