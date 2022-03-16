@@ -81,20 +81,22 @@ class grasping_agent:
 
 		self.writer = SummaryWriter()
 		self.write_counter = 0
-		self.record_video = False
+		self.record_video = True
 		#! timestep incosistent from 11000
-		self.timesteps = 5500#4000
+		self.timesteps = 2000#4000
 
 	def add_padding(self,transition,keys):
 
 		# [mb_obs, mb_ag, mb_g, mb_actions]
 		transition_new = []
 		for idx,k in enumerate(transition):
+
 			# ipdb.set_trace()
 			if keys[idx] == 'obs' or keys[idx] == 'ag':
 				t = np.zeros([k.shape[0],self.timesteps+1,k.shape[2]])
 				# print("1st if", t)
 			else:
+				print(f"k.shape {k.shape}, idx = {idx}")
 				t = np.zeros([k.shape[0],self.timesteps,k.shape[2]])
 				# print("2nd if", t)
 			# print("k", k)
@@ -130,6 +132,7 @@ class grasping_agent:
 		for epoch in range(self.args.n_epochs):
 			for n_cycles in range(self.args.n_cycles):
 				mb_obs, mb_ag, mb_g, mb_actions = [], [], [], []
+				break_flag = False
 				for r_mpi in range(self.args.num_rollouts_per_mpi):
 					
 					#TODO: Set up the flags for baseline loop
@@ -192,7 +195,8 @@ class grasping_agent:
 							obs,reward,done,_ = self.env.step(action_zero)
 							# print(f"action_zero {action_zero}")
 						except:
-							print(f"obs1 : {obs_current[1]}")
+							break_flag = True
+							break
 						
 						obs_current = obs['observation']
 						# print(f"Observation1 from self.env {obs_current[1]}, timestep {t}")
@@ -217,10 +221,10 @@ class grasping_agent:
 						if phone_pos[1]>pre_grasp_pos:
 							try:
 								obs,reward,done,_ = self.env.step(action_zero)
-								print(f"action_zero {action_zero}")
+								# print(f"action_zero {action_zero}")
 
 							except:
-								print(f"obs1 : {obs_current[1]}")
+								break
 							obs_current = obs['observation'] 
 
 
@@ -242,7 +246,7 @@ class grasping_agent:
 
 
 								goal = np.zeros(3)
-								goal[0] = phone_pos[0] - delta[0]
+								goal[0] =- phone_pos[0] + delta[0]
 								goal[1] = phone_pos[1] - delta[1] #- 0.05
 								goal[2] = phone_pos[2]        
 								end_pose = Pose()
@@ -282,12 +286,14 @@ class grasping_agent:
 							if(path_executed==True):
 								print(f"Path Executed {path_executed}")
 							if(path_executed==False):
-								print(f"executing dmp, norm is:{np.linalg.norm(gripper_pos[0:3]- phone_pos)}")
+								# print(f"executing dmp, norm is:{np.linalg.norm(gripper_pos[0:3]- phone_pos)}")
 								action_zero[0:3] = desired_traj[traj_index, 0:3]
 							# if(norm (take the norm between obs 12:15 and obs 19:22)<threshold):
 
-							if(np.linalg.norm(gripper_pos[0:3]- phone_pos)<0.107):
-								print(f"executing agent actions")
+							# if(np.linalg.norm(gripper_pos[0:3]- phone_pos)<0.15):
+							if(True):
+
+								# print(f"executing agent actions")
 								##RL for Grasping
 								with torch.no_grad():
 									input_tensor = self._preproc_inputs(obs_current, g)
@@ -305,7 +311,15 @@ class grasping_agent:
 							if action_zero[2]>=0.763:
 								action_zero[2]=0.763								
 								
-							obs,reward,done,_ = self.env.step(action_zero)
+							# obs,reward,done,_ = self.env.step(action_zero)
+							try:
+								obs,reward,done,_ = self.env.step(action_zero)
+								# print(f"action_zero {action_zero}")
+
+							except:
+								print(f"Passing !!!!")
+								_ = self.env.reset()
+								break
 							obs_current = obs['observation'] 
 							traj_index+=1
 
@@ -360,7 +374,7 @@ class grasping_agent:
 							ep_g.append(obs['desired_goal'].copy())
 							ep_actions.append(action_network.copy())
 
-						
+						# print(f"ep_ag {ep_ag}")
 						obs_last = obs_current.copy()
 						ag = obs['achieved_goal']
 						
@@ -417,11 +431,14 @@ class grasping_agent:
 					mb_ag.append(ep_ag)
 					mb_g.append(ep_g)
 					mb_actions.append(ep_actions)
+					print(f"final timestep {t}")
 					print("epoch: {}, cycles: {}, r_mpi: {}, Partial_success: {}, Full_success: {}, Episodes: {}".format(epoch,n_cycles,r_mpi,Partial_success,Full_success,Total_episodes))
 					current_time = strftime("%Y-%m-%d-%H-%M-%S", localtime())
 					
 
 				# convert them into arrays
+				if(break_flag):
+					break
 				array_l = [len(mb_obs[0]),len(mb_obs[1])]
 				min_l = min(array_l)
 				for r_mpi in range(self.args.num_rollouts_per_mpi):
@@ -438,6 +455,7 @@ class grasping_agent:
 				mb_ag = np.array(mb_ag)
 				mb_g = np.array(mb_g)
 				mb_actions = np.array(mb_actions)
+				print(f"mb_actions shape{mb_actions.shape}")
 				self.write_counter += 1
 
 				mb_obs, mb_ag, mb_g, mb_actions = self.add_padding([mb_obs, mb_ag, mb_g, mb_actions],['obs','ag','g','action'])
@@ -538,7 +556,7 @@ class grasping_agent:
 
 	# update the network
 	def _update_network(self):
-		print("Updating the network")
+		# print("Updating the network")
 		# sample the episodes
 		transitions = self.buffer.sample(self.args.batch_size)
 		# pre-process the observation and goal
@@ -589,7 +607,7 @@ class grasping_agent:
 		actor_loss.backward()
 		
 		if MPI.COMM_WORLD.Get_rank() == 0:
-			print("Actor_loss: ", actor_loss)
+			# print("Actor_loss: ", actor_loss)
 			self.writer.add_scalar('actor_loss/train',actor_loss,self.write_counter)
 			self.writer.add_scalar('critic_loss/train',critic_loss,self.write_counter)
 		sync_grads(self.actor_network)
@@ -632,9 +650,15 @@ class grasping_agent:
 		return True
 
 	def dyn_rand(self):
-		phone_x = 0.578#np.random.uniform(0.428, 0.728)
-		phone_speed = -0.20#np.random.uniform(-0.14, -0.25)
+		# phone_x = 0.578#np.random.uniform(0.428, 0.728)
+		# phone_speed = -0.20#np.random.uniform(-0.14, -0.25)
+		# phone_orient = 0.0
+		phone_x = np.random.uniform(0.428, 0.728)
+		phone_speed = np.random.uniform(-0.14, -0.25)
 		phone_orient = 0.0
+
+
+
 		# phone_orient = np.random.uniform(-0.05, 0.05)
 
 		return phone_x, phone_speed, phone_orient

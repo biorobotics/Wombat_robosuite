@@ -106,10 +106,10 @@ class D3_pick_place_env(object):
 		return j2c
 
 	def set_env(self,phone_x,phone_speed,phone_orient):
-		self.observation_current = None
-		self.observation_last = None
-		self.observation_last2last = None
-		self.joint_sim_last = None
+		# self.observation_current = None
+		# self.observation_last = None
+		# self.observation_last2last = None
+		# self.joint_sim_last = None
 		self.phone_x = phone_x
 		self.phone_speed = phone_speed
 		self.phone_orient = phone_orient
