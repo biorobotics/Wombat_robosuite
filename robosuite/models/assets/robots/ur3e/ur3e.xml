@@ -33,35 +33,35 @@
         <position ctrllimited="true" ctrlrange="-0.0001 0.0001" joint="base_right_torque_joint" kp="2" name="right_torque_joint" forcelimited="true" forcerange="-2 2"/> -->
     </actuator>
     <worldbody>
-        <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="base_link" />
+        <geom type="mesh" contype="1" conaffinity="1" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="base_link" />
         <body name="link_1" pos="0 0 0.15185">
             <inertial pos="-9.1781e-05 0.0095503 -0.0013428" quat="0.991342 -0.131214 -0.000620085 0.0047793" mass="0.8605" diaginertia="0.00145982 0.0012551 0.00112178" />
             <joint name="joint_1" pos="0 0 0" axis="0 0 1" />
-            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.75294 0.75294 0.75294 1" mesh="link_1" />
+            <geom type="mesh" contype="1" conaffinity="1" group="1" rgba="0.75294 0.75294 0.75294 1" mesh="link_1" />
             <body name="link_2" pos="0 0.11984 0" quat="0.707105 -0.707108 0 0">
                 <inertial pos="-1.44519e-06 -0.103645 0.000336769" quat="0.714829 0.699299 -0.00012149 8.88954e-05" mass="1.86258" diaginertia="0.0202441 0.019706 0.00212479" />
                 <joint name="joint_2" pos="0 0 0" axis="0 0 1" />
-                <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="link_2" />
+                <geom type="mesh" contype="1" conaffinity="1" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="link_2" />
                 <body name="link_3" pos="0 -0.24355 0">
                     <inertial pos="-3.77924e-07 -0.113366 -0.0881411" quat="0.678955 0.73418 -7.57338e-07 -2.01873e-06" mass="0.888803" diaginertia="0.00677877 0.00666106 0.000564566" />
                     <joint name="joint_3" pos="0 0 0" axis="0 0 -1" />
-                    <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="link_3" />
+                    <geom type="mesh" contype="1" conaffinity="1" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="link_3" />
                     <body name="link_4" pos="0 -0.2132 0.0112">
                         <inertial pos="6.92604e-08 -3.99721e-05 -0.0124969" quat="0.999117 0.0420086 2.27982e-05 1.33389e-05" mass="0.375061" diaginertia="0.000411774 0.000316518 0.000288002" />
                         <joint name="joint_4" pos="0 0 0" axis="0 0 -1" />
-                        <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="link_4" />
+                        <geom type="mesh" contype="1" conaffinity="1" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="link_4" />
                         <body name="link_5" pos="0 -0.08535 0" quat="0.707105 0.707108 0 0">
                             <inertial pos="5.80358e-06 3.22408e-05 -0.00529206" quat="0.69425 0.719718 0.00340321 0.00339428" mass="0.316983" diaginertia="0.000290362 0.000259565 0.000194731" />
                             <joint name="joint_5" pos="0 0 0" axis="0 0 -1" />
-                            <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="link_5" />
+                            <geom type="mesh" contype="1" conaffinity="1" group="1" rgba="0.752941 0.752941 0.752941 1" mesh="link_5" />
                             <body name="link_6" pos="0 0 0" quat="0.707105 -0.707108 0 0">
                                 <inertial pos="-0.0001531 -1.3912e-05 0.066748" quat="0.477767 0.52316 -0.475721 0.521279" mass="0.14596" diaginertia="7.28001e-05 6.35885e-05 6.30294e-05" />
                                 <joint name="joint_6" pos="0 0 0" axis="0 0 -1" />
-                                <geom type="mesh" contype="0" conaffinity="0" group="1" rgba="0.75294 0.75294 0.75294 1" mesh="link_6" />
+                                <geom type="mesh" contype="1" conaffinity="1" group="1" rgba="0.75294 0.75294 0.75294 1" mesh="link_6" />
 
         
 
-                                <body name="right_hand" pos="0 0.098 0" quat="0.707 -0.707 0 0" >
+                                <body name="right_hand" pos="0 0 0.09" quat="0.707 0 0 0.707" >
                                         <!-- This sites were added for visualization. They are all standardized between models-->
                                         <!-- Position mimics the gripper attachment point (right_hand) -->
                                         <!--  Y-axis should be perpendicular to grasping motion, and Z-axis should point out of the robot eef -->

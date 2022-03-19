@@ -30,20 +30,20 @@ env = suite.make(
 # reset the environment
 env.reset()
 
-
-action = np.zeros(7)
+action= np.zeros(7)
+action = np.array([0.1, 0.1, 0.9,0,0,0,0])
 R_ie = np.array([[1,0,0],[0,-1,0],[0,0,-1]])
 for i in range(100000):
     # action = np.random.randn(env.robots[0].dof) # sample random action
     #time.sleep(2)
     env.sim.data.set_joint_qvel('iphone_joint0', [0,0.1,0,0,0,0])
     obs, reward, done, info = env.step(action)  # take action in the environment
-    env.sim.data.set_joint_qpos('robot0_joint_1', -1)
-    env.sim.data.set_joint_qpos('robot0_joint_2', -0.5)
-    env.sim.data.set_joint_qpos('robot0_joint_3', 0.5)
-    env.sim.data.set_joint_qpos('robot0_joint_4', 0.5)
-    env.sim.data.set_joint_qpos('robot0_joint_5', 5)
-    env.sim.data.set_joint_qpos('robot0_joint_6', 5)
+    # env.sim.data.set_joint_qpos('robot0_joint_1', -1)
+    # env.sim.data.set_joint_qpos('robot0_joint_2', -0.5)
+    # env.sim.data.set_joint_qpos('robot0_joint_3', 0.5)
+    # env.sim.data.set_joint_qpos('robot0_joint_4', 0.5)
+    # env.sim.data.set_joint_qpos('robot0_joint_5', 5)
+    # env.sim.data.set_joint_qpos('robot0_joint_6', 5)
     # print(obs.keys())
     # time.sleep(200)
     # state_dim = 13#env.observation_space.shape[0]
@@ -55,37 +55,10 @@ for i in range(100000):
     #ipdb.set_trace()
     #embed()
     #print(i)
-    if True:
-        #print(obs.get_keys())
-        # print("Object posit.: ",object_pos)
-        # print("Object ori.: ",t3d.quaternions.quat2axangle(object_or))
-        R_bi = t3d.quaternions.quat2mat(object_or)
-        R_br= np.matmul(R_bi,R_ie)
 
-        ax_r = t3d.axangles.mat2axangle(R_br)
+    if is_render:
+        env.render()  # render on display
 
-
-        # action[0:3] = object_pos
-        # #x coord
-        # action[0] = action[0] + 0.0#0.5
-        # #y coord
-        # action[1] = action[1] - 0.0#0.5
-        # print("action position given", action[0:6])
-        # #print("object_pos", object_pos)
-        # action[2] += 0.2	
-        # action[3:6] = np.array([-ax_r[0][1]*ax_r[1],-ax_r[0][2]*ax_r[1],ax_r[0][0]*ax_r[1]])
-        # action[3:6] = 0
-        # object_or = obs['iPhone_quat']
-        # print("actual robot pose: ",t3d.quaternions.quat2axangle(obs['robot0_eef_quat']))
-        # print("diff in z: ",obs['robot0_eef_pos'][2]-obs['iPhone12ProMax_pos'][2])
-        # print("given robot pose: ",action[3:6])
-        # action[6] = 0
-        plt.show()
-        if is_render:
-            env.render()  # render on display
-        else:
-            plt.imshow(obs['image-state'])
-            print("action: ",action)
 
 	# else:
 	# 	ipdb.set_trace()
