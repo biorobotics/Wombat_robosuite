@@ -7,4 +7,3 @@ from .kinova3_robot import Kinova3
 from .iiwa_robot import IIWA
 from .ur5e_robot import UR5e
 from .wombat_arm_robot import Wombat_arm
-from .ur3e_robot import UR3e

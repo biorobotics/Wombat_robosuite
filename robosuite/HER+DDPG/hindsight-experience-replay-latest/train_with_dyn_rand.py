@@ -42,9 +42,9 @@ import math
 from mujoco_py import MjSim, MjViewer
 import numpy as np
 import time
-import matplotlib as mpl
+# import matplotlib as mpl
 import ipdb
-mpl.use('TkAgg')
+# mpl.use('TkAgg')
 import matplotlib.pyplot as plt 
 from robosuite.models import MujocoWorldBase
 

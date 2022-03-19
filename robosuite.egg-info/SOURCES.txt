@@ -1,3 +1,5 @@
+AUTHORS
+LICENSE
 MANIFEST.in
 README.md
 setup.py
@@ -12,10 +14,15 @@ robosuite/controllers/__init__.py
 robosuite/controllers/base_controller.py
 robosuite/controllers/controller_factory.py
 robosuite/controllers/ik.py
+robosuite/controllers/interpolateTraj.py
+robosuite/controllers/invK.py
 robosuite/controllers/joint_pos.py
 robosuite/controllers/joint_tor.py
 robosuite/controllers/joint_vel.py
 robosuite/controllers/osc.py
+robosuite/controllers/test_d3_controller.py
+robosuite/controllers/trajGenerator.py
+robosuite/controllers/wombat_arm_ik.py
 robosuite/controllers/config/default_baxter.json
 robosuite/controllers/config/default_iiwa.json
 robosuite/controllers/config/default_jaco.json
@@ -23,12 +30,14 @@ robosuite/controllers/config/default_kinova3.json
 robosuite/controllers/config/default_panda.json
 robosuite/controllers/config/default_sawyer.json
 robosuite/controllers/config/default_ur5e.json
+robosuite/controllers/config/default_wombat_arm.json
 robosuite/controllers/config/ik_pose.json
 robosuite/controllers/config/joint_position.json
 robosuite/controllers/config/joint_torque.json
 robosuite/controllers/config/joint_velocity.json
 robosuite/controllers/config/osc_pose.json
 robosuite/controllers/config/osc_position.json
+robosuite/controllers/config/wombat_arm_ik.json
 robosuite/controllers/interpolators/__init__.py
 robosuite/controllers/interpolators/base_interpolator.py
 robosuite/controllers/interpolators/linear_interpolator.py
@@ -55,6 +64,7 @@ robosuite/environments/manipulation/wipe.py
 robosuite/models/__init__.py
 robosuite/models/base.py
 robosuite/models/world.py
+robosuite/models/arenas/Conveyor_belt_arena.py
 robosuite/models/arenas/__init__.py
 robosuite/models/arenas/arena.py
 robosuite/models/arenas/bins_arena.py
@@ -63,10 +73,17 @@ robosuite/models/arenas/pegs_arena.py
 robosuite/models/arenas/table_arena.py
 robosuite/models/arenas/wipe_arena.py
 robosuite/models/assets/base.xml
+robosuite/models/assets/arenas/Conveyor_belt_arena.xml
 robosuite/models/assets/arenas/bins_arena.xml
+robosuite/models/assets/arenas/con.xml
 robosuite/models/assets/arenas/empty_arena.xml
 robosuite/models/assets/arenas/pegs_arena.xml
 robosuite/models/assets/arenas/table_arena.xml
+robosuite/models/assets/arenas/meshes/Conveyor_belt.stl
+robosuite/models/assets/arenas/meshes/original/Conveyor_belt.stl
+robosuite/models/assets/arenas/new/bins_arena.xml
+robosuite/models/assets/arenas/original/bins_arena.xml
+robosuite/models/assets/bullet_data/empty.py
 robosuite/models/assets/bullet_data/baxter_description/meshes/base/PEDESTAL.dae
 robosuite/models/assets/bullet_data/baxter_description/meshes/base/PEDESTAL.stl
 robosuite/models/assets/bullet_data/baxter_description/meshes/base/pedestal_link_collision.dae
@@ -150,14 +167,37 @@ robosuite/models/assets/bullet_data/sawyer_description/params/named_poses.yaml
 robosuite/models/assets/bullet_data/sawyer_description/urdf/sawyer_arm.urdf
 robosuite/models/assets/demonstrations/wipe/panda/demo.hdf5
 robosuite/models/assets/demonstrations/wipe/panda/models/model_1.xml
+robosuite/models/assets/grippers/D3_gripper_v2.xml
+robosuite/models/assets/grippers/D3_gripper_v2_backup.xml
+robosuite/models/assets/grippers/base_link.STL
+robosuite/models/assets/grippers/gripper1000.urdf
 robosuite/models/assets/grippers/jaco_three_finger_gripper.xml
+robosuite/models/assets/grippers/left_finger.STL
 robosuite/models/assets/grippers/null_gripper.xml
 robosuite/models/assets/grippers/panda_gripper.xml
 robosuite/models/assets/grippers/rethink_gripper.xml
+robosuite/models/assets/grippers/right_finger.STL
 robosuite/models/assets/grippers/robotiq_gripper_140.xml
 robosuite/models/assets/grippers/robotiq_gripper_85.xml
 robosuite/models/assets/grippers/robotiq_gripper_s.xml
 robosuite/models/assets/grippers/wiping_gripper.xml
+robosuite/models/assets/grippers/meshes/empty.py
+robosuite/models/assets/grippers/meshes/D3_gripper/base_bottom.stl
+robosuite/models/assets/grippers/meshes/D3_gripper/base_link.stl
+robosuite/models/assets/grippers/meshes/D3_gripper/left_hand.stl
+robosuite/models/assets/grippers/meshes/D3_gripper/right_hand.stl
+robosuite/models/assets/grippers/meshes/D3_gripper_v2/base_link.STL
+robosuite/models/assets/grippers/meshes/D3_gripper_v2/left_finger.STL
+robosuite/models/assets/grippers/meshes/D3_gripper_v2/right_finger.STL
+robosuite/models/assets/grippers/meshes/D3_gripper_v2/new folder/left_hand.STL
+robosuite/models/assets/grippers/meshes/D3_gripper_v2/new folder/left_hand10.STL
+robosuite/models/assets/grippers/meshes/D3_gripper_v2/new folder/left_hand100.STL
+robosuite/models/assets/grippers/meshes/D3_gripper_v2/new folder/left_hand1000.STL
+robosuite/models/assets/grippers/meshes/D3_gripper_v2/original_working fingers/left_finger.STL
+robosuite/models/assets/grippers/meshes/D3_gripper_v2/original_working fingers/right_finger.STL
+robosuite/models/assets/grippers/meshes/D3_gripper_v4/base_link.STL
+robosuite/models/assets/grippers/meshes/D3_gripper_v4/left_finger.STL
+robosuite/models/assets/grippers/meshes/D3_gripper_v4/right_finger.STL
 robosuite/models/assets/grippers/meshes/jaco_three_finger_gripper/finger_distal.dae
 robosuite/models/assets/grippers/meshes/jaco_three_finger_gripper/finger_distal.stl
 robosuite/models/assets/grippers/meshes/jaco_three_finger_gripper/finger_proximal.dae
@@ -255,19 +295,38 @@ robosuite/models/assets/objects/cereal-visual.xml
 robosuite/models/assets/objects/cereal.xml
 robosuite/models/assets/objects/door.xml
 robosuite/models/assets/objects/door_lock.xml
+robosuite/models/assets/objects/iPhone-visual.xml
+robosuite/models/assets/objects/iPhone.xml
+robosuite/models/assets/objects/iPhone12ProMax-visual.xml
+robosuite/models/assets/objects/iPhone12ProMax.xml
+robosuite/models/assets/objects/iphone12promax.xml
 robosuite/models/assets/objects/lemon.xml
 robosuite/models/assets/objects/milk-visual.xml
 robosuite/models/assets/objects/milk.xml
 robosuite/models/assets/objects/plate-with-hole.xml
 robosuite/models/assets/objects/round-nut.xml
 robosuite/models/assets/objects/square-nut.xml
+robosuite/models/assets/objects/can orig/can-visual.xml
+robosuite/models/assets/objects/can orig/can.xml
 robosuite/models/assets/objects/meshes/bottle.stl
 robosuite/models/assets/objects/meshes/bread.stl
 robosuite/models/assets/objects/meshes/can.stl
 robosuite/models/assets/objects/meshes/cereal.stl
 robosuite/models/assets/objects/meshes/handles.stl
+robosuite/models/assets/objects/meshes/iPhone 12 Pro Max.stl
+robosuite/models/assets/objects/meshes/iPhone.stl
+robosuite/models/assets/objects/meshes/iPhone12ProMax.stl
 robosuite/models/assets/objects/meshes/lemon.stl
 robosuite/models/assets/objects/meshes/milk.stl
+robosuite/models/assets/objects/meshes/mobile.stl
+robosuite/models/assets/objects/meshes/iphone/iPhone 12 Pro Max.stl
+robosuite/models/assets/objects/meshes/iphone12 pro max most recent working/iPhone 12 Pro Max.stl
+robosuite/models/assets/objects/meshes/iphone12 pro max original/iPhone 12 Pro Max.stl
+robosuite/models/assets/objects/meshes/iphone12promax/iPhone 12 Pro Max.stl
+robosuite/models/assets/objects/meshes/iphone12promax100/iPhone 12 Pro Max.stl
+robosuite/models/assets/objects/meshes/iphone12promax1500/Iphone12Pro1500.STL
+robosuite/models/assets/objects/meshes/iphone12promax2000/Iphone12Pro2000.STL
+robosuite/models/assets/robots/empty.py
 robosuite/models/assets/robots/baxter/robot.xml
 robosuite/models/assets/robots/baxter/meshes/head/H0.stl
 robosuite/models/assets/robots/baxter/meshes/head/H1.stl
@@ -425,9 +484,29 @@ robosuite/models/assets/robots/sawyer/meshes/l6.dae
 robosuite/models/assets/robots/sawyer/meshes/l6.mtl
 robosuite/models/assets/robots/sawyer/meshes/l6.obj
 robosuite/models/assets/robots/sawyer/meshes/l6.stl
+robosuite/models/assets/robots/ur3e/ur3e.xml
+robosuite/models/assets/robots/ur3e/meshes/base_link.STL
+robosuite/models/assets/robots/ur3e/meshes/link_1.STL
+robosuite/models/assets/robots/ur3e/meshes/link_2.STL
+robosuite/models/assets/robots/ur3e/meshes/link_3.STL
+robosuite/models/assets/robots/ur3e/meshes/link_4.STL
+robosuite/models/assets/robots/ur3e/meshes/link_5.STL
+robosuite/models/assets/robots/ur3e/meshes/link_6.STL
+robosuite/models/assets/robots/ur3e/meshes/v2_realistic/base_link_1.STL
+robosuite/models/assets/robots/ur3e/meshes/v2_realistic/left_gripper_finger.STL
+robosuite/models/assets/robots/ur3e/meshes/v2_realistic/left_long_link.STL
+robosuite/models/assets/robots/ur3e/meshes/v2_realistic/left_short_link.STL
+robosuite/models/assets/robots/ur3e/meshes/v2_realistic/left_torque_transfer.STL
+robosuite/models/assets/robots/ur3e/meshes/v2_realistic/right_gripper_finger.STL
+robosuite/models/assets/robots/ur3e/meshes/v2_realistic/right_long_link.STL
+robosuite/models/assets/robots/ur3e/meshes/v2_realistic/right_short_link.STL
+robosuite/models/assets/robots/ur3e/meshes/v2_realistic/right_torque_transfer.STL
+robosuite/models/assets/robots/ur3e/urdf/UR3e.csv
+robosuite/models/assets/robots/ur3e/urdf/UR3e.urdf
 robosuite/models/assets/robots/ur5e/robot.xml
 robosuite/models/assets/robots/ur5e/meshes/base.dae
 robosuite/models/assets/robots/ur5e/meshes/base.stl
+robosuite/models/assets/robots/ur5e/meshes/base_link.stl
 robosuite/models/assets/robots/ur5e/meshes/base_vis.stl
 robosuite/models/assets/robots/ur5e/meshes/forearm.dae
 robosuite/models/assets/robots/ur5e/meshes/forearm.stl
@@ -447,31 +526,94 @@ robosuite/models/assets/robots/ur5e/meshes/wrist2_vis.stl
 robosuite/models/assets/robots/ur5e/meshes/wrist3.dae
 robosuite/models/assets/robots/ur5e/meshes/wrist3.stl
 robosuite/models/assets/robots/ur5e/meshes/wrist3_vis.stl
+robosuite/models/assets/robots/ur5e/original xml/robot.xml
+robosuite/models/assets/robots/wombat_arm/base_link.STL
+robosuite/models/assets/robots/wombat_arm/base_link.stl
 robosuite/models/assets/robots/wombat_arm/wombat_arm.xml
-robosuite/models/assets/robots/wombat_arm/meshes/base_link.STL
-robosuite/models/assets/robots/wombat_arm/meshes/branch1_clevis_link.STL
-robosuite/models/assets/robots/wombat_arm/meshes/branch1_ee_link.STL
-robosuite/models/assets/robots/wombat_arm/meshes/branch1_linear_link.STL
-robosuite/models/assets/robots/wombat_arm/meshes/branch1_link.STL
-robosuite/models/assets/robots/wombat_arm/meshes/branch1_pivot_link.STL
-robosuite/models/assets/robots/wombat_arm/meshes/branch2_clevis_link.STL
-robosuite/models/assets/robots/wombat_arm/meshes/branch2_linear_link.STL
-robosuite/models/assets/robots/wombat_arm/meshes/branch2_link.STL
-robosuite/models/assets/robots/wombat_arm/meshes/branch2_pivot_link.STL
-robosuite/models/assets/robots/wombat_arm/meshes/branch3_clevis_link.STL
-robosuite/models/assets/robots/wombat_arm/meshes/branch3_linear_link.STL
-robosuite/models/assets/robots/wombat_arm/meshes/branch3_link.STL
-robosuite/models/assets/robots/wombat_arm/meshes/branch3_pivot_link.STL
-robosuite/models/assets/robots/wombat_arm/meshes/iPhone.STL
-robosuite/models/assets/robots/wombat_arm/meshes/iPhone7.STL
-robosuite/models/assets/robots/wombat_arm/meshes/iPhone7_bkp.STL
+robosuite/models/assets/robots/wombat_arm/wombat_arm_copy.xml
+robosuite/models/assets/robots/wombat_arm/wood_texture.png
+robosuite/models/assets/robots/wombat_arm/25thSept_working xml/wombat_arm.xml
+robosuite/models/assets/robots/wombat_arm/meshes/base_bottom.stl
+robosuite/models/assets/robots/wombat_arm/meshes/base_link.stl
+robosuite/models/assets/robots/wombat_arm/meshes/base_top.stl
+robosuite/models/assets/robots/wombat_arm/meshes/branch1_clevis_link.stl
+robosuite/models/assets/robots/wombat_arm/meshes/branch1_ee_link.stl
+robosuite/models/assets/robots/wombat_arm/meshes/branch1_linear_link.stl
+robosuite/models/assets/robots/wombat_arm/meshes/branch1_link.stl
+robosuite/models/assets/robots/wombat_arm/meshes/branch1_pivot_link.stl
+robosuite/models/assets/robots/wombat_arm/meshes/branch2_clevis_link.stl
+robosuite/models/assets/robots/wombat_arm/meshes/branch2_linear_link.stl
+robosuite/models/assets/robots/wombat_arm/meshes/branch2_link.stl
+robosuite/models/assets/robots/wombat_arm/meshes/branch2_pivot_link.stl
+robosuite/models/assets/robots/wombat_arm/meshes/branch3_clevis_link.stl
+robosuite/models/assets/robots/wombat_arm/meshes/branch3_linear_link.stl
+robosuite/models/assets/robots/wombat_arm/meshes/branch3_link.stl
+robosuite/models/assets/robots/wombat_arm/meshes/branch3_pivot_link.stl
+robosuite/models/assets/robots/wombat_arm/meshes/gripper.stl
+robosuite/models/assets/robots/wombat_arm/meshes/iPhone 12 Pro Max.stl
+robosuite/models/assets/robots/wombat_arm/meshes/iPhone.stl
+robosuite/models/assets/robots/wombat_arm/meshes/iPhone7.stl
+robosuite/models/assets/robots/wombat_arm/meshes/iPhone7_bkp.stl
 robosuite/models/assets/robots/wombat_arm/meshes/iPhone_6_Plus.stl
 robosuite/models/assets/robots/wombat_arm/meshes/iPhone_6_Plus_2.stl
+robosuite/models/assets/robots/wombat_arm/meshes/left_finger.stl
 robosuite/models/assets/robots/wombat_arm/meshes/motor_housing_2.stl
+robosuite/models/assets/robots/wombat_arm/meshes/right_finger.stl
+robosuite/models/assets/robots/wombat_arm/meshes/orginal working fingers(24th Sept)/left_finger.stl
+robosuite/models/assets/robots/wombat_arm/meshes/orginal working fingers(24th Sept)/right_finger.stl
+robosuite/models/assets/robots/wombat_arm/meshes/v2_realistic/base_link.STL
+robosuite/models/assets/robots/wombat_arm/meshes/v2_realistic/iPhone 12 Pro Max.STL
+robosuite/models/assets/robots/wombat_arm/meshes/v2_realistic/iPhone12_pro_max.STL
+robosuite/models/assets/robots/wombat_arm/meshes/v2_realistic/left_gripper_finger.STL
+robosuite/models/assets/robots/wombat_arm/meshes/v2_realistic/left_long_link.STL
+robosuite/models/assets/robots/wombat_arm/meshes/v2_realistic/left_short_link.STL
+robosuite/models/assets/robots/wombat_arm/meshes/v2_realistic/left_torque_transfer.STL
+robosuite/models/assets/robots/wombat_arm/meshes/v2_realistic/right_gripper_finger.STL
+robosuite/models/assets/robots/wombat_arm/meshes/v2_realistic/right_long_link.STL
+robosuite/models/assets/robots/wombat_arm/meshes/v2_realistic/right_short_link.STL
+robosuite/models/assets/robots/wombat_arm/meshes/v2_realistic/right_torque_transfer.STL
+robosuite/models/assets/robots/wombat_arm/original/base_link.STL
+robosuite/models/assets/robots/wombat_arm/original/branch1_clevis_link.STL
+robosuite/models/assets/robots/wombat_arm/original/branch1_ee_link.STL
+robosuite/models/assets/robots/wombat_arm/original/branch1_linear_link.STL
+robosuite/models/assets/robots/wombat_arm/original/branch1_link.STL
+robosuite/models/assets/robots/wombat_arm/original/branch1_pivot_link.STL
+robosuite/models/assets/robots/wombat_arm/original/branch2_clevis_link.STL
+robosuite/models/assets/robots/wombat_arm/original/branch2_linear_link.STL
+robosuite/models/assets/robots/wombat_arm/original/branch2_link.STL
+robosuite/models/assets/robots/wombat_arm/original/branch2_pivot_link.STL
+robosuite/models/assets/robots/wombat_arm/original/branch3_clevis_link.STL
+robosuite/models/assets/robots/wombat_arm/original/branch3_linear_link.STL
+robosuite/models/assets/robots/wombat_arm/original/branch3_link.STL
+robosuite/models/assets/robots/wombat_arm/original/branch3_pivot_link.STL
+robosuite/models/assets/robots/wombat_arm/original/iPhone.STL
+robosuite/models/assets/robots/wombat_arm/original/iPhone7.STL
+robosuite/models/assets/robots/wombat_arm/original/iPhone7_bkp.STL
+robosuite/models/assets/robots/wombat_arm/original/iPhone_6_Plus.stl
+robosuite/models/assets/robots/wombat_arm/original/iPhone_6_Plus_2.stl
+robosuite/models/assets/robots/wombat_arm/original/motor_housing_2.stl
+robosuite/models/assets/robots/wombat_arm/original/wombat_arm.xml
+robosuite/models/assets/robots/wombat_arm/robosuite_D3_gripper_added_externally/wombat_arm.xml
+robosuite/models/assets/robots/wombat_arm/robosuite_most_recent_xml_withgripper/wombat_arm.xml
+robosuite/models/assets/robots/wombat_arm/robosuite_most_recent_xml_withgripper/1st Feb_working/a.py
+robosuite/models/assets/robots/wombat_arm/robosuite_most_recent_xml_withgripper/1st Feb_working/wombat_arm.xml
+robosuite/models/assets/robots/wombat_arm/robosuite_most_recent_xml_withgripper/Abhi_xml/wombat_arm.xml
+robosuite/models/assets/robots/wombat_arm/robosuite_most_recent_xml_withgripper/latest_gripper_oriented_little_wrong/wombat_arm.xml
+robosuite/models/assets/robots/wombat_arm/robosuite_most_recent_xml_withgripper/latest_working/wombat_arm.xml
+robosuite/models/assets/robots/wombat_arm/robosuite_most_recent_xml_withgripper/latest_working_29th_July/wombat_arm.xml
+robosuite/models/assets/robots/wombat_arm/robosuite_most_recent_xml_withgripper/thomas_mujoco xml/wombat_arm.xml
+robosuite/models/assets/robots/wombat_arm/robosuite_most_recent_xml_withgripper/v2_most_realistic/p.py
+robosuite/models/assets/robots/wombat_arm/robosuite_most_recent_xml_withgripper/v2_most_realistic/wombat_arm.xml
+robosuite/models/assets/robots/wombat_arm/robosuite_most_recent_xml_withoutgripper/wombat_arm.xml
+robosuite/models/assets/robots/wombat_arm/robosuite_original/wombat_arm.xml
+robosuite/models/assets/robots/wombat_arm/texture/black_sq.png
 robosuite/models/assets/robots/wombat_arm/texture/wood_texture.jpeg
 robosuite/models/assets/robots/wombat_arm/texture/wood_texture.png
+robosuite/models/assets/robots/wombat_arm/updated/wombat_arm.xml
 robosuite/models/assets/robots/wombat_arm/urdf/wombat_arm.csv
 robosuite/models/assets/robots/wombat_arm/urdf/wombat_arm.urdf
+robosuite/models/assets/textures/black.png
+robosuite/models/assets/textures/black_sq.png
 robosuite/models/assets/textures/blue-wood.png
 robosuite/models/assets/textures/brass-ambra.png
 robosuite/models/assets/textures/bread.png
@@ -498,7 +640,10 @@ robosuite/models/assets/textures/white-bricks.png
 robosuite/models/assets/textures/white-plaster.png
 robosuite/models/assets/textures/wood-tiles.png
 robosuite/models/assets/textures/wood-varnished-panels.png
+robosuite/models/assets/textures/wood_texture.jpeg
+robosuite/models/assets/textures/wood_texture.png
 robosuite/models/assets/textures/yellow-plaster.png
+robosuite/models/grippers/D3_gripper_v2.py
 robosuite/models/grippers/__init__.py
 robosuite/models/grippers/gripper_factory.py
 robosuite/models/grippers/gripper_model.py
@@ -534,6 +679,7 @@ robosuite/models/objects/primitive/cylinder.py
 robosuite/models/robots/__init__.py
 robosuite/models/robots/robot_model.py
 robosuite/models/robots/manipulators/__init__.py
+robosuite/models/robots/manipulators/__init___+__.py
 robosuite/models/robots/manipulators/baxter_robot.py
 robosuite/models/robots/manipulators/iiwa_robot.py
 robosuite/models/robots/manipulators/jaco_robot.py
@@ -541,7 +687,9 @@ robosuite/models/robots/manipulators/kinova3_robot.py
 robosuite/models/robots/manipulators/manipulator_model.py
 robosuite/models/robots/manipulators/panda_robot.py
 robosuite/models/robots/manipulators/sawyer_robot.py
+robosuite/models/robots/manipulators/ur3e_robot.py
 robosuite/models/robots/manipulators/ur5e_robot.py
+robosuite/models/robots/manipulators/wombat_arm_robot.py
 robosuite/models/tasks/__init__.py
 robosuite/models/tasks/manipulation_task.py
 robosuite/models/tasks/task.py
