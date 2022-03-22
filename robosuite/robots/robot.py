@@ -305,8 +305,11 @@ class Robot(object):
                 - (np.array) maximum (high) torque values
         """
         # Torque limit values pulled from relevant robot.xml file
-        low = -10#self.sim.model.actuator_ctrlrange[self._ref_joint_actuator_indexes, 0]
-        high = 10#self.sim.model.actuator_ctrlrange[self._ref_joint_actuator_indexes, 1]
+        # low = -10#self.sim.model.actuator_ctrlrange[self._ref_joint_actuator_indexes, 0]
+        # high = 10#self.sim.model.actuator_ctrlrange[self._ref_joint_actuator_indexes, 1]
+        low = self.sim.model.actuator_ctrlrange[self._ref_joint_actuator_indexes, 0]
+        high = self.sim.model.actuator_ctrlrange[self._ref_joint_actuator_indexes, 1]
+
 
         return low, high
 

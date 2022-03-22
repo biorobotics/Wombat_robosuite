@@ -199,7 +199,6 @@ if __name__ == "__main__":
         while True:
             # Set active robot
             active_robot = env.robots[0] if args.config == "bimanual" else env.robots[args.arm == "left"]
-
             # Get the newest action
             action, grasp = input2action(
                 device=device,

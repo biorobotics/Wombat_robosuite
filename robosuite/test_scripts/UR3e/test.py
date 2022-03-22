@@ -16,54 +16,36 @@ import matplotlib.pyplot as plt
 from robosuite.models import MujocoWorldBase
 from robosuite.models.objects.objects import MujocoXMLObject
 import pyautogui
-import cv2
+from ur_ikfast import ur_kinematics 
 
 
 
+def move_robot(sim, joint_qpos ):
+    for i in range(len(joint_qpos)):
+        joint_name = "robot0_joint_" + str(i+1)
+        sim.data.set_joint_qpos(joint_name, joint_qpos[i])
 
-##Building a custom world, importing UR5e and adding gripper below
+
+ur3e_arm = ur_kinematics.URKinematics('ur3e')
+
 world = MujocoWorldBase()
-# mount = CylinderObject(name="mount",size=[0.1,0.3],rgba=[0.5,0.5,0.5,1],friction=[1,1,1]).get_obj()
-# mount.set('pos', '0.35 0 0')
-# world.worldbody.append(mount)
 
 mujoco_robot = UR3e()
 
 		
-# world.merge(can_collision)
-# world.merge(can_visual)
-# gripper = gripper_factory(None)
-# # # gripper = gripper_factory('D3_gripper')
-# # #gripper.hide_visualization()
-# mujoco_robot.add_gripper(gripper)
-
-# mujoco_robot.set_base_xpos([0.4, 0.06, 0])
-mujoco_robot.set_base_xpos([0.5, 0.0, 0])
+mujoco_robot.set_base_xpos([0.5, 0.0, 0.05])
 world.merge(mujoco_robot)
 
-#mujoco_arena = TableArena()
-# mujoco_arena = BinsArena()
 mujoco_arena =EmptyArena()
-# mujoco_arena.set_origin([0.8, 0, 0])
 world.merge(mujoco_arena)
 
-##adding iphone as a box and conveyor belt as a box below
-# iphonebox = BoxObject(name="iphonebox",size=[0.11,0.11,0.11],rgba=[0,0,0,1],friction=[1,1,1]).get_obj()
-iphonebox = BoxObject(name="iphonebox",size=[0.08,0.039,0.0037],rgba=[0,0,0,1],friction=[1,1,5]).get_obj() ##PIONEER
-iphonebox.set('pos', '-0.5 0.6 0.9')
+iphonebox = BoxObject(name="iphonebox",size=[0.08,0.039,0.0037],rgba=[0,0,0,1],friction=[1,1,5]).get_obj() 
+iphonebox.set('pos', '-0.5 0.4 0.9')
 world.worldbody.append(iphonebox)
 
-# box = BoxObject(name="box",size=[0.35,9.7,0.37],rgba=[0.5,0.5,0.5,1],friction=[1,1,1]).get_obj()
-# box.set('pos', '1 -0.5 0')
-# world.worldbody.append(box)
-
-box = BoxObject(name="box",size=[9.7,0.35,0.37],rgba=[0.75,0.75,0.755,1],friction=[1,1,1]).get_obj()
-box.set('pos', '1 0.6 0')
+box = BoxObject(name="box",size=[9.7,0.35,0.37],rgba=[0.9,0.9,0.9,1],friction=[1,1,1]).get_obj()
+box.set('pos', '1 0.4 0')
 world.worldbody.append(box)
-
-# mount = CylinderObject(name="mount",size=[0.1,0.3],rgba=[0.5,0.5,0.5,1],friction=[1,1,1]).get_obj()
-# mount.set('pos', '0.5 0 0')
-# world.worldbody.append(mount)
 
 
 
@@ -84,36 +66,35 @@ timestep= 0.002
 
 sim_state = sim.get_state()
 
+# joint_values_init = np.zeros(6)
+joint_values_init = [-0.691, -1.50792, -1.60242, -1.57075, 1.50792, -0.31415]
+
+ee_pose_init = ur3e_arm.forward(joint_values_init)
+print(f"ee pose shape {ee_pose_init.shape}, {ee_pose_init}")
+def ik(pose, q_guess):
+    print(f"pose {pose}")
+    return ur3e_arm.inverse(pose, False, q_guess = q_guess)
+
+ee_pose = ee_pose_init
+last_angles = joint_values_init
 
 while t<t_final:
 	sim.step()
-	
 	if True:
 		viewer.render()
+	# ee_pose[2] +=0.00005
+	# ee_pose[1] +=0.00005
+	ee_pose[0] +=0.00005
 	sim.data.set_joint_qvel('box_joint0', [0.2, 0, 0, 0, 0, 0])
-	sim.data.set_joint_qpos('robot0_joint_1', -1)
-	sim.data.set_joint_qpos('robot0_joint_2', -0.5)
-	sim.data.set_joint_qpos('robot0_joint_3', 0.5)
-	sim.data.set_joint_qpos('robot0_joint_4', 0.5)
-	sim.data.set_joint_qpos('robot0_joint_5', 5)
-	sim.data.set_joint_qpos('robot0_joint_6', 5)
-	sim.data.set_joint_qpos('robot0_base_left_short_joint', 0.025)
-	sim.data.set_joint_qpos('robot0_base_right_short_joint', -0.025)
+	joint_pos = ik(ee_pose, last_angles)
+	print(f"joint angles {joint_pos}")
+	# print(f"ee_pose {ee_pose}, joint_values {joint_pos}")
 
-	# sim.data.set_joint_qpos('robot0_joint_1', -1)
-	# sim.data.set_joint_qpos('robot0_joint_2', -0.5)
-	# sim.data.set_joint_qpos('robot0_joint_3', 0.5)
-	# sim.data.set_joint_qpos('robot0_joint_4', 0.5)
-	# sim.data.set_joint_qpos('robot0_joint_5', 5)
-	# sim.data.set_joint_qpos('robot0_joint_6', -4)
-	# sim.data.set_joint_qpos('robot0_base_left_short_joint', 0.025)
-	# sim.data.set_joint_qpos('robot0_base_right_short_joint', -0.025)
-	# sim.data.ctrl[0] =0
-	# sim.data.ctrl[1] =0.5
-	# sim.data.ctrl[2] =0
-	# sim.data.ctrl[3] =0
-	# sim.data.ctrl[4] =0
-	# sim.data.ctrl[5] =0
+	move_robot(sim, joint_pos)
+
+	last_angles = joint_pos
+
+
 	t=t+1
 
 

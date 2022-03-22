@@ -155,7 +155,7 @@ Pressed ESC
         self.table_full_size = table_full_size
         self.table_friction = table_friction
         # self.table_offset = np.array((0.6, -2, 0))
-        self.table_offset = np.array((0,0,0.8))
+        self.table_offset = np.array((0.5,0,0.5))
 
         # reward configuration
         self.reward_scale = reward_scale
@@ -297,7 +297,7 @@ Pressed ESC
                 name="ObjectSampler",
                 mujoco_objects=self.phone,
                 x_range=[-0.13, 0.13],
-                y_range=[-0.9, -0.89],
+                y_range=[-1.2, -1],
                 rotation=[1,0,0,0],
                 ensure_object_boundary_in_range=False,
                 ensure_valid_placement=True,
@@ -380,7 +380,6 @@ Pressed ESC
             # Sample from the placement initializer for all objects
             object_placements = self.placement_initializer.sample()
 
-            print(f"lift.py -> object_placements {object_placements['iphone'][0]}")
 
             # Loop through all objects and reset their positions
             for obj_pos, obj_quat, obj in object_placements.values():
