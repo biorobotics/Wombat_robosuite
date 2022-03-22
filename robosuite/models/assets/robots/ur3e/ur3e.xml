@@ -1,5 +1,5 @@
 <mujoco model="UR3e">
-    <compiler angle="radian" meshdir="/home/biorobotics-ms/catkin_ws/src/Wombat_robosuite/robosuite/models/assets/robots/ur3e"/>
+    <compiler angle="radian" meshdir="/home/yashraghav/Wombat_robosuite/robosuite/models/assets/robots/ur3e"/>
     <size njmax="500" nconmax="100" />
     <asset>
         <mesh name="base" file="meshes/base.stl" />

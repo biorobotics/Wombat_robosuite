@@ -32,6 +32,9 @@ world = MujocoWorldBase()
 
 mujoco_robot = UR3e()
 
+gripper = gripper_factory('PandaGripper')
+# gripper.hide_visualization()
+mujoco_robot.add_gripper(gripper)
 		
 mujoco_robot.set_base_xpos([0.5, 0.0, 0.05])
 world.merge(mujoco_robot)
@@ -78,6 +81,7 @@ def ik(pose, q_guess):
 ee_pose = ee_pose_init
 last_angles = joint_values_init
 
+
 while t<t_final:
 	sim.step()
 	if True:
@@ -88,6 +92,14 @@ while t<t_final:
 	sim.data.set_joint_qvel('box_joint0', [0.2, 0, 0, 0, 0, 0])
 	joint_pos = ik(ee_pose, last_angles)
 	print(f"joint angles {joint_pos}")
+	if t>0 and t<2000: ##keeping gripper open
+		sim.data.set_joint_qpos('gripper0_finger_joint1', 0.05)
+		sim.data.set_joint_qpos('gripper0_finger_joint2', -0.05)
+	else: ##making gripper close
+		sim.data.set_joint_qpos('gripper0_finger_joint1', 0.03)
+		sim.data.set_joint_qpos('gripper0_finger_joint2', -0.03)
+
+		
 	# print(f"ee_pose {ee_pose}, joint_values {joint_pos}")
 
 	move_robot(sim, joint_pos)
@@ -96,6 +108,8 @@ while t<t_final:
 
 
 	t=t+1
+
+
 
 
 
