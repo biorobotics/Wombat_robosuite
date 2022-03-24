@@ -32,6 +32,9 @@ world = MujocoWorldBase()
 
 mujoco_robot = UR3e()
 
+# gripper = gripper_factory('PandaGripper')
+# # gripper.hide_visualization()
+# mujoco_robot.add_gripper(gripper)
 		
 mujoco_robot.set_base_xpos([0.5, 0.0, 0.05])
 world.merge(mujoco_robot)
@@ -77,7 +80,8 @@ def ik(pose, q_guess):
 
 ee_pose = ee_pose_init
 last_angles = joint_values_init
-print(f"sim.data.sensordata {sim.data.sensordata}")
+
+
 while t<t_final:
 	sim.step()
 	if True:
@@ -87,7 +91,47 @@ while t<t_final:
 	ee_pose[0] +=0.00005
 	sim.data.set_joint_qvel('box_joint0', [0.2, 0, 0, 0, 0, 0])
 	joint_pos = ik(ee_pose, last_angles)
-	# print(f"joint angles {joint_pos}")
+	print(f"joint angles {joint_pos}")
+	if t>0 and t<2000: ##keeping gripper open
+		# sim.data.set_joint_qpos('robot0_base_left_short_joint', -0.05)
+		# sim.data.set_joint_qpos('robot0_base_right_short_joint', 0.05)
+
+		# sim.data.set_joint_qpos('robot0_base_left_torque_joint', 0.0)
+		# sim.data.set_joint_qpos('robot0_base_right_torque_joint', -0.0)
+		sim.data.ctrl[6] = -0.4
+		sim.data.ctrl[7] = 0.4
+	else: ##making gripper close
+		# sim.data.set_joint_qpos('robot0_base_left_short_joint', 0.0)
+		# sim.data.set_joint_qpos('robot0_base_right_short_joint', -0.0)
+		# sim.data.set_joint_qpos('robot0_base_left_torque_joint', 0.0)
+		# sim.data.set_joint_qpos('robot0_base_right_torque_joint', -0.0)
+		sim.data.ctrl[6] = 0.1
+		sim.data.ctrl[7] = -0.1
+	# print("L1",sim.data.get_joint_qpos('robot0_base_left_torque_joint'))
+	# print("R1",sim.data.get_joint_qpos('robot0_base_right_torque_joint'))
+	if sim.data.get_joint_qpos('robot0_base_left_torque_joint')>0.1:
+		sim.data.set_joint_qpos('robot0_base_left_torque_joint', 0.1)
+	if sim.data.get_joint_qpos('robot0_base_left_torque_joint')<-0.1:
+		sim.data.set_joint_qpos('robot0_base_left_torque_joint', -0.1)
+
+	if sim.data.get_joint_qpos('robot0_base_right_torque_joint')>0.1:
+		sim.data.set_joint_qpos('robot0_base_right_torque_joint', 0.1)
+	if sim.data.get_joint_qpos('robot0_base_right_torque_joint')<-0.1:
+		sim.data.set_joint_qpos('robot0_base_right_torque_joint', -0.1)
+
+	# print("L1",sim.data.get_joint_qpos('robot0_base_left_short_joint'))
+	# print("R1",sim.data.get_joint_qpos('robot0_base_right_short_joint'))
+	if sim.data.get_joint_qpos('robot0_base_left_short_joint')>0.4:
+		sim.data.set_joint_qpos('robot0_base_left_short_joint', 0.4)
+	if sim.data.get_joint_qpos('robot0_base_left_short_joint')<-0.4:
+		sim.data.set_joint_qpos('robot0_base_left_short_joint', -0.4)
+
+	if sim.data.get_joint_qpos('robot0_base_right_short_joint')>0.4:
+		sim.data.set_joint_qpos('robot0_base_right_short_joint', 0.4)
+	if sim.data.get_joint_qpos('robot0_base_right_short_joint')<-0.4:
+		sim.data.set_joint_qpos('robot0_base_right_short_joint', -0.4)
+
+		
 	# print(f"ee_pose {ee_pose}, joint_values {joint_pos}")
 
 	move_robot(sim, joint_pos)
@@ -96,6 +140,8 @@ while t<t_final:
 
 
 	t=t+1
+
+
 
 
 
