@@ -77,7 +77,7 @@ def ik(pose, q_guess):
 
 ee_pose = ee_pose_init
 last_angles = joint_values_init
-print(f"sim.data.sensordata {sim.data.sensordata}")
+
 while t<t_final:
 	sim.step()
 	if True:

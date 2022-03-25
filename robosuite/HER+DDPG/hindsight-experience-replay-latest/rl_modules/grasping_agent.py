@@ -161,8 +161,9 @@ class grasping_agent:
 					# start to collect samples
 					if MPI.COMM_WORLD.Get_rank() == 0:
 						image_new = []
-
+					# TODO: New action zero: calc from Fk tho...
 					action_zero = np.array([0,0,0.6,0,0,0,-0.75,0.75])
+					action_zero = np.array([1.31e-1, 3.915e-1, 2.05e-1, -3.14, 0,0,-0.4, 0.4])
 					obs_current = np.zeros(34)
 					obs_last = obs_current.copy()
 					pp_snatch = 0 # pp =gripping flag
@@ -192,7 +193,7 @@ class grasping_agent:
 					for t in range(self.env_params['max_timesteps']):
 
 						try:
-							obs,reward,done,_ = self.env.step(action_zero)
+							obs,reward,done = self.env.step(action_zero)
 							# print(f"action_zero {action_zero}")
 						except:
 							break_flag = True
@@ -220,7 +221,7 @@ class grasping_agent:
 
 						if phone_pos[1]>pre_grasp_pos:
 							try:
-								obs,reward,done,_ = self.env.step(action_zero)
+								obs,reward,done= self.env.step(action_zero)
 								# print(f"action_zero {action_zero}")
 
 							except:
@@ -313,13 +314,13 @@ class grasping_agent:
 								
 							# obs,reward,done,_ = self.env.step(action_zero)
 							try:
-								obs,reward,done,_ = self.env.step(action_zero)
+								obs,reward,done = self.env.step(action_zero)
 								# print(f"action_zero {action_zero}")
 
 							except:
 								print(f"Passing !!!!")
 								_ = self.env.reset()
-								break0, self.phone_speed, 0, 0, 0, 0bs['observation'] 
+								break
 							traj_index+=1
 
 						## Start snatch motion ###
@@ -330,7 +331,7 @@ class grasping_agent:
 								wait_flag =True
 							if action_zero[2]>=0.763: 
 								action_zero[2]=0.763
-							obs,reward,done,_ = self.env.step(action_zero)
+							obs,reward,done = self.env.step(action_zero)
 							obs_current = obs['observation']
 							
 

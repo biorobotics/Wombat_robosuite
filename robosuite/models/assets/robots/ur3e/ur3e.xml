@@ -1,5 +1,5 @@
 <mujoco model="UR3e">
-    <compiler angle="radian" meshdir="/home/yashraghav/Wombat_robosuite/robosuite/models/assets/robots/ur3e"/>
+    <compiler angle="radian" meshdir="."/>
     <size njmax="500" nconmax="100" />
     <asset>
         <mesh name="base" file="meshes/base.stl" />
@@ -79,7 +79,7 @@
             <body name="left_gripper_finger" pos="0 0 0.039">
                 <inertial pos="-0.00018314 0.0018228 0.0083165" quat="0.635428 0.771978 -0.0124217 0.0112704" mass="0.032218" diaginertia="1.84182e-05 1.82648e-05 6.97848e-07" />
                 <joint name="left_short_gripper_joint" pos="0 0 0" axis="1 0 0" />
-                <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="left_gripper_finger" />
+                <geom type="mesh" group="1" contype="1" conaffinity="1" rgba="0.79216 0.81961 0.93333 1" mesh="left_gripper_finger" />
                <!--  <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="left_gripper_finger" /> -->
                 <body name="finger_L1" pos="0.0938 0.03058 0.01431">
                     <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
@@ -151,7 +151,7 @@
             <body name="right_gripper_finger" pos="0 0.0013143 0.038978">
                 <inertial pos="0.023251 -0.0021824 0.0082294" quat="0.757988 0.652052 0.0115399 -0.0121765" mass="0.032218" diaginertia="1.84182e-05 1.82649e-05 6.97804e-07" />
                 <joint name="right_short_gripper_joint" pos="0 0 0" axis="1 0 0" />
-                <geom type="mesh" group="1" contype="0" conaffinity="0" rgba="0.79216 0.81961 0.93333 1" mesh="right_gripper_finger" />
+                <geom type="mesh" group="1" contype="1" conaffinity="1" rgba="0.79216 0.81961 0.93333 1" mesh="right_gripper_finger" />
                 <!-- <geom type="mesh" rgba="0.79216 0.81961 0.93333 1" mesh="right_gripper_finger" /> -->
                 <body name="finger_R1" pos="0.0938 -0.03058 0.01291">
                     <inertial pos="0 0 0" quat="0 0 0 1" mass="0.01" diaginertia="0.01 0.01 0.01" />
@@ -287,4 +287,12 @@
         <exclude body1="right_torque_transfer" body2="right_gripper_finger"/>
 
     </contact>
+
+
+    <sensor>
+
+        <framepos name="gripper_pos_sensor" objtype="body" objname="gripper_base_link" />
+        <framequat name="gripper_quat_sensor" objtype="body" objname="gripper_base_link" />
+		<!--accelerometer name="payload_accelerometer" site="point_mass_site"/-->
+    </sensor>
 </mujoco>
