@@ -4,10 +4,61 @@
 <!-- |    EDITING THIS FILE BY HAND IS NOT RECOMMENDED                                 | -->
 <!-- =================================================================================== -->
 <robot name="ur3e_robot">
-  <mujoco>
-        <compiler 
-        meshdir="/home/yashraghav/meshes/"/>
-  </mujoco>
+  <!--
+    Base UR robot series xacro macro.
+
+    NOTE: this is NOT a URDF. It cannot directly be loaded by consumers
+    expecting a flattened '.urdf' file. See the top-level '.xacro' for that
+    (but note: that .xacro must still be processed by the xacro command).
+
+    For use in '.launch' files: use one of the 'load_urX.launch' convenience
+    launch files.
+
+    This file models the base kinematic chain of a UR robot, which then gets
+    parameterised by various configuration files to convert it into a UR3(e),
+    UR5(e), UR10(e) or UR16e.
+
+    NOTE: the default kinematic parameters (ie: link lengths, frame locations,
+    offets, etc) do not correspond to any particular robot. They are defaults
+    only. There WILL be non-zero offsets between the Forward Kinematics results
+    in TF (ie: robot_state_publisher) and the values reported by the Teach
+    Pendant.
+
+    For accurate (and robot-specific) transforms, the 'kinematics_parameters_file'
+    parameter MUST point to a .yaml file containing the appropriate values for
+    the targetted robot.
+
+    If using the UniversalRobots/Universal_Robots_ROS_Driver, follow the steps
+    described in the readme of that repository to extract the kinematic
+    calibration from the controller and generate the required .yaml file.
+
+    Main author of the migration to yaml configs: Ludovic Delval.
+
+    Contributors to previous versions (in no particular order):
+
+     - Felix Messmer
+     - Kelsey Hawkins
+     - Wim Meeussen
+     - Shaun Edwards
+     - Nadia Hammoudeh Garcia
+     - Dave Hershberger
+     - G. vd. Hoorn
+     - Philip Long
+     - Dave Coleman
+     - Miguel Prada
+     - Mathias Luedtke
+     - Marcel Schnirring
+     - Felix von Drigalski
+     - Felix Exner
+     - Jimmy Da Silva
+     - Ajit Krisshna N L
+     - Muhammad Asif Rana
+  -->
+  <!--
+    NOTE: the macro defined in this file is NOT part of the public API of this
+          package. Users CANNOT rely on this file being available, or stored in
+          this location. Nor can they rely on the existence of the macro.
+  -->
   <transmission name="shoulder_pan_trans">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="shoulder_pan_joint">
@@ -68,7 +119,7 @@
     <visual>
       <origin rpy="0 0 3.14159265359" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file:///home/yashraghav/meshes/base.dae"/>
+        <mesh filename="/home/biorobotics-ms/d3_plan_ws/src/fmauch_universal_robot/ur_description/meshes/ur3e/visual/base.stl"/>
       </geometry>
       <material name="LightGrey">
         <color rgba="0.7 0.7 0.7 1.0"/>
@@ -77,7 +128,7 @@
     <collision>
       <origin rpy="0 0 3.14159265359" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file:///home/yashraghav/meshes/base.stl"/>
+        <mesh filename="/home/biorobotics-ms/d3_plan_ws/src/fmauch_universal_robot/ur_description/meshes/ur3e/collision/base.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -90,7 +141,7 @@
     <visual>
       <origin rpy="0 0 3.14159265359" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file:///home/yashraghav/meshes/shoulder.dae"/>
+        <mesh filename="/home/biorobotics-ms/d3_plan_ws/src/fmauch_universal_robot/ur_description/meshes/ur3e/visual/shoulder.stl"/>
       </geometry>
       <material name="LightGrey">
         <color rgba="0.7 0.7 0.7 1.0"/>
@@ -99,7 +150,7 @@
     <collision>
       <origin rpy="0 0 3.14159265359" xyz="0 0 0"/>
       <geometry>
-        <mesh filename="file:///home/yashraghav/meshes/shoulder.stl"/>
+        <mesh filename="/home/biorobotics-ms/d3_plan_ws/src/fmauch_universal_robot/ur_description/meshes/ur3e/collision/shoulder.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -112,7 +163,7 @@
     <visual>
       <origin rpy="1.57079632679 0 -1.57079632679" xyz="0 0 0.12"/>
       <geometry>
-        <mesh filename="file:///home/yashraghav/meshes/upperarm.dae"/>
+        <mesh filename="/home/biorobotics-ms/d3_plan_ws/src/fmauch_universal_robot/ur_description/meshes/ur3e/visual/upperarm.stl"/>
       </geometry>
       <material name="LightGrey">
         <color rgba="0.7 0.7 0.7 1.0"/>
@@ -121,7 +172,7 @@
     <collision>
       <origin rpy="1.57079632679 0 -1.57079632679" xyz="0 0 0.12"/>
       <geometry>
-        <mesh filename="file:///home/yashraghav/meshes/upperarm.stl"/>
+        <mesh filename="/home/biorobotics-ms/d3_plan_ws/src/fmauch_universal_robot/ur_description/meshes/ur3e/collision/upperarm.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -134,7 +185,7 @@
     <visual>
       <origin rpy="1.57079632679 0 -1.57079632679" xyz="0 0 0.027"/>
       <geometry>
-        <mesh filename="file:///home/yashraghav/meshes/forearm.dae"/>
+        <mesh filename="/home/biorobotics-ms/d3_plan_ws/src/fmauch_universal_robot/ur_description/meshes/ur3e/visual/forearm.stl"/>
       </geometry>
       <material name="LightGrey">
         <color rgba="0.7 0.7 0.7 1.0"/>
@@ -143,7 +194,7 @@
     <collision>
       <origin rpy="1.57079632679 0 -1.57079632679" xyz="0 0 0.027"/>
       <geometry>
-        <mesh filename="file:///home/yashraghav/meshes/forearm.stl"/>
+        <mesh filename="/home/biorobotics-ms/d3_plan_ws/src/fmauch_universal_robot/ur_description/meshes/ur3e/collision/forearm.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -157,7 +208,7 @@
       <!-- TODO: Move this to a parameter -->
       <origin rpy="1.57079632679 0 0" xyz="0 0 -0.104"/>
       <geometry>
-        <mesh filename="file:///home/yashraghav/meshes/wrist1.dae"/>
+        <mesh filename="/home/biorobotics-ms/d3_plan_ws/src/fmauch_universal_robot/ur_description/meshes/ur3e/visual/wrist1.stl"/>
       </geometry>
       <material name="LightGrey">
         <color rgba="0.7 0.7 0.7 1.0"/>
@@ -166,7 +217,7 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0 0 -0.104"/>
       <geometry>
-        <mesh filename="file:///home/yashraghav/meshes/wrist1.stl"/>
+        <mesh filename="/home/biorobotics-ms/d3_plan_ws/src/fmauch_universal_robot/ur_description/meshes/ur3e/collision/wrist1.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -179,7 +230,7 @@
     <visual>
       <origin rpy="0 0 0" xyz="0 0 -0.08535"/>
       <geometry>
-        <mesh filename="file:///home/yashraghav/meshes/wrist2.dae"/>
+        <mesh filename="/home/biorobotics-ms/d3_plan_ws/src/fmauch_universal_robot/ur_description/meshes/ur3e/visual/wrist2.stl"/>
       </geometry>
       <material name="LightGrey">
         <color rgba="0.7 0.7 0.7 1.0"/>
@@ -188,7 +239,7 @@
     <collision>
       <origin rpy="0 0 0" xyz="0 0 -0.08535"/>
       <geometry>
-        <mesh filename="file:///home/yashraghav/meshes/wrist2.stl"/>
+        <mesh filename="/home/biorobotics-ms/d3_plan_ws/src/fmauch_universal_robot/ur_description/meshes/ur3e/collision/wrist2.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -201,7 +252,7 @@
     <visual>
       <origin rpy="1.57079632679 0 0" xyz="0 0 -0.0921"/>
       <geometry>
-        <mesh filename="file:///home/yashraghav/meshes/wrist3.dae"/>
+        <mesh filename="/home/biorobotics-ms/d3_plan_ws/src/fmauch_universal_robot/ur_description/meshes/ur3e/visual/wrist3.stl"/>
       </geometry>
       <material name="LightGrey">
         <color rgba="0.7 0.7 0.7 1.0"/>
@@ -210,7 +261,7 @@
     <collision>
       <origin rpy="1.57079632679 0 0" xyz="0 0 -0.0921"/>
       <geometry>
-        <mesh filename="file:///home/yashraghav/meshes/wrist3.stl"/>
+        <mesh filename="/home/biorobotics-ms/d3_plan_ws/src/fmauch_universal_robot/ur_description/meshes/ur3e/collision/wrist3.stl"/>
       </geometry>
     </collision>
     <inertial>
@@ -306,3 +357,4 @@
     <child link="tool0"/>
   </joint>
 </robot>
+
