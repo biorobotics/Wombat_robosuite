@@ -41,7 +41,12 @@
     </equality>
 
     <worldbody>
+<<<<<<< HEAD
         <geom quat="-1 0 0 0" type="mesh" rgba="0.7 0.7 0.7 1" mesh="base" />
+=======
+        <!-- <geom quat="-1 0 0 0" type="mesh" group="1"  rgba="0.7 0.7 0.7 1" mesh="base" />
+        <geom quat="-1 0 0 0" type="mesh" group="0"  rgba="0.7 0.7 0.7 1" mesh="base" /> -->
+>>>>>>> 7f27bd5b19ed0129be62f76fd501beac5841bcae
         <body name="shoulder_link" pos="0 0 0.15185" quat="0 0 0 1">
             <inertial pos="0 0 0" mass="2" diaginertia="0.00809316 0.00809316 0.005625" />
             <joint name="joint_1" pos="0 0 0" axis="0 0 1" limited="true" range="-6.28319 6.28319" />
