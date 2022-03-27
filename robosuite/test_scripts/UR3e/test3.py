@@ -33,14 +33,14 @@ def quat_to_euler( quat):
 
 def grip_signal(des_state,obs_last,obs_last2last):
 	if des_state=='open':
-		left_finger_open = -0.5##-0.287884 PIONEER
-		right_finger_open = 0.5##-0.295456 PIONEER
+		left_finger_open = -0.7##-0.287884 PIONEER
+		right_finger_open = 0.7##-0.295456 PIONEER
 
 		grip_signal=[Gripper_PD_controller(left_finger_open,obs_last[0],obs_last2last[0]),
 						 Gripper_PD_controller(right_finger_open,obs_last[1],obs_last2last[1])]
 	if des_state=='close':
-		left_finger_close = -0.35##0.246598 PIONEER
-		right_finger_close = 0.35##0.241764 PIONEER
+		left_finger_close = -0.3##0.246598 PIONEER
+		right_finger_close = 0.3##0.241764 PIONEER
 
 		grip_signal=[Gripper_PD_controller(left_finger_close,obs_last[0],obs_last2last[0]),
 						 Gripper_PD_controller(right_finger_close,obs_last[1],obs_last2last[1])]
@@ -70,17 +70,18 @@ world.merge(mujoco_robot)
 mujoco_arena =EmptyArena()
 world.merge(mujoco_arena)
 
+iphonebox = BoxObject(name="iphonebox",size=[0.039,0.08,0.0037],rgba=[0,0,0,1],friction=[20,20,20]).get_obj() 
+# iphonebox = BoxObject(name="iphonebox",size=[0.08,0.039,0.003],rgba=[0,0,0,1],friction=[10,10,10]).get_obj()
+# iphonebox = CylinderObject(name="iphonebox",size=[0.03,0.015],rgba=[0,0,0,1],friction=[1,1,1]).get_obj() 
+iphonebox.set('pos', '0.63 0.395 0.8')
+iphonebox.set('quat', '1 0.7 0.7 0')
+world.worldbody.append(iphonebox)
 
-box = BoxObject(name="box",size=[9.7,0.35,0.40],rgba=[0.9,0.9,0.9,1],friction=[1,1,1]).get_obj()
+box = BoxObject(name="box",size=[9.7,0.35,0.40],rgba=[0.5,0.5,0.5,1],friction=[1,1,1]).get_obj()
 box.set('pos', '1 0.4 0.37')
 world.worldbody.append(box)
 
-iphonebox = BoxObject(name="iphonebox",size=[0.08,0.039,0.0037],rgba=[0,0,0,1],friction=[1,1,1],density=10000).get_obj() 
-# iphonebox = BoxObject(name="iphonebox",size=[0.08,0.039,0.003],rgba=[0,0,0,1],friction=[10,10,10]).get_obj()
-# iphonebox = CylinderObject(name="iphonebox",size=[0.03,0.015],rgba=[0,0,0,1],friction=[1,1,1]).get_obj() 
-iphonebox.set('pos', '0.63 0.395 0.83')
-iphonebox.set('quat', '1 0.7 0.7 0')
-world.worldbody.append(iphonebox)
+
  
 # Gripper touches at z = 0.896
 
@@ -138,7 +139,7 @@ while t<t_final:
 	
 	joint_pos = ik(ee_pose, last_angles)
 	# print(f"gripper_pose_z  {gripper_pose[2]}, phone {phone_pose[2]}")
-	if(gripper_pose[2]<=0.899 and t>10 and reach_flag == False):
+	if(gripper_pose[2]<=0.9 and t>10 and reach_flag == False):
 		reach_flag = True
 		reach_time = t
 		# print(f"set reach time = {reach_time}")
@@ -161,7 +162,8 @@ while t<t_final:
 		if((t-reach_time)>1000):
 			ee_pose[2]+=0.000025
 			# print(f"lifting up")
-
+		
+		
 	# if sim.data.get_joint_qpos('robot0_base_left_torque_joint')>0.1:
 	# 	sim.data.set_joint_qpos('robot0_base_left_torque_joint', 0.1)
 	# if sim.data.get_joint_qpos('robot0_base_left_torque_joint')<-0.1:
