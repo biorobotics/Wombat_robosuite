@@ -2,7 +2,7 @@ import numpy as np
 import os, sys 
 from arguments import get_args
 from mpi4py import MPI
-
+import glfw
 import random 
 import torch 
 
@@ -25,9 +25,6 @@ from ur_ikfast import ur_kinematics
 
 # DMP Stuff
 from wombat_dmp.srv import *
-import rospy 
-from geometry_msgs import Pose, Vector3
-from std_msgs.msg import String
 from scipy.spatial.transform import Rotation as R
 
 class UR3e_env(object):
@@ -42,8 +39,8 @@ class UR3e_env(object):
         self.observation_last2last = None 
         self.joint_sim_last = None
         self.done = False
-        self.action_high = None #TODO:
-        self.action_low = np.array([-0.00005]*self.action_dim)
+        self.action_high = np.array([0.0005]*self.action_dim)
+        self.action_low = np.array([-0.0005]*self.action_dim)
         self.action_network_high = np.array([0.00005]*self.action_network_dim)
         self.action_network_low = np.array([-0.00005]*self.action_network_dim)	 
 
@@ -87,39 +84,52 @@ class UR3e_env(object):
         
         self.world = MujocoWorldBase()
         self.mujoco_robot = UR3e()
-        self.mujoco_robot.set_base_xpos([0.5, 0.0, 0.35])
+        self.mujoco_robot.set_base_xpos([0.5, 0, 0.20])
         self.world.merge(self.mujoco_robot)
+
 
         self.mujoco_arena = EmptyArena()
         self.world.merge(self.mujoco_arena)
 
-        self.iphonebox = BoxObject(name="iphonebox",size=[0.08,0.039,0.0037],rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
-        self.iphonebox.set('pos', '1.2 {} 0.8'.format(self.phone_x))
-        self.iphonebox.set('quat', '1 {} 0 0'.format(self.phone_orient)) #0
-        self.world.worldbody.append(self.iphoneself.box)
-
-        self.box = BoxObject(name="box",size=[9.7,0.35,0.37],rgba=[0.9,0.9,0.9,1],friction=[1,1,1]).get_obj()
-        self.box.set('pos', '1 0.4 0')
+        self.box = BoxObject(name="box",size=[9.7,0.35,0.40],rgba=[0.9,0.9,0.9,1],friction=[1,1,1]).get_obj()
+        self.box.set('pos', '1 0.4 0.37')
         self.world.worldbody.append(self.box)
+
+
+        self.iphonebox = BoxObject(name="iphonebox",size=[0.08,0.039,0.003],rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
+        self.iphonebox.set('pos', '1.0 0.3 0.8'.format(self.phone_x))
+
+        self.iphonebox.set('quat', '1 {} 0 0'.format(self.phone_orient)) #0
+        self.world.worldbody.append(self.iphonebox)
+
 
         self.model = self.world.get_model(mode="mujoco_py")
         self.sim = MjSim(self.model)
 
+        self.robot_joints_no = 6
+        self.joint_names = ['robot0_joint_'+ str(i+1) for i in range(self.robot_joints_no)]
+
+        self.joint_values_init =np.array([-np.pi/2, -2.0, -np.pi/2, -1.01,  1.57, np.pi *0/180.0])
+        self.prev_joint_values = self.joint_values_init
+        for i in range(self.robot_joints_no):
+            self.sim.data.set_joint_qpos(self.joint_names[i], self.joint_values_init[i])
         if self.is_render:
             self.viewer = MjViewer(self.sim)
             self.viewer.vopt.geomgroup[0] = 0
             self.viewer.render()
 
         self.timestep =0.0005 #?Is this needed
-        self.robot_joints_no = 6
-        self.joint_names = ['robot0_joint_'+ str(i+1) for i in range(self.robot_joints_no)]
         self.sim_state = self.sim.get_state()
 
         self.observation_current = self.get_observation()
         return self.observation_current
 
-    
-    def reset(self, phone_x = 0.2, phone_speed = -0.2, phone_orient = 0): #TODO: Set the default values here 
+    def close_window(self):
+        glfw.destroy_window(self.viewer.window)
+
+    def reset(self, phone_x = 0.4, phone_speed = -0.1, phone_orient = 0): #TODO: Set the default values here 
+        if(self.is_render):
+            self.close_window()
         obs_new = self.set_env(phone_x, phone_speed, phone_orient)
         return obs_new
 
@@ -134,11 +144,11 @@ class UR3e_env(object):
 
         #* For observations 0:6 : Robot Joint Qpos
         for i in range(self.robot_joints_no):
-            observation[i] = self.sim.data.get_joint_qpos(self.joint_name[i])
+            observation[i] = self.sim.data.get_joint_qpos(self.joint_names[i])
 
         #* For observation 6:12: Robot Joint Qvels 
         for i in range(self.robot_joints_no):
-            observation[i] = self.sim.data.get_joint_vel(self.joint_name[i])
+            observation[i] = self.sim.data.get_joint_qvel(self.joint_names[i])
 
         #* Phone Observations [cartesian :(x, y, z), quat: (w, x, y, z)]
         observation[12:19] = self.sim.data.get_joint_qpos('iphonebox_joint0')
@@ -149,14 +159,14 @@ class UR3e_env(object):
         observation[19] = observation[19] + 0.02
 
         #* Gripper Finger Joints:
-        observation[26] = self.sim.data.get_joint_qpos('robot0_gripper_left_finger_joint')
-        observation[27] = self.sim.data.get_joint_qpos('robot0_gripper_right_finger_joint')
+        observation[26] = self.sim.data.get_joint_qpos('robot0_base_left_short_joint')
+        observation[27] = self.sim.data.get_joint_qpos('robot0_base_right_short_joint')
 
         #*  Phone Velocity 
         observation[28:34] = self.sim.data.get_joint_qvel('iphonebox_joint0')
 
         # TODO: Check these values for the new environment 
-        goal = 0.88#0.83		#z value of the phone should be at 0.83 m from floor
+        goal = 0.91#0.83		#z value of the phone should be at 0.83 m from floor
        
         # Z value of the phone
         achieved_goal = observation[14] 
@@ -166,25 +176,28 @@ class UR3e_env(object):
         return observation
 
     def step(self, action):
+        print(f"step got called")
         if(self.observation_last is not None):
             self.observation_last2last = self.observation_last
         else:
-            self.observation_last2last = np.zeros_like(self.observation_current)
+            self.observation_last2last = np.zeros(self.obs_dim)
 
         
         self.observation_last = self.observation_current['observation']
-        # ?Debug this here 
-        q_guess = self.observation_last[19:26]
+
+        
+
 
         ee_pose = np.zeros(7)
         ee_pose[0:3] = action[0:3]
         ee_pose[3:] = self.euler_to_quat(action[3:])
-        ee_pose = self.clip_robot_joints(ee_pose)
+        # ee_pose = self.clip_robot_joints(ee_pose)
+        # print(f"ee_pose: step : {ee_pose}")
+        joint_values = self.ur3e_arm.inverse(ee_pose)
+        # print(f"joint values {joint_values}")
+        self.prev_joint_values = joint_values
 
-        joint_values = self.ur3e_arm.inverse(ee_pose, False, q_guess = q_guess)
-
-
-        for i in range(len(joint_values)):
+        for i in range(self.robot_joints_no):
             self.sim.data.set_joint_qpos(self.joint_names[i], joint_values[i])
 
 
@@ -201,20 +214,23 @@ class UR3e_env(object):
         if self.is_render:
             self.viewer.render()
         self.observation_current = self.get_observation()
-        self.reward = self.compute_reward(self.observation_current)
-        self.sim.data.set_joint_qvel('box_joint0',[0,self.phone_speed, 0, 0, 0, 0])
+        self.reward = self.compute_reward(self.observation_current['observation'])
+        self.sim.data.set_joint_qvel('box_joint0',[self.phone_speed,0, 0, 0, 0, 0])
 
-        self.done = self.is_done()
+        self.done = self.is_done(self.observation_current['observation'])
         return self.observation_current, self.reward, self.done
 
 
     def compute_reward(self, obs):
         reward_grasp = []
+        # print(f"obs compute rewards {obs}" )
         for i in range(obs.shape[0]):
-            if obs[14]>=0.88 and (obs[21]-obs[14] <= 0.12) and (abs(obs[19]-obs[12]) <= 0.04) and obs[26] > -0.29:
+            # TODO: Add angles here
+            if obs[14]>=0.91 and (obs[21]-obs[14] <= 0.0954) and (abs(obs[19]-obs[12]) <= 0.01) and obs[26] > -0.29:
                 reward_grasp.append(50)
                 # print("Reward: +50")
-            elif obs[14] >= 0.83 and obs[26] > -0.29 and (obs[21]-obs[14] <= 0.18):
+            # TODO: Partial reward
+            elif obs[14] >= 0.83 and obs[26] > -0.29 and (obs[21]-obs[14] <= 0.12):
                 reward_grasp.append(5)
                 # print("Reward: +5")
             else:
@@ -224,7 +240,7 @@ class UR3e_env(object):
 
     def is_done(self, obs):
         # Check if the episode ended in sucess, give the higher reward here, if true
-        if ((obs[21]-obs[14]) < 0.14) and (obs[21] > 0.99):
+        if (obs[21]-obs[14] <= 0.0954) and (obs[14] > 0.91):
             return True
         # else:
         return False
@@ -237,30 +253,32 @@ class UR3e_env(object):
         return pos
 
     def clip_grip_action(self):
-        if self.sim.data.get_joint_qpos('robot0_gripper_left_finger_joint')>0.25:
-            self.sim.data.set_joint_qpos('robot0_gripper_left_finger_joint', 0.246598)
-        if self.sim.data.get_joint_qpos('robot0_gripper_right_finger_joint')>0.25:
-            self.sim.data.set_joint_qpos('robot0_gripper_right_finger_joint', 0.241764)
-        if self.sim.data.get_joint_qpos('robot0_gripper_left_finger_joint')<-0.29:
-            self.sim.data.set_joint_qpos('robot0_gripper_left_finger_joint', -0.287884)
-        if self.sim.data.get_joint_qpos('robot0_gripper_right_finger_joint')<-0.30:
-            self.sim.data.set_joint_qpos('robot0_gripper_right_finger_joint', -0.295456)
+        if self.sim.data.get_joint_qpos('robot0_base_left_short_joint')>0.25:
+            self.sim.data.set_joint_qpos('robot0_base_left_short_joint', 0.246598)
+        if self.sim.data.get_joint_qpos('robot0_base_right_short_joint')>0.25:
+            self.sim.data.set_joint_qpos('robot0_base_right_short_joint', 0.241764)
+        if self.sim.data.get_joint_qpos('robot0_base_left_short_joint')<-0.29:
+            self.sim.data.set_joint_qpos('robot0_base_left_short_joint', -0.287884)
+        if self.sim.data.get_joint_qpos('robot0_base_right_short_joint')<-0.30:
+            self.sim.data.set_joint_qpos('robot0_base_right_short_joint', -0.295456)
 	
     def clip_robot_joints(self,ee_pose):
+        print(f"clip robot joints:  {ee_pose}")
         x = ee_pose[0]
         y = ee_pose[1]
         z = ee_pose[2]
 
         # First clip in the sphere 
         r = np.sqrt(x**2 + y**2 + z**2)
+        # print(r)
         if(r>=0.5):
             ee_pose[0:3] -=0.0005
             ee_pose =self.clip_robot_joints(ee_pose)
             self.limit_flag = True
         
         # Cyclindrical Space
-        r_cyl= np.sqrt(x**2, y**2)
-        if(r<=0.12):
+        r_cyl= np.sqrt(x**2+ y**2)
+        if(r_cyl<=0.12):
             ee_pose[0:2]+=0.0005
             ee_pose=self.clip_robot_joints(ee_pose)
             self.limit_flag = True
@@ -272,7 +290,6 @@ class UR3e_env(object):
         if des_state=='open':
             left_finger_open = -0.287884
             right_finger_open = -0.295456
-
             grip_signal=[self.Gripper_PD_controller(left_finger_open,obs_last[26],obs_last2last[26]),
                             self.Gripper_PD_controller(right_finger_open,obs_last[27],obs_last2last[27])]
         if des_state=='close':
