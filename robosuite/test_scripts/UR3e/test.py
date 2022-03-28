@@ -52,12 +52,9 @@ box = BoxObject(name="box",size=[9.7,0.35,0.40],rgba=[0.9,0.9,0.9,1],friction=[1
 box.set('pos', '1 0.4 0.37')
 world.worldbody.append(box)
 
-<<<<<<< HEAD
-iphonebox = BoxObject(name="iphonebox",size=[0.08,0.039,0.0037],rgba=[0,0,0,1],friction=[1,1,1], density=500000).get_obj() 
-# iphonebox = BoxObject(name="iphonebox",size=[0.08,0.039,0.003],rgba=[0,0,0,1],friction=[10,10,10]).get_obj()
-=======
-iphonebox = BoxObject(name="iphonebox",size=[0.08,0.039,0.003],rgba=[0,0,0,1],friction=[10,10,10]).get_obj() 
->>>>>>> 7f27bd5b19ed0129be62f76fd501beac5841bcae
+
+iphonebox = BoxObject(name="iphonebox",size=[0.08,0.039,0.003],rgba=[0,0,0,1],friction=[10,10,10], density = 10000).get_obj() 
+
 iphonebox.set('pos', '0.63 0.395 0.8')
 iphonebox.set('quat', '1 0.7 0.7 0')
 world.worldbody.append(iphonebox)
@@ -86,6 +83,7 @@ sim_state = sim.get_state()
 joint_values_init =np.array([-np.pi/2, -2.0, -np.pi/2, -1.01,  1.57, np.pi *0/180.0])
 
 ee_pose_init = ur3e_arm.forward(joint_values_init)
+
 ee_pose_init[3:] =  [-0.9999997, 0, 0, 0.0007963]
 print(f"ee pose shape {ee_pose_init.shape}, {ee_pose_init}")
 print(f"euler angles :{quat_to_euler(np.array(ee_pose_init[3:]))}")
@@ -93,12 +91,9 @@ print(f"euler angles :{quat_to_euler(np.array(ee_pose_init[3:]))}")
 phone_pose = sim.data.get_joint_qpos('iphonebox_joint0')
 phone_pose[1] = ee_pose_init[1]+ 0.0005
 phone_pose[3:] = [1, 0, 0, 0]
-<<<<<<< HEAD
-# sim.data.set_joint_qpos('iphonebox_joint0',phone_pose )
 
-=======
 sim.data.set_joint_qpos('iphonebox_joint0',phone_pose )
->>>>>>> 7f27bd5b19ed0129be62f76fd501beac5841bcae
+
 
 def ik(pose, q_guess):
     # print(f"pose {pose}")
@@ -108,34 +103,38 @@ ee_pose = ee_pose_init
 ee_pose[1] = ee_pose[1] + 0.037
 last_angles = joint_values_init
 
+
+# -___________________
+
+
+gripper_pose = sim.data.sensordata[0:7]	
+phone_pose = sim.data.get_joint_qpos('iphonebox_joint0')
+print(f"gripper_pose_z  {np.around(gripper_pose[0:3], 3) }, phone_pose {np.around((phone_pose[0:3]),3)}")
+
+
 reach_flag = False
 
 while t<t_final:
 	# sim.data.set_joint_qvel('box_joint0',[-0.2,0,0,0,0,0])
 	sim.step()
 	viewer.render()
-<<<<<<< HEAD
-	print("L1",sim.data.get_joint_qpos('robot0_base_left_short_joint'))
-	print("R1",sim.data.get_joint_qpos('robot0_base_right_short_joint'))
-	phone_pose = sim.data.get_joint_qpos('iphonebox_joint0')
-	gripper_pose = sim.data.sensordata[0:7]	
-	joint_pos = ik(ee_pose, last_angles)
-	# print(f"gripper_pose_z  {gripper_pose[2]}, phone {phone_pose[2]}")
-	if(gripper_pose[2]<=0.895 and t>10 and reach_flag == False):
-		reach_flag = True
-		reach_time = t
-		# print(f"set reach time = {reach_time}")
-=======
+
 	
 	phone_pose = sim.data.get_joint_qpos('iphonebox_joint0')
 	gripper_pose = sim.data.sensordata[0:7]	
+
+
 	joint_pos = ik(ee_pose, last_angles)
-	print(f"gripper_pose_z  {gripper_pose[2]}, phone {phone_pose[2]}")
+	print(f"gripper_pose_z  {np.around(gripper_pose[0:3], 3) }, phone_pose {np.around((phone_pose[0:3]),3)}")
+	# if(t>10):
+	# 	if(gripper_pose[2]>phone_pose[2]):
+	# 		ee_pose[2]-=0.0005
+
 	if(gripper_pose[2]<=0.898 and t>10 and reach_flag == False):
 		reach_flag = True
 		reach_time = t
 		print(f"set reach time = {reach_time}")
->>>>>>> 7f27bd5b19ed0129be62f76fd501beac5841bcae
+
 
 	if reach_flag==False:
 		ee_pose[2] -=0.000025
@@ -149,22 +148,11 @@ while t<t_final:
 
 		if((t-reach_time)>1000):
 			ee_pose[2]+=0.000025
-<<<<<<< HEAD
-			# print(f"lifting up")
 
-	if sim.data.get_joint_qpos('robot0_base_left_torque_joint')>0.1:
-		sim.data.set_joint_qpos('robot0_base_left_torque_joint', 0.1)
-	if sim.data.get_joint_qpos('robot0_base_left_torque_joint')<-0.1:
-		sim.data.set_joint_qpos('robot0_base_left_torque_joint', -0.1)
-
-	if sim.data.get_joint_qpos('robot0_base_right_torque_joint')>0.1:
-		sim.data.set_joint_qpos('robot0_base_right_torque_joint', 0.1)
-	if sim.data.get_joint_qpos('robot0_base_right_torque_joint')<-0.1:
-		sim.data.set_joint_qpos('robot0_base_right_torque_joint', -0.1)
-
-	
-=======
 			print(f"lifting up")
+
+	move_robot(sim, joint_pos)
+	last_angles = joint_pos
 
 	if sim.data.get_joint_qpos('robot0_base_left_torque_joint')>0.25:
 		sim.data.set_joint_qpos('robot0_base_left_torque_joint', 0.25)
@@ -178,7 +166,7 @@ while t<t_final:
 
 	# print("L1",sim.data.get_joint_qpos('robot0_base_left_short_joint'))
 	# print("R1",sim.data.get_joint_qpos('robot0_base_right_short_joint'))
->>>>>>> 7f27bd5b19ed0129be62f76fd501beac5841bcae
+
 	if sim.data.get_joint_qpos('robot0_base_left_short_joint')>0.7:
 		sim.data.set_joint_qpos('robot0_base_left_short_joint', 0.7)
 	if sim.data.get_joint_qpos('robot0_base_left_short_joint')<-0.7:
@@ -188,21 +176,9 @@ while t<t_final:
 		sim.data.set_joint_qpos('robot0_base_right_short_joint', 0.7)
 	if sim.data.get_joint_qpos('robot0_base_right_short_joint')<-0.7:
 		sim.data.set_joint_qpos('robot0_base_right_short_joint', -0.7)
-<<<<<<< HEAD
-	
-=======
->>>>>>> 7f27bd5b19ed0129be62f76fd501beac5841bcae
 
 		
 	# print(f"ee_pose {ee_pose}, joint_values {joint_pos}")
-
-	move_robot(sim, joint_pos)
-	phone_pose = sim.data.get_joint_qpos('iphonebox_joint0')
-	gripper_pose = sim.data.sensordata[0:7]	
-
-	
-	last_angles = joint_pos
-
 
 	t=t+1
 # while t<t_final:

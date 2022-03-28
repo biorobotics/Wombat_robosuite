@@ -33,6 +33,15 @@ from geometry_msgs.msg import Pose, Vector3
 from std_msgs.msg import String
 from scipy.spatial.transform import Rotation as R
 
+
+
+#TODO: Things to do next: Verify once with the x  and y action frames 
+# TODO: DMP tolerance 
+# TODO Get a baseline 
+# TODO: Test clip joint functions 
+
+
+
 # pre_process the inputs
 def _preproc_inputs(obs, g):
     obs_norm = o_norm.normalize(obs)
@@ -45,7 +54,7 @@ def _preproc_inputs(obs, g):
     return inputs
 def dyn_rand():
     # phone_x = 0.578#np.random.uniform(0.428, 0.728)
-    phone_x = 0.50
+    phone_x = 0.4
 
     phone_speed = -0.20#np.random.uniform(-0.14, -0.18)
     phone_orient = 0.0
@@ -112,14 +121,14 @@ if __name__ == '__main__':
         # observation_,observation = env.robot_obs2obs(observation)
         # observation = env.reset()
         # start to do the demo
-        obs = obs['observation']
+        observation_init = obs['observation']
         # g = obs['desired_goal']#+ np.array([0.0,0.,0.03])
-        obs_current = obs.copy()#obs['observation']
+        obs_current = observation_init.copy()#obs['observation']
         # ag = obs['achieved_goal']
         # create the normalizer
         o_norm = normalizer(size=env_params['obs'], default_clip_range=args.clip_range)
         g_norm = normalizer(size=env_params['goal'], default_clip_range=args.clip_range)
-        action_zero =action_zero = np.array([1.31e-1, 3.915e-1, 2.05e-1, -3.14, 0,0,-0.4, 0.4])
+        action_zero=np.array([1.31e-1, 3.915e-1, 2.05e-1, -3.14, 0,0,-0.4, 0.4])
         obs_current = np.zeros(34)
         obs_last = obs_current.copy()
         pp_snatch = 0
@@ -152,37 +161,48 @@ if __name__ == '__main__':
         wait_flag = False
         path_executed = False
         time.sleep(0.1)
-
+        print(f"Printing before first timestep")
         for t in range(env._max_episode_steps):
 
-            try:
-                obs,reward,done = env.step(action_zero)
-            except:
-                print(f"obs1 : {obs_current[1]}")
+            # try:
+            #     obs,reward,done = env.step(action_zero)
+            # except Exception as e:
+            #     print(f"{e}")
+            print(f"demo: action_zero: {action_zero}")
+            obs,reward,done = env.step(action_zero)
+
+            # print(f"obs {obs}")
             obs_current = obs['observation']
             # print(obs_current[21])
             vel_iPhone_rt = (obs_current[13] - obs_last[13])/(0.002) #rt ==> real_time
             # When phone crosses this point, planner will get started
             # TODO: Recalib for UR3e
-            pre_grasp_pos = 0.3 #0.9
+            pre_grasp_pos = 0.6 #0.9
             proximal_tol = 0.1
             
             gripper_pos = obs_current[19:26] 
             phone_pos = obs_current[12:15] 
-
-            delta = gripper_pos[0:3] - action_zero[0:3]
-
-            if phone_pos[1]>pre_grasp_pos:
-
-                obs,reward,done,_ = env.step(action_zero)
+            print(f"phone_pose: {phone_pos[0:3]}, gripper_pose: {gripper_pos[0:3]}")
+            
+            # print(f"delta: {delta} ")
+            if phone_pos[0]>pre_grasp_pos :
+                print(f"demo 2 action_zero {action_zero}")
+                obs,reward,done= env.step(action_zero)
                 obs_current = obs['observation'] 
                 
 
-
-            if (phone_pos[1]<pre_grasp_pos and path_executed==False):
+            
+            if (phone_pos[0]<pre_grasp_pos and path_executed==False and t>50):
 
 
                 # Init DMP traj 
+                gripper_pos = obs_current[19:26] 
+                phone_pos = obs_current[12:15] 
+
+                delta = action_zero[0:3] - gripper_pos[0:3]
+                action_goal = phone_pos + delta
+                
+                print(f"phone_pose: {phone_pos[0:3]}, gripper_pose: {gripper_pos[0:3]}")
                 if(plan_flag):          
                     start= action_zero[0:3]
                     start_pose = Pose()
@@ -197,14 +217,14 @@ if __name__ == '__main__':
 
 
                     goal = np.zeros(3)
-                    goal[0] = - phone_pos[0] + delta[0]
-                    goal[1] = phone_pos[1] - delta[1] 
-                    goal[2] = phone_pos[2]        
+                    goal[0]  = action_zero[0]
+                    goal[1] = action_goal[1]
+                    goal[2] = action_goal[2]        
                     end_pose = Pose()
                     # TODO: Recalib for UR
-                    end_pose.position.x = goal[0] +0.003
-                    end_pose.position.y = goal[1] - 0.05
-                    end_pose.position.z = 0.78#goal[2]
+                    end_pose.position.x = goal[0] 
+                    end_pose.position.y = goal[1] 
+                    end_pose.position.z = 0.09
                     end_pose.orientation.x = 0
                     end_pose.orientation.y = 0
                     end_pose.orientation.z = 0
@@ -216,7 +236,6 @@ if __name__ == '__main__':
                     phone_velo.x = 0
                     phone_velo.y =obs_current[29]
                     phone_velo.z = 0
-
                     traj =dmp_client(start_pose, end_pose, mode, phone_velo)
                     desired_traj = np.zeros((len(traj), 6))
                     for i in range(len(traj)):
@@ -242,9 +261,10 @@ if __name__ == '__main__':
                     # print(f"action_zero {action_zero}")
 
                     # TODO: Recalib for UR
-                    if action_zero[2]<=0.84:
-                        action_zero[2]=0.84
-                    obs,reward,done,_ = env.step(action_zero)
+                    # if action_zero[2]<=0.84:
+                    #     action_zero[2]=0.84
+                    print(f"action_zero from dmp {action_zero}")
+                    obs,reward,done= env.step(action_zero)
                     obs_current = obs['observation'] 
                     traj_index+=1
 
@@ -293,7 +313,7 @@ if __name__ == '__main__':
                     wait_flag =True
                 if action_zero[2]>=0.763:
                     action_zero[2]=0.763
-                obs,reward,done,_ = env.step(action_zero)
+                obs,reward,done = env.step(action_zero)
                 obs_current = obs['observation']
                 
                 
@@ -419,12 +439,12 @@ if __name__ == '__main__':
                         
         # print("Expected goal: ",g)
         # print("Actual position: ",obs['achieved_goal'])
-        reward = env.compute_reward(obs['observation'],obs['observation'],None)
+        reward = env.compute_reward(obs['observation'])
         print("Reward is: ",reward)
         
         if reward[1]==50:
             success = success + 1
         print("Run no.: {}, Total_successes: {}".format(i+1,success))
-        env.close_window()
         # plt.plot(t_arr, observation_x)
         # plt.show()
+        env.close_window()

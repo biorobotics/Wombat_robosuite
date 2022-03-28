@@ -319,10 +319,7 @@
         <!-- <weld body1="branch1_ee_link" body2="branch1_ee_2_link" relpose="0.0249 0 0.0146 0 0 0 0" active="true"/> -->
         
 
-        <!-- <connect body1="branch3_clevis_link" body2="branch2_clevis_link" anchor="0.0 0 0.0" active="true"/> -->
-        <!-- <connect body1="branch3_clevis_link" body2="branch2_clevis_link" anchor="0.0 0 0.0" active="true"/> -->
-
-        <!-- <connect body1="branch2_clevis_link" body2="branch1_clevis_link" anchor="0.0 0 0.0" active="true"/> -->
+        <!-- <connect body1="branch3_clevis_linphone_pose = sim.data.get_joint_qpos('iphonebox_joint0')k" body2="branch1_clevis_link" anchor="0.0 0 0.0" active="true"/> -->
         <!-- <connect body1="branch2_clevis_link" body2="branch1_clevis_link" anchor="0.0 0 0.0" active="true"/> -->
 
         <!-- <connect body1="branch1_clevis_link" body2="branch3_clevis_link" anchor="0.0 0 0.0" active="true"/> -->

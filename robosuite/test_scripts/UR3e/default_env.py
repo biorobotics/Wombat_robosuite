@@ -14,16 +14,16 @@ ur3e_arm = ur_kinematics.URKinematics('ur3e')
 
 is_render = True
 controller_names = ["OSC_POSE","OSC_POSITION","JOINT_POSITION"]
-controller_config = load_controller_config(default_controller=controller_names[0])
+controller_config = load_controller_config(default_controller=controller_names[2])
 controller_config['control_delta'] = False
 # print(controller_config)
 # quit()
 # create environment instance
 
 
-def ik(pose):
-    print(f"pose {pose}")
-    return ur3e_arm.inverse(pose, False)
+def ik(pose, q_guess):
+    # print(f"pose {pose}")
+    return ur3e_arm.inverse(pose, False, q_guess = q_guess)
 
 def move_robot(env, joint_qpos):
     for i in range(len(joint_qpos)):
@@ -66,21 +66,22 @@ print(f"quat: {observations['robot0_eef_quat']}")
 
 
 ee_pose = np.zeros(7)
-joint_values = [0, 0, -1.5708, 0, 1.50797, np.pi *20/180.0]
-ee_pose_start = ur3e_arm.forward(joint_values)
-ee_pose[0:6] = [-0.315, 0.05, 0.3, 0, 0, 0]
-# action[0] = 0
+joint_values_init =np.array([-np.pi/2, -2.0, -np.pi/2, -1.01,  1.57, np.pi *0/180.0])
+last_angles = joint_values_init
+ee_pose_init = ur3e_arm.forward(joint_values_init)
+ee_pose = ee_pose_init
+action = np.zeros(7)
+action[0:6] = joint_values_init
 
 for i in range(100000):
     # action = np.random.randn(env.robots[0].dof) # sample random action
     #time.sleep(2)
-    env.sim.data.set_joint_qvel('iphone_joint0', [0,0.1,0,0,0,0])
-
-    # joint_angles = ik(ee_pose)
-    # action_joint = np.zeros(7)
-    # action_joint[0:6] = joint_angles
-    # print(f"action_joint {action_joint}")
-    obs, reward, done, info = env.step(ee_pose)
+    # env.sim.data.set_joint_qvel('iphone_joint0', [0,0.1,0,0,0,0])
+    joint_pos = ik(ee_pose, last_angles)
+    last_angles = joint_pos
+    action[0:6] = joint_pos
+    obs, reward, done, info = env.step(action)
+    # action_zero +=0.0005
     
       # take action in the environment
     # env.sim.data.set_joint_qpos('robot0_joint_1', -1)
@@ -91,7 +92,7 @@ for i in range(100000):
     # env.sim.data.set_joint_qpos('robot0_joint_6', 5)
     # print(f" test2.py -> observation {obs}")
 
-    ee_pose[0] += 0.00001
+
 
     # action[0] +=0.00001
     # print(f"robot eef pos {current_eef_pos}")
