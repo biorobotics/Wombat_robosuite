@@ -241,11 +241,6 @@ while t<t_final:
 	
 # 	last_angles = joint_pos
 
-<<<<<<< HEAD
-=======
-
-# 	t=t+1
->>>>>>> 7f27bd5b19ed0129be62f76fd501beac5841bcae
 
 # 	t=t+1
 
