@@ -54,7 +54,7 @@ def _preproc_inputs(obs, g):
     return inputs
 def dyn_rand():
     # phone_x = 0.578#np.random.uniform(0.428, 0.728)
-    phone_x = 0.4
+    phone_x = 0.3
 
     phone_speed = -0.20#np.random.uniform(-0.14, -0.18)
     phone_orient = 0.0
@@ -129,6 +129,8 @@ if __name__ == '__main__':
         o_norm = normalizer(size=env_params['obs'], default_clip_range=args.clip_range)
         g_norm = normalizer(size=env_params['goal'], default_clip_range=args.clip_range)
         action_zero=np.array([1.31e-1, 3.915e-1, 2.05e-1, -3.14, 0,0,-0.4, 0.4])
+        desired_joints =  np.array([-np.pi/2, -2.0, -np.pi/2, -1.01,  1.57, np.pi *0/180.0])
+        action_zero[:6] = desired_joints
         obs_current = np.zeros(34)
         obs_last = obs_current.copy()
         pp_snatch = 0

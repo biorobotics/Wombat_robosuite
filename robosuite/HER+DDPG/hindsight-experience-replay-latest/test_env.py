@@ -22,9 +22,9 @@ ur3e_arm = ur_kinematics.URKinematics('ur3e')
 
 def dyn_rand():
     # phone_x = 0.578#np.random.uniform(0.428, 0.728)
-    phone_x = 0.385
+    phone_x = 0.382
 
-    phone_speed = -0.20#np.random.uniform(-0.14, -0.18)
+    phone_speed = 0.1#np.random.uniform(-0.14, -0.18)
     phone_orient = 0.0
     # phone_orient = np.random.uniform(-0.05, 0.05)
     return phone_x, phone_speed, phone_orient
@@ -49,19 +49,23 @@ if __name__ == '__main__':
     action_zero = np.array([1.31e-1, 3.915e-1, 2.05e-1, -3.14, 0,0,-0.4, 0.4])
 
     desired =  np.array([-np.pi/2, -2.0, -np.pi/2, -1.01,  1.57, np.pi *0/180.0])
+    # desired =  np.array([-1.57, -1.57, -1.57, -1.57,  1.57, np.pi *0/180.0])
+
 
     action_zero[:6]= desired
     ee_pose = ur3e_arm.forward(desired)
     joint_values = ur3e_arm.inverse(ee_pose, q_guess=desired)
+    print(f"ee_pose{ee_pose[:3]}")
+    print(f"phone_pose {observ[12:15]}")
     # print(f"joint_values {joint_values}")
-    norm = np.linalg.norm(joint_values - desired)
+    # norm = np.linalg.norm(joint_values - desired)
     # print(f"norm {norm}")
     # action_zero = np.zeros(8)
     # action_zero[6:8] = np.array([-0.4, 0.4])
     # action_zero[0] = np.array([1.31e-1])
     action_zero[:6] = joint_values 
     q_guess = joint_values
-    grasp_ht = 0.1000
+    grasp_ht = 0.1200
     grip_act=0
     reach_time=0
     lift=0
@@ -70,8 +74,7 @@ if __name__ == '__main__':
         observation = obs['observation']
         q_guess = observation[:6]
         # print(f"gripper_ht {ee_pose[2]:.4f}")
-        print("L1",env.sim.data.get_joint_qpos('robot0_base_left_short_joint'))
-        print("R1",env.sim.data.get_joint_qpos('robot0_base_right_short_joint'))
+
         if ee_pose[2]>grasp_ht and (lift==0):
             ee_pose[2]-=0.00005
         else:
