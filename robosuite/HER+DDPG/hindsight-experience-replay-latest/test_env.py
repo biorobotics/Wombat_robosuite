@@ -62,12 +62,37 @@ if __name__ == '__main__':
     action_zero[:6] = joint_values 
     q_guess = joint_values
     grasp_ht = 0.1250
+    reach_flag = False
     for t in range(max_time_steps):
         obs, reward, done = env.step(action_zero)
         observation = obs['observation']
         q_guess = observation[:6]
         print(f"gripper_ht {ee_pose[2]:.4f}")
-        ee_pose[2]-=0.00005
+        
+        if(ee_pose[2] <= grasp_ht and reach_flag == False):
+            reach_time = t
+            reach_flag = True
+        
+        if(reach_flag==False):
+            
+            if(t- reach_time>1000):
+                pass
+
+        else:
+            ee_pose[2]+=0.00005
+            
+
+
+
+
+
+        desired = ur3e_arm.inverse(ee_pose, q_guess = q_guess)
+        # ee_pose[2] -=0.0001
+        action_zero[:6] = desired
+            
+        
+        
+        # ee_pose[1]-=0.00005
 
         desired = ur3e_arm.inverse(ee_pose, q_guess = q_guess)
         # ee_pose[2] -=0.0001
@@ -77,4 +102,3 @@ if __name__ == '__main__':
         # if(t>1000):
             # action_zero[0:3]-=0.0005
         # env.sim.step()
-        
