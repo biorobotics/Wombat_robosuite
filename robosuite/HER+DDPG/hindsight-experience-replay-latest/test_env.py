@@ -22,7 +22,7 @@ ur3e_arm = ur_kinematics.URKinematics('ur3e')
 
 def dyn_rand():
     # phone_x = 0.578#np.random.uniform(0.428, 0.728)
-    phone_x = 0.4
+    phone_x = 0.385
 
     phone_speed = -0.20#np.random.uniform(-0.14, -0.18)
     phone_orient = 0.0
@@ -61,13 +61,32 @@ if __name__ == '__main__':
     # action_zero[0] = np.array([1.31e-1])
     action_zero[:6] = joint_values 
     q_guess = joint_values
-    grasp_ht = 0.1250
+    grasp_ht = 0.1000
+    grip_act=0
+    reach_time=0
+    lift=0
     for t in range(max_time_steps):
         obs, reward, done = env.step(action_zero)
         observation = obs['observation']
         q_guess = observation[:6]
-        print(f"gripper_ht {ee_pose[2]:.4f}")
-        ee_pose[2]-=0.00005
+        # print(f"gripper_ht {ee_pose[2]:.4f}")
+        print("L1",env.sim.data.get_joint_qpos('robot0_base_left_short_joint'))
+        print("R1",env.sim.data.get_joint_qpos('robot0_base_right_short_joint'))
+        if ee_pose[2]>grasp_ht and (lift==0):
+            ee_pose[2]-=0.00005
+        else:
+            lift=1
+            # print("entered 1")
+            action_zero[6]= 0.5
+            action_zero[7]=-0.5
+            if grip_act==0:
+                reach_time = t
+                grip_act=1
+                # print("entered 2")
+            if (t-reach_time)>100:
+                ee_pose[2]+=0.00005
+                # print("entered 3")
+
 
         desired = ur3e_arm.inverse(ee_pose, q_guess = q_guess)
         # ee_pose[2] -=0.0001

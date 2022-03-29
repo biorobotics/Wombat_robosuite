@@ -54,7 +54,7 @@ def _preproc_inputs(obs, g):
     return inputs
 def dyn_rand():
     # phone_x = 0.578#np.random.uniform(0.428, 0.728)
-    phone_x = 0.4
+    phone_x = 0.3
 
     phone_speed = -0.20#np.random.uniform(-0.14, -0.18)
     phone_orient = 0.0
