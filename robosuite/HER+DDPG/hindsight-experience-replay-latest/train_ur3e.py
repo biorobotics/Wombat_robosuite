@@ -221,7 +221,6 @@ class UR3e_env(object):
         return observation
 
     def step(self, action):
-        print(f"step got called")
         if(self.observation_last is not None):
             self.observation_last2last = self.observation_last
             self.joint_values_last2last= self.joint_values_last
@@ -253,12 +252,13 @@ class UR3e_env(object):
         # signal[-1] = -0.6460
         # desired = np.array([ 0.9247719,   0.23417516, -1.47501075, -0.33123249, -1.56983757, -0.64602381])
         # desired = np.array([-np.pi/2, -2.0, -np.pi/2, -1.01,  1.57, np.pi *0/180.0])
+        desired = action[:6]
         dt = 1
-        diff =  action - self.observation_last[:6]
+        diff =  desired - self.observation_last[:6]
         # diff_dt = diff*dt
         self.sim.data.ctrl[0:6] = dt*diff
-        print("observation : " , self.observation_last[:6])
-        print("data.ctrl : ", self.sim.data.ctrl[0:6])
+        # print("observation : " , self.observation_last[:6])
+        # print("data.ctrl : ", self.sim.data.ctrl[0:6])
 
         # if np.linalg.norm(diff) < 
         # self.prev_joint_values = joint_values
@@ -267,11 +267,10 @@ class UR3e_env(object):
         #     self.sim.data.set_joint_qpos(self.joint_names[i], joint_values[i])
 
 
-        # if action[6] >0:
-        #     des_state = 'close'
-        # else:
-        #     des_state = 'open'
-        des_state = 'close'
+        if action[6] >0:
+            des_state = 'close'
+        else:
+            des_state = 'open'
         
         self.sim.data.ctrl[6:8] = self.grip_signal(des_state,self.observation_last,self.observation_last2last)
         self.clip_grip_action()

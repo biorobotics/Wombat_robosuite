@@ -6,6 +6,7 @@ import matplotlib.pyplot as plt
 import transforms3d as t3d
 from collections import OrderedDict
 from robosuite import load_controller_config
+from ur_ikfast import ur_kinematics 
 
 import math
 import os
@@ -15,6 +16,8 @@ import random
 import time
 
 from train_ur3e import UR3e_env
+
+ur3e_arm = ur_kinematics.URKinematics('ur3e')
 
 
 def dyn_rand():
@@ -44,14 +47,31 @@ if __name__ == '__main__':
 
     max_time_steps = 11000
     action_zero = np.array([1.31e-1, 3.915e-1, 2.05e-1, -3.14, 0,0,-0.4, 0.4])
+
     desired =  np.array([-np.pi/2, -2.0, -np.pi/2, -1.01,  1.57, np.pi *0/180.0])
 
+    action_zero[:6]= desired
+    ee_pose = ur3e_arm.forward(desired)
+    joint_values = ur3e_arm.inverse(ee_pose, q_guess=desired)
+    # print(f"joint_values {joint_values}")
+    norm = np.linalg.norm(joint_values - desired)
+    # print(f"norm {norm}")
     # action_zero = np.zeros(8)
     # action_zero[6:8] = np.array([-0.4, 0.4])
     # action_zero[0] = np.array([1.31e-1])
+    action_zero[:6] = joint_values 
+    q_guess = joint_values
+    grasp_ht = 0.1250
     for t in range(max_time_steps):
-        obs, reward, done = env.step(desired)
+        obs, reward, done = env.step(action_zero)
+        observation = obs['observation']
+        q_guess = observation[:6]
+        print(f"gripper_ht {ee_pose[2]:.4f}")
+        ee_pose[2]-=0.00005
 
+        desired = ur3e_arm.inverse(ee_pose, q_guess = q_guess)
+        # ee_pose[2] -=0.0001
+        action_zero[:6] = desired
         obs_current = obs['observation']
         joint_0 = env.sim.data.get_joint_qpos('robot0_joint_1')
         # if(t>1000):
