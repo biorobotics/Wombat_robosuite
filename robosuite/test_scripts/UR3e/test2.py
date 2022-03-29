@@ -86,8 +86,6 @@ while t<t_final:
 	# ee_pose[1] +=0.00005
 	ee_pose[0] +=0.00005
 	sim.data.set_joint_qvel('box_joint0', [0.2, 0, 0, 0, 0, 0])
-
-	sim.data.get_joint_qpos()
 	joint_pos = ik(ee_pose, last_angles)
 	# print(f"joint angles {joint_pos}")
 	# print(f"ee_pose {ee_pose}, joint_values {joint_pos}")
