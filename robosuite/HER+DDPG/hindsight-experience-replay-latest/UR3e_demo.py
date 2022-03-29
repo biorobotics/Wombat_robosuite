@@ -32,7 +32,7 @@ import rospy
 from geometry_msgs.msg import Pose, Vector3 
 from std_msgs.msg import String
 from scipy.spatial.transform import Rotation as R
-
+from ur_ikfast import ur_kinematics 
 
 
 #TODO: Things to do next: Verify once with the x  and y action frames 
@@ -54,9 +54,9 @@ def _preproc_inputs(obs, g):
     return inputs
 def dyn_rand():
     # phone_x = 0.578#np.random.uniform(0.428, 0.728)
-    phone_x = 0.3
+    phone_x = 0.382
 
-    phone_speed = -0.20#np.random.uniform(-0.14, -0.18)
+    phone_speed = 0.10#np.random.uniform(-0.14, -0.18)
     phone_orient = 0.0
     # phone_orient = np.random.uniform(-0.05, 0.05)
     return phone_x, phone_speed, phone_orient
@@ -95,6 +95,7 @@ if __name__ == '__main__':
     # observation = env.reset()
     # obs = env.env.reset()
 
+    ur3e_arm = ur_kinematics.URKinematics('ur3e')
     success = 0
     for i in range(args.demo_length):
         print(f"Restarting the episode")
@@ -182,8 +183,12 @@ if __name__ == '__main__':
             pre_grasp_pos = 0.6 #0.9
             proximal_tol = 0.1
             
+
+            joint_values = obs_current[:6]
+            ee_pose = ur3e_arm.forward()
             gripper_pos = obs_current[19:26] 
             phone_pos = obs_current[12:15] 
+
             print(f"phone_pose: {phone_pos[0:3]}, gripper_pose: {gripper_pos[0:3]}")
             
             # print(f"delta: {delta} ")

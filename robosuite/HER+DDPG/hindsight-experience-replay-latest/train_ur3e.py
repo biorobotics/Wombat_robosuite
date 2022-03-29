@@ -85,6 +85,7 @@ class UR3e_env(object):
         
         self.world = MujocoWorldBase()
         self.mujoco_robot = UR3e()
+        self.base_offset = np.array([0.5, 0, 0.2])
         self.mujoco_robot.set_base_xpos([0.5, 0, 0.20])
         self.world.merge(self.mujoco_robot)
 
@@ -93,12 +94,12 @@ class UR3e_env(object):
         self.world.merge(self.mujoco_arena)
 
         self.box = BoxObject(name="box",size=[9.7,0.35,0.40],rgba=[0.9,0.9,0.9,1],friction=[1,1,1]).get_obj()
-        self.box.set('pos', '1 0.4 0.37')
+        self.box.set('pos', '1 0.4 0.4')
         self.world.worldbody.append(self.box)
 
 
         self.iphonebox = BoxObject(name="iphonebox",size=[0.08,0.034,0.0037],rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
-        self.iphonebox.set('pos', '0.4 {} 0.8'.format(self.phone_x))
+        self.iphonebox.set('pos', '0.63 {} 0.9'.format(self.phone_x))
 
         self.iphonebox.set('quat', '1 {} 0 0'.format(self.phone_orient)) #0
         self.world.worldbody.append(self.iphonebox)

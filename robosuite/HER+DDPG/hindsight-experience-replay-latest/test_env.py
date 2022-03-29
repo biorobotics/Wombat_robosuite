@@ -24,7 +24,7 @@ def dyn_rand():
     # phone_x = 0.578#np.random.uniform(0.428, 0.728)
     phone_x = 0.382
 
-    phone_speed = 0.1#np.random.uniform(-0.14, -0.18)
+    phone_speed = 0.0#np.random.uniform(-0.14, -0.18)
     phone_orient = 0.0
     # phone_orient = np.random.uniform(-0.05, 0.05)
     return phone_x, phone_speed, phone_orient
@@ -65,7 +65,7 @@ if __name__ == '__main__':
     # action_zero[0] = np.array([1.31e-1])
     action_zero[:6] = joint_values 
     q_guess = joint_values
-    grasp_ht = 0.1200
+    grasp_ht = 0.10
     grip_act=0
     reach_time=0
     lift=0
@@ -74,9 +74,14 @@ if __name__ == '__main__':
         observation = obs['observation']
         q_guess = observation[:6]
         # print(f"gripper_ht {ee_pose[2]:.4f}")
-
+        # print(f"ee_pose{ee_pose[:3]}")
+        # print(f"observation[19:21] {ur3e_arm.forward(q_guess)[0:3]}")
+        # print(f"phone_pose {observation[12:15]}")
+        norm = np.linalg.norm(ee_pose[:3] - ur3e_arm.forward(q_guess)[:3])
+        print(f"norm {norm}")
         if ee_pose[2]>grasp_ht and (lift==0):
             ee_pose[2]-=0.00005
+            # pass
         else:
             lift=1
             # print("entered 1")
