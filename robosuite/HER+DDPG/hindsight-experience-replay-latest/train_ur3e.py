@@ -37,6 +37,7 @@ class UR3e_env(object):
         self.observation_current = None
         self.observation_last = None 
         self.observation_last2last = None 
+        self.joint_sim = None
         self.joint_sim_last = None
         self.done = False
         self.action_high = np.array([0.0005]*self.action_dim)
@@ -58,7 +59,7 @@ class UR3e_env(object):
 	
     def nextClosestJointRad(self,j1,j2):
         j2c=np.copy(j2)
-        for i in range(0,3):
+        for i in range(0,6):
             aDiff1=self.angDiff(j1[i],j2[i])
             aDiff2=self.angDiff(j1[i],j2[i]+np.pi)
             if abs(aDiff1)<abs(aDiff2):
@@ -110,7 +111,8 @@ class UR3e_env(object):
         self.joint_names = ['robot0_joint_'+ str(i+1) for i in range(self.robot_joints_no)]
 
         self.joint_values_init =np.array([-np.pi/2, -2.0, -np.pi/2, -1.01,  1.57, np.pi *0/180.0])
-        self.prev_joint_values = self.joint_values_init
+        self.joint_values_last = self.joint_values_init
+
         for i in range(self.robot_joints_no):
             self.sim.data.set_joint_qpos(self.joint_names[i], self.joint_values_init[i])
         if self.is_render:
@@ -123,6 +125,49 @@ class UR3e_env(object):
 
         self.observation_current = self.get_observation()
         return self.observation_current
+
+    def get_signal(self,joint_values,joint_values_last,joint_values_last2last):
+        ##Here, action is assumed to be desired joint values
+        ##don't think u need to clip joint values
+        # action = self.clip_action(action)
+        # action = action.reshape(1,-1)[:,:6]
+        self.joint_sim=joint_values
+
+        j1 = np.array([self.sim.data.get_joint_qpos(self.joint_names[0]),
+                        self.sim.data.get_joint_qpos(self.joint_names[1]),
+                        self.sim.data.get_joint_qpos(self.joint_names[2]),
+                       self.sim.data.get_joint_qpos(self.joint_names[3]),
+                       self.sim.data.get_joint_qpos(self.joint_names[4]),
+                       self.sim.data.get_joint_qpos(self.joint_names[5])])
+        j2 = np.array([self.joint_sim[0],
+                        self.joint_sim[1],
+                        self.joint_sim[2],
+                        self.joint_sim[3],
+                        self.joint_sim[4],
+                        self.joint_sim[5]])
+        # self.joint_sim[0:6] = self.nextClosestJointRad(j1,j2)
+        
+        PD_signal=[self.PD_controller(self.joint_sim[0], joint_values_last[0],joint_values_last2last[0]),
+               self.PD_controller(self.joint_sim[1], joint_values_last[1],joint_values_last2last[1]),
+               self.PD_controller(self.joint_sim[2], joint_values_last[2],joint_values_last2last[2]),
+               self.PD_controller(self.joint_sim[3], joint_values_last[3],joint_values_last2last[3]),
+               self.PD_controller(self.joint_sim[4], joint_values_last[4],joint_values_last2last[4]),
+               self.PD_controller(self.joint_sim[5], joint_values_last[5],joint_values_last2last[5])]
+
+        self.joint_sim_last = j1
+
+        return PD_signal
+
+    def PD_controller(self,des,current,q_pos_last):
+        
+        kp=0 #1000 #200
+        kd=0 #1500
+        # kd = 0
+        qpos = des+kp*(des-current)-kd*(current-q_pos_last)
+        # qpos = kp*(des-current)-kd*(current-q_pos_last)
+
+        # print(kp*(des-current))
+        return qpos
 
     def close_window(self):
         glfw.destroy_window(self.viewer.window)
@@ -148,7 +193,7 @@ class UR3e_env(object):
 
         #* For observation 6:12: Robot Joint Qvels 
         for i in range(self.robot_joints_no):
-            observation[i] = self.sim.data.get_joint_qvel(self.joint_names[i])
+            observation[i+6] = self.sim.data.get_joint_qvel(self.joint_names[i])
 
         #* Phone Observations [cartesian :(x, y, z), quat: (w, x, y, z)]
         observation[12:19] = self.sim.data.get_joint_qpos('iphonebox_joint0')
@@ -179,33 +224,55 @@ class UR3e_env(object):
         print(f"step got called")
         if(self.observation_last is not None):
             self.observation_last2last = self.observation_last
+            self.joint_values_last2last= self.joint_values_last
         else:
             self.observation_last2last = np.zeros(self.obs_dim)
+            self.joint_values_last2last = np.zeros_like(self.joint_values_init)
 
         
         self.observation_last = self.observation_current['observation']
 
-        
-
-
         ee_pose = np.zeros(7)
         ee_pose[0:3] = action[0:3]
         ee_pose[3:] = self.euler_to_quat(action[3:])
+        # print(f"from train_env ee_pose from-> {ee_pose}")
         # ee_pose = self.clip_robot_joints(ee_pose)
         # print(f"ee_pose: step : {ee_pose}")
         joint_values = self.ur3e_arm.inverse(ee_pose)
+        # print(f"joint_values -> train_Env : {joint_values}")
         # print(f"joint values {joint_values}")
-        self.prev_joint_values = joint_values
+        # print(f"joint_values {joint_values}")
+        # signal = self.get_signal(joint_values, self.joint_values_last, self.joint_values_last2last)
+        # print(f"signal calc {signal}")
+        signal = np.zeros(6)
+        # signal[0] =  0.9247719049453735
+        # signal[1] = 0.23417516
+        # signal[2] = 0
+        # signal[3] =  -0.331232488155365
+        # signal[4] = -1.5698375701904297
+        # signal[-1] = -0.6460
+        # desired = np.array([ 0.9247719,   0.23417516, -1.47501075, -0.33123249, -1.56983757, -0.64602381])
+        # desired = np.array([-np.pi/2, -2.0, -np.pi/2, -1.01,  1.57, np.pi *0/180.0])
+        dt = 1
+        diff =  action - self.observation_last[:6]
+        # diff_dt = diff*dt
+        self.sim.data.ctrl[0:6] = dt*diff
+        print("observation : " , self.observation_last[:6])
+        print("data.ctrl : ", self.sim.data.ctrl[0:6])
 
-        for i in range(self.robot_joints_no):
-            self.sim.data.set_joint_qpos(self.joint_names[i], joint_values[i])
+        # if np.linalg.norm(diff) < 
+        # self.prev_joint_values = joint_values
+
+        # for i in range(self.robot_joints_no):
+        #     self.sim.data.set_joint_qpos(self.joint_names[i], joint_values[i])
 
 
-        if action[6] >0:
-            des_state = 'close'
-        else:
-            des_state = 'open'
-
+        # if action[6] >0:
+        #     des_state = 'close'
+        # else:
+        #     des_state = 'open'
+        des_state = 'close'
+        
         self.sim.data.ctrl[6:8] = self.grip_signal(des_state,self.observation_last,self.observation_last2last)
         self.clip_grip_action()
 
@@ -215,7 +282,7 @@ class UR3e_env(object):
             self.viewer.render()
         self.observation_current = self.get_observation()
         self.reward = self.compute_reward(self.observation_current['observation'])
-        self.sim.data.set_joint_qvel('box_joint0',[self.phone_speed,0, 0, 0, 0, 0])
+        # self.sim.data.set_joint_qvel('box_joint0',[self.phone_speed,0, 0, 0, 0, 0])
 
         self.done = self.is_done(self.observation_current['observation'])
         return self.observation_current, self.reward, self.done
@@ -369,4 +436,4 @@ if __name__ == '__main__':
 	pick_place_env = UR3e_env(args,is_render=True)
 	# pick_place_env = PickPlace_env(args)
 	# pick_place_env.run()
-	launch(args,pick_place_env)
+	# launch(args,pick_place_env)

@@ -85,11 +85,14 @@ ee_pose_init[3:] =  [-0.9999997, 0, 0, 0.0007963]
 print(f"ee pose shape {ee_pose_init.shape}, {ee_pose_init}")
 print(f"euler angles :{quat_to_euler(np.array(ee_pose_init[3:]))}")
 
+
 phone_pose = sim.data.get_joint_qpos('iphonebox_joint0')
 phone_pose[1] = ee_pose_init[1]+ 0.0005
 phone_pose[3:] = [1, 0, 0, 0]
 sim.data.set_joint_qpos('iphonebox_joint0',phone_pose )
-
+move_robot(sim, joint_values_init)
+robot_joint_vals = sim.data.get_joint_qpos('robot0_joint_1')
+print(f"robot_joint[0] {robot_joint_vals}")
 def ik(pose, q_guess):
     # print(f"pose {pose}")
     return ur3e_arm.inverse(pose, False, q_guess = q_guess)
@@ -106,7 +109,7 @@ while t<t_final:
 	phone_pose = sim.data.get_joint_qpos('iphonebox_joint0')
 	gripper_pose = sim.data.sensordata[0:7]	
 	joint_pos = ik(ee_pose, last_angles)
-	print(f"gripper_pose_z  {gripper_pose[2]}, phone {phone_pose[2]}")
+	# print(f"gripper_pose_z  {gripper_pose[2]}, phone {phone_pose[2]}")
 	if(gripper_pose[2]<=0.898 and t>10 and reach_flag == False):
 		reach_flag = True
 		reach_time = t
@@ -124,7 +127,10 @@ while t<t_final:
 
 		if((t-reach_time)>1000):
 			ee_pose[2]+=0.000025
-			print(f"lifting up")
+			# print(f"lifting up")
+
+	robot_joint_vals = sim.data.get_joint_qpos('robot0_joint_1')
+	print(f"robot_joint[0] {robot_joint_vals}")
 
 	if sim.data.get_joint_qpos('robot0_base_left_torque_joint')>0.25:
 		sim.data.set_joint_qpos('robot0_base_left_torque_joint', 0.25)
@@ -151,7 +157,7 @@ while t<t_final:
 		
 	# print(f"ee_pose {ee_pose}, joint_values {joint_pos}")
 
-	move_robot(sim, joint_pos)
+	# move_robot(sim, joint_pos)
 	phone_pose = sim.data.get_joint_qpos('iphonebox_joint0')
 	gripper_pose = sim.data.sensordata[0:7]	
 
