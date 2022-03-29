@@ -98,7 +98,7 @@ class UR3e_env(object):
 
 
         self.iphonebox = BoxObject(name="iphonebox",size=[0.08,0.034,0.0037],rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
-        self.iphonebox.set('pos', '0.4 {} 0.8'.format(self.phone_x))
+        self.iphonebox.set('pos', '0.3 {} 0.8'.format(self.phone_x))
 
         self.iphonebox.set('quat', '1 {} 0 0'.format(self.phone_orient)) #0
         self.world.worldbody.append(self.iphonebox)
@@ -338,14 +338,14 @@ class UR3e_env(object):
         if self.sim.data.get_joint_qpos('robot0_base_right_torque_joint')<-0.1:
             self.sim.data.set_joint_qpos('robot0_base_right_torque_joint', -0.1)
 
-        if self.sim.data.get_joint_qpos('robot0_base_left_short_joint')>0.5:
-            self.sim.data.set_joint_qpos('robot0_base_left_short_joint', 0.5)
-        if self.sim.data.get_joint_qpos('robot0_base_right_short_joint')>0.5:
-            self.sim.data.set_joint_qpos('robot0_base_right_short_joint', 0.5)
-        if self.sim.data.get_joint_qpos('robot0_base_left_short_joint')<-0.5:
-            self.sim.data.set_joint_qpos('robot0_base_left_short_joint', -0.5)
-        if self.sim.data.get_joint_qpos('robot0_base_right_short_joint')<-0.5:
-            self.sim.data.set_joint_qpos('robot0_base_right_short_joint', -0.5)
+        if self.sim.data.get_joint_qpos('robot0_base_left_short_joint')>0.7:
+            self.sim.data.set_joint_qpos('robot0_base_left_short_joint', 0.7)
+        if self.sim.data.get_joint_qpos('robot0_base_right_short_joint')>0.7:
+            self.sim.data.set_joint_qpos('robot0_base_right_short_joint', 0.7)
+        if self.sim.data.get_joint_qpos('robot0_base_left_short_joint')<-0.7:
+            self.sim.data.set_joint_qpos('robot0_base_left_short_joint', -0.7)
+        if self.sim.data.get_joint_qpos('robot0_base_right_short_joint')<-0.7:
+            self.sim.data.set_joint_qpos('robot0_base_right_short_joint', -0.7)
 	
     def clip_robot_joints(self,ee_pose):
         print(f"clip robot joints:  {ee_pose}")
@@ -373,13 +373,13 @@ class UR3e_env(object):
 
     def grip_signal(self,des_state,obs_last,obs_last2last):
         if des_state=='open':
-            left_finger_open = -0.5#-0.287884
-            right_finger_open = 0.5#-0.295456
+            left_finger_open = -0.7#-0.287884
+            right_finger_open = 0.7#-0.295456
             grip_signal=[self.Gripper_PD_controller(left_finger_open,obs_last[26],obs_last2last[26]),
                             self.Gripper_PD_controller(right_finger_open,obs_last[27],obs_last2last[27])]
         if des_state=='close':
-            left_finger_close = 0.5#0.246598
-            right_finger_close = -0.5#0.241764
+            left_finger_close = 0.4#0.246598
+            right_finger_close = -0.4#0.241764
 
             grip_signal=[self.Gripper_PD_controller(left_finger_close,obs_last[26],obs_last2last[26]),
                             self.Gripper_PD_controller(right_finger_close,obs_last[27],obs_last2last[27])]

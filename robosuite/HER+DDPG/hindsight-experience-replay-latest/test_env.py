@@ -24,7 +24,7 @@ def dyn_rand():
     # phone_x = 0.578#np.random.uniform(0.428, 0.728)
     phone_x = 0.382
 
-    phone_speed = 0.1#np.random.uniform(-0.14, -0.18)
+    phone_speed = 0.2#np.random.uniform(-0.14, -0.18)
     phone_orient = 0.0
     # phone_orient = np.random.uniform(-0.05, 0.05)
     return phone_x, phone_speed, phone_orient
@@ -79,16 +79,15 @@ if __name__ == '__main__':
             ee_pose[2]-=0.00005
         else:
             lift=1
-            # print("entered 1")
             action_zero[6]= 0.5
             action_zero[7]=-0.5
             if grip_act==0:
                 reach_time = t
                 grip_act=1
-                # print("entered 2")
+                
             if (t-reach_time)>100:
                 ee_pose[2]+=0.00005
-                # print("entered 3")
+                
 
 
         desired = ur3e_arm.inverse(ee_pose, q_guess = q_guess)
