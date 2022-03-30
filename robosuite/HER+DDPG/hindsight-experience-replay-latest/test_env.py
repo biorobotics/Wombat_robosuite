@@ -73,12 +73,9 @@ if __name__ == '__main__':
         obs, reward, done = env.step(action_zero)
         observation = obs['observation']
         q_guess = observation[:6]
-        # print(f"gripper_ht {ee_pose[2]:.4f}")
-        # print(f"ee_pose{ee_pose[:3]}")
-        # print(f"observation[19:21] {ur3e_arm.forward(q_guess)[0:3]}")
-        # print(f"phone_pose {observation[12:15]}")
-        norm = np.linalg.norm(ee_pose[:3] - ur3e_arm.forward(q_guess)[:3])
-        print(f"norm {norm}")
+        print(f"gripper_ht {ee_pose[2]:.4f}, phone_pos {observation[12:15]}")
+
+
         if ee_pose[2]>grasp_ht and (lift==0):
             ee_pose[2]-=0.00005
             # pass

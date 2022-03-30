@@ -99,7 +99,7 @@ class UR3e_env(object):
 
 
         self.iphonebox = BoxObject(name="iphonebox",size=[0.08,0.034,0.0037],rgba=[0,0,0,1],friction=[1,1,5]).get_obj()
-        self.iphonebox.set('pos', '0.63 {} 0.9'.format(self.phone_x))
+        self.iphonebox.set('pos', '-0.1 {} 0.8'.format(self.phone_x))
 
         self.iphonebox.set('quat', '1 {} 0 0'.format(self.phone_orient)) #0
         self.world.worldbody.append(self.iphonebox)
