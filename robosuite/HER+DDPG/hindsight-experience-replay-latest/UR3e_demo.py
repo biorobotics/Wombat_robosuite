@@ -81,6 +81,12 @@ def quat_to_euler(  quat):
     e_angles = r_quat.as_euler('xyz', degrees=False)
     return e_angles
 
+
+def quat_to_euler_temp(  quat):
+    r_quat = R.from_quat([quat[0],quat[1],quat[2],quat[3]])
+    e_angles = r_quat.as_euler('xyz', degrees=False)
+    return e_angles
+
 def euler_to_quat(euler):
     rot = R.from_euler('xyz',[euler[0], euler[1], euler[2]], degrees=False)
     quat = rot.as_quat()
@@ -120,9 +126,9 @@ if __name__ == '__main__':
                     }
         
         # create the actor network
-        actor_network = actor(env_params)
-        actor_network.load_state_dict(model)
-        actor_network.eval()
+        # actor_network = actor(env_params)
+        # actor_network.load_state_dict(model)
+        # actor_network.eval()
         # reset the environment
         # observation = env.reset(phone_x, phone_speed, phone_orient)
         # observation_,observation = env.robot_obs2obs(observation)
@@ -196,7 +202,10 @@ if __name__ == '__main__':
             
             gripper_pos = ee_pose_init
             phone_pos = obs_current[12:15] 
-            # print(f"phone_pose: {phone_pos[0:3]}, gripper_pose: {gripper_pos[0:3]}")
+            euler = quat_to_euler_temp(obs_current[15:19])    
+            print(f"ee_pose  {ee_pose}")
+
+            # print(f"phone_pose: {np.around((phone_pos), 3)}, angles {euler}, gripper_pose: {np.around((gripper_pos[0:3]),3)}")
 
             
             # print(f"delta: {delta} ")
@@ -386,7 +395,7 @@ if __name__ == '__main__':
                     if time_stay<=0:
                         pp_grip=1
                                 
-                elif pp_grip==1 and phone_pos[2]>0.7:
+                elif pp_grip==1 and ee_pose[2]<=0.3:
                     # print("go up!! ship is sinking")
                     last_time = t
                     time_reset-=1
@@ -401,7 +410,8 @@ if __name__ == '__main__':
                             desired_joint = prev_joint
                         prev_joint = desired_joint
                         action_zero[:6] = desired_joint
-                        done = True
+                        
+
                     
                         # action_zero[6] = 0.4
                         # action_zero[7] = 0.4
@@ -411,7 +421,7 @@ if __name__ == '__main__':
                     # if time_reset<=-100:
                     #     env.clip_grip_vel()
                                 
-                elif done or phone_pos[0]>0.8:
+                elif done or phone_pos[0]>0.9:
                     # print("breaking up of the loop")
                     break
                 # pos_z = action_zero[2]
@@ -480,7 +490,7 @@ if __name__ == '__main__':
                         
         # print("Expected goal: ",g)
         # print("Actual position: ",obs['achieved_goal'])
-        reward = env.compute_reward(obs['observation'])
+        reward = env.compute_reward(obs['observation'], None, None)
         print("Reward is: ",reward)
         
         if reward[1]==50:

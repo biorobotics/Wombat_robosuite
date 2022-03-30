@@ -40,10 +40,10 @@ class UR3e_env(object):
         self.joint_sim = None
         self.joint_sim_last = None
         self.done = False
-        self.action_high = np.array([0.0005]*self.action_dim)
-        self.action_low = np.array([-0.0005]*self.action_dim)
-        self.action_network_high = np.array([0.00005]*self.action_network_dim)
-        self.action_network_low = np.array([-0.00005]*self.action_network_dim)	 
+        self.action_high = np.array([0.5]*self.action_dim)
+        self.action_low = np.array([-0.5]*self.action_dim)
+        # self.action_network_high = np.array([0.00005]*self.action_network_dim)
+        # self.action_network_low = np.array([-0.00005]*self.action_network_dim)	 
 
         self._max_episode_steps = 11000
         self.ur3e_arm = ur_kinematics.URKinematics('ur3e')
@@ -69,7 +69,8 @@ class UR3e_env(object):
         return j2c
 
     def quat_to_euler(self, quat):
-        r_quat = R.from_quat([quat[0],quat[1],quat[2],quat[3]])
+        quat_arr = np.array([quat[0], quat[1], quat[2], quat[3]]).reshape((4,))
+        r_quat = R.from_quat([quat_arr])
         e_angles = r_quat.as_euler('xyz', degrees=False)
         return e_angles
     
@@ -212,7 +213,7 @@ class UR3e_env(object):
         observation[28:34] = self.sim.data.get_joint_qvel('iphonebox_joint0')
 
         # TODO: Check these values for the new environment 
-        goal = 0.91#0.83		#z value of the phone should be at 0.83 m from floor
+        goal = 0.88#0.83		#z value of the phone should be at 0.83 m from floor
        
         # Z value of the phone
         achieved_goal = observation[14] 
@@ -290,14 +291,19 @@ class UR3e_env(object):
 
     def compute_reward(self, obs, obs2, obs3):
         reward_grasp = []
-        # print(f"obs compute rewards {obs}" )
+        # print(f"obs compute rewards {obs}" )\
+        phone_quat = obs[15:19]
+        phone_quat = np.array(phone_quat)
+        phone_quat = phone_quat.reshape((4,))
+        # print(f"phone_quat {phone_quat}")
+        # phone_angles = self.quat_to_euler(phone_quat)
         for i in range(obs.shape[0]):
             # TODO: Add angles here
-            if obs[14]>=0.91 and (obs[21]-obs[14] <= 0.0954) and (abs(obs[19]-obs[12]) <= 0.01) and obs[26] > -0.29:
+            if obs[14]>=0.88 and  obs[26] > -0.5:
                 reward_grasp.append(50)
                 # print("Reward: +50")
             # TODO: Partial reward
-            elif obs[14] >= 0.83 and obs[26] > -0.29 and (obs[21]-obs[14] <= 0.12):
+            elif obs[14] >= 0.83 and obs[14]<0.88 and obs[26]>-0.5: #and obs[26] > -0.29 and (obs[21]-obs[14] <= 0.12):
                 reward_grasp.append(5)
                 # print("Reward: +5")
             else:
@@ -307,7 +313,12 @@ class UR3e_env(object):
 
     def is_done(self, obs):
         # Check if the episode ended in sucess, give the higher reward here, if true
-        if (obs[21]-obs[14] <= 0.0954) and (obs[14] > 0.91):
+
+        phone_quat = obs[15:19]
+        phone_quat = np.array(phone_quat)
+        phone_quat = phone_quat.reshape(4,)
+        phone_angles = self.quat_to_euler(phone_quat)
+        if obs[14]>=0.88 and (phone_angles[2] <0.1) and  obs[26] > -0.5:
             return True
         # else:
         return False
@@ -451,7 +462,7 @@ if __name__ == '__main__':
 	print("Current Time =", current_time)
 	# args = parser.parse_args()
 	# args.log = os.path.join(args.log)
-	pick_place_env = UR3e_env(args,is_render=True)
+	pick_place_env = UR3e_env(args,is_render=False)
 	# pick_place_env = PickPlace_env(args)
 	# pick_place_env.run()
 	launch(args,pick_place_env)

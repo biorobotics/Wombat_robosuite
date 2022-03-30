@@ -99,7 +99,7 @@ class grasping_agent:
 				t = np.zeros([k.shape[0],self.timesteps+1,k.shape[2]])
 				# print("1st if", t)
 			else:
-				print(f"k.shape {k.shape}, idx = {idx}")
+				# print(f"k.shape {k.shape}, idx = {idx}")
 				t = np.zeros([k.shape[0],self.timesteps,k.shape[2]])
 				# print("2nd if", t)
 			# print("k", k)
@@ -240,7 +240,9 @@ class grasping_agent:
 						# 	obs_current = obs['observation'] 
 						# print(phone_pos[0])
 						if phone_pos[0]<pre_grasp_pos:
-							print(f"stage0")
+							if(done):
+								print("episode done")
+							# print(f"stage0")
 							# print(f"demo 2 action_zero {action_zero}")
 							obs,reward,done= self.env.step(action_zero)
 							obs_current = obs['observation'] 
@@ -250,7 +252,7 @@ class grasping_agent:
 
 
 						if (phone_pos[0]>=pre_grasp_pos and path_executed==False):
-							print(f"stage1: DMP")
+							# print(f"stage1: DMP")
 
 							# Init DMP traj 
 							phone_pos = obs_current[12:15]
@@ -271,7 +273,7 @@ class grasping_agent:
 
 
 								goal = np.zeros(3)
-								goal[0] =- phone_pos[0] - 0.5
+								goal[0] = phone_pos[0] - 0.5
 								goal[1] = phone_pos[1] 
 								goal[2] = 0.09#phone_pos[2]        
 								end_pose = Pose()
@@ -310,7 +312,7 @@ class grasping_agent:
 							action_network=np.zeros(6)
 							
 							if(path_executed==True):
-								print(f"Path Executed {path_executed}")
+								# print(f"Path Executed {path_executed}")
 							if(path_executed==False):
 								# action_zero[0:3] = desired_traj[traj_index, 0:3]
 								ee_pose[0:3] = desired_traj[traj_index, 0:3]
@@ -374,7 +376,7 @@ class grasping_agent:
 							resume_flag=True#False
 							
 							if path_executed and pp_snatch == 1 and pp_grip == 0 and resume_flag:
-								print(f"stage 3 Grip")
+								# print(f"stage 3 Grip")
 								# print("stay!!")
 								# action_zero[2] = pos_z
 								action_zero[6] = 0.5
@@ -390,8 +392,8 @@ class grasping_agent:
 									pp_grip=1
 								
 
-							elif pp_grip==1 and phone_pos[2]<0.8:
-								print("go up!! ship is sinking")
+							elif pp_grip==1 and ee_pose[2]<=0.3:
+								# print("go up!! ship is sinking")
 								last_time = t
 								time_reset-=1
 								if time_reset<=0:
@@ -402,7 +404,6 @@ class grasping_agent:
 										desired_joint = prev_joint
 									prev_joint = desired_joint
 									action_zero[:6] = desired_joint
-									done = True
 					
 									action_zero[6] = 0.5
 									action_zero[7] = -0.5
@@ -411,11 +412,11 @@ class grasping_agent:
 								# 	self.env.clip_grip_vel()
 								
 
-							elif done or phone_pos[0]>0.8:
+							elif done or phone_pos[0]>0.9:
 								print("breaking up of the loop")
 								break
-							print("phone_pos[0]",phone_pos[0])
-							print("phone_pos[2]",phone_pos[2])
+							# print("phone_pos[0]",phone_pos[0])
+							# print("phone_pos[2]",phone_pos[2])
 							pp_snatch =1
 
 							ep_obs.append(obs['observation'].copy())
@@ -504,7 +505,7 @@ class grasping_agent:
 				mb_ag = np.array(mb_ag)
 				mb_g = np.array(mb_g)
 				mb_actions = np.array(mb_actions)
-				print(f"mb_actions shape{mb_actions.shape}")
+				# print(f"mb_actions shape{mb_actions.shape}")
 				self.write_counter += 1
 
 				mb_obs, mb_ag, mb_g, mb_actions = self.add_padding([mb_obs, mb_ag, mb_g, mb_actions],['obs','ag','g','action'])
@@ -575,6 +576,7 @@ class grasping_agent:
 		# get the number of normalization transitions
 		num_transitions = mb_actions.shape[1]
 		# create the new buffer to store them
+		# print(f"mb_ag: {mb_ag}" )
 		buffer_temp = {'obs': mb_obs, 
 					   'ag': mb_ag,
 					   'g': mb_g, 
