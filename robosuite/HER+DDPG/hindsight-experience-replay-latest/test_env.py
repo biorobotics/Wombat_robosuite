@@ -73,7 +73,8 @@ if __name__ == '__main__':
         obs, reward, done = env.step(action_zero)
         observation = obs['observation']
         q_guess = observation[:6]
-        # print(f"gripper_ht {ee_pose[2]:.4f}")
+        print(f"gripper_ht {ee_pose[2]:.4f}, phone_pos {observation[12:15]}")
+
 
         if ee_pose[2]>grasp_ht and (lift==0):
             ee_pose[2]-=0.00005

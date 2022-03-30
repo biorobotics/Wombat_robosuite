@@ -25,6 +25,7 @@ import random
 import time
 
 from train_ur3e import UR3e_env
+from ur_ikfast import ur_kinematics 
 
 
 from wombat_dmp.srv import *
@@ -32,6 +33,9 @@ import rospy
 from geometry_msgs.msg import Pose, Vector3 
 from std_msgs.msg import String
 from scipy.spatial.transform import Rotation as R
+
+
+ur3e_arm = ur_kinematics.URKinematics('ur3e')
 
 
 
@@ -54,9 +58,9 @@ def _preproc_inputs(obs, g):
     return inputs
 def dyn_rand():
     # phone_x = 0.578#np.random.uniform(0.428, 0.728)
-    phone_x = 0.3
+    phone_x = 0.382
 
-    phone_speed = -0.20#np.random.uniform(-0.14, -0.18)
+    phone_speed = 0.20#np.random.uniform(-0.14, -0.18)
     phone_orient = 0.0
     # phone_orient = np.random.uniform(-0.05, 0.05)
     return phone_x, phone_speed, phone_orient
@@ -81,7 +85,10 @@ def euler_to_quat(euler):
     rot = R.from_euler('xyz',[euler[0], euler[1], euler[2]], degrees=False)
     quat = rot.as_quat()
     return quat
-        
+
+
+def action_robot(new_ee_pose, ee_pose, prev_joint_values):
+    pass
 
 if __name__ == '__main__':
     args = get_args()
@@ -130,7 +137,11 @@ if __name__ == '__main__':
         g_norm = normalizer(size=env_params['goal'], default_clip_range=args.clip_range)
         action_zero=np.array([1.31e-1, 3.915e-1, 2.05e-1, -3.14, 0,0,-0.4, 0.4])
         desired_joints =  np.array([-np.pi/2, -2.0, -np.pi/2, -1.01,  1.57, np.pi *0/180.0])
+        prev_joint = desired_joints
         action_zero[:6] = desired_joints
+        ee_pose_init = ur3e_arm.forward(desired_joints)
+        ee_pose = ee_pose_init
+        pick_ht = 0.12
         obs_current = np.zeros(34)
         obs_last = obs_current.copy()
         pp_snatch = 0
@@ -162,15 +173,16 @@ if __name__ == '__main__':
         plan_flag= True
         wait_flag = False
         path_executed = False
+        done = False
         time.sleep(0.1)
         print(f"Printing before first timestep")
         for t in range(env._max_episode_steps):
-
+            
             # try:
             #     obs,reward,done = env.step(action_zero)
             # except Exception as e:
             #     print(f"{e}")
-            print(f"demo: action_zero: {action_zero}")
+            # print(f"demo: action_zero: {action_zero}")
             obs,reward,done = env.step(action_zero)
 
             # print(f"obs {obs}")
@@ -182,31 +194,28 @@ if __name__ == '__main__':
             pre_grasp_pos = 0.6 #0.9
             proximal_tol = 0.1
             
-            gripper_pos = obs_current[19:26] 
+            gripper_pos = ee_pose_init
             phone_pos = obs_current[12:15] 
-            print(f"phone_pose: {phone_pos[0:3]}, gripper_pose: {gripper_pos[0:3]}")
+            # print(f"phone_pose: {phone_pos[0:3]}, gripper_pose: {gripper_pos[0:3]}")
+
             
             # print(f"delta: {delta} ")
-            if phone_pos[0]>pre_grasp_pos :
-                print(f"demo 2 action_zero {action_zero}")
+            if phone_pos[0]<pre_grasp_pos :
+                print(f"stage0")
+                # print(f"demo 2 action_zero {action_zero}")
                 obs,reward,done= env.step(action_zero)
                 obs_current = obs['observation'] 
                 
 
             
-            if (phone_pos[0]<pre_grasp_pos and path_executed==False and t>50):
-
+            if (phone_pos[0 ]>pre_grasp_pos and path_executed==False):
+                print(f"stage1: DMP")
 
                 # Init DMP traj 
-                gripper_pos = obs_current[19:26] 
                 phone_pos = obs_current[12:15] 
-
-                delta = action_zero[0:3] - gripper_pos[0:3]
-                action_goal = phone_pos + delta
                 
-                print(f"phone_pose: {phone_pos[0:3]}, gripper_pose: {gripper_pos[0:3]}")
                 if(plan_flag):          
-                    start= action_zero[0:3]
+                    start= ee_pose[0:3]
                     start_pose = Pose()
 
                     start_pose.position.x = start[0]
@@ -219,24 +228,27 @@ if __name__ == '__main__':
 
 
                     goal = np.zeros(3)
-                    goal[0]  = action_zero[0]
-                    goal[1] = action_goal[1]
-                    goal[2] = action_goal[2]        
+                    goal[0]  = phone_pos[0] - 0.5
+                    goal[1] = phone_pos[1]
+                    goal[2] = 0.09    
                     end_pose = Pose()
                     # TODO: Recalib for UR
                     end_pose.position.x = goal[0] 
                     end_pose.position.y = goal[1] 
-                    end_pose.position.z = 0.09
+                    end_pose.position.z = goal[2]
                     end_pose.orientation.x = 0
                     end_pose.orientation.y = 0
                     end_pose.orientation.z = 0
                     end_pose.orientation.w =1
                     mode = String()
                     mode.data = "pick"
+                    print(f"phone_speed {obs_current[29]}")
+                    vel_iPhone_rt = (obs_current[13] - obs_last[13])/(0.002) #rt ==> real_time
 
+                    print(f"vel_ipHone {vel_iPhone_rt}")
                     phone_velo = Vector3()
                     phone_velo.x = 0
-                    phone_velo.y =obs_current[29]
+                    phone_velo.y =vel_iPhone_rt
                     phone_velo.z = 0
                     traj =dmp_client(start_pose, end_pose, mode, phone_velo)
                     desired_traj = np.zeros((len(traj), 6))
@@ -259,13 +271,18 @@ if __name__ == '__main__':
                 if(path_executed==True):
                     print(f"Path Executed {path_executed}")
                 if(path_executed==False):
-                    action_zero[0:3] = desired_traj[traj_index, 0:3]
+                    ee_pose[:3] = desired_traj[traj_index, :3]
+                    ee_pose[2] = np.clip(ee_pose[2], a_min=pick_ht, a_max = 0.3)
+
+                    desired_joint = ur3e_arm.inverse(ee_pose, q_guess = prev_joint)
+                    if(desired_joint is None):
+                        desired_joint = prev_joint
+                    prev_joint = desired_joint
+                    action_zero[:6] = desired_joint
                     # print(f"action_zero {action_zero}")
 
                     # TODO: Recalib for UR
-                    # if action_zero[2]<=0.84:
-                    #     action_zero[2]=0.84
-                    print(f"action_zero from dmp {action_zero}")
+                    # print(f"action_zero from dmp {action_zero}")
                     obs,reward,done= env.step(action_zero)
                     obs_current = obs['observation'] 
                     traj_index+=1
@@ -276,6 +293,7 @@ if __name__ == '__main__':
             # if t%1000==0:
             #     print(t)
             # print("action_zero", action_zero)
+
             # obs,reward,done,_ = env.step(action_zero)
             # if t>=0 and t<1700 and pp_snatch==0:
             #     action_network = np.zeros(3)
@@ -313,8 +331,7 @@ if __name__ == '__main__':
                 if(wait_flag==False):
                     completion_time = t
                     wait_flag =True
-                if action_zero[2]>=0.763:
-                    action_zero[2]=0.763
+
                 obs,reward,done = env.step(action_zero)
                 obs_current = obs['observation']
                 
@@ -348,34 +365,54 @@ if __name__ == '__main__':
                 #         resume_flag = True
 
                 if path_executed and  pp_snatch == 1 and pp_grip == 0 and resume_flag:
-                    action_zero[2] = pos_z
+                    print(f"stage 3 Grip")
+                    # action_zero[2] = pos_z
                     # action_zero[6] = 0.4
                     # action_zero[7] = 0.4
-                    action_zero[6] = 0.4
-                    action_zero[7] = -0.4
+                    action_zero[6] = 0.5
+                    action_zero[7] = -0.5
+
+                    # ee_pose[2] = np.clip(ee_pose[2], a_min=pick_ht)
+
+                    desired_joint = ur3e_arm.inverse(ee_pose, q_guess = prev_joint)
+                    if(desired_joint is None):
+                        desired_joint = prev_joint
+                    prev_joint = desired_joint
+                    action_zero[:6] = desired_joint
+
                     time_stay-=1
                     if time_stay<=0:
                         pp_grip=1
                                 
-                elif pp_grip==1 and action_zero[2]>0.55:
-                    # print("go up!! ship is sinking")
+                elif pp_grip==1 and phone_pos[2]>0.7:
+                    print("go up!! ship is sinking")
                     last_time = t
                     time_reset-=1
                     if time_reset<=0:
-                        pos_z -= 0.0005 #motion happening here
-                        action_zero[2] = pos_z
+                        ee_pose[2] -= 0.0005 #motion happening here
+
+
+                        # ee_pose[2] = np.clip(ee_pose[2], a_min=pick_ht)
+
+                        desired_joint = ur3e_arm.inverse(ee_pose, q_guess = prev_joint)
+                        if(desired_joint is None):
+                            desired_joint = prev_joint
+                        prev_joint = desired_joint
+                        action_zero[:6] = desired_joint
+                        done = True
+                    
                         # action_zero[6] = 0.4
                         # action_zero[7] = 0.4
-                        action_zero[6] = 0.4
-                        action_zero[7] = -0.4
+                        action_zero[6] = 0.5
+                        action_zero[7] = -0.5
 
-                    if time_reset<=-100:
-                        env.clip_grip_vel()
+                    # if time_reset<=-100:
+                    #     env.clip_grip_vel()
                                 
-                elif action_zero[2]<0.55:
-                    # print("breaking up of the loop")
+                elif done or phone_pos[0]>0.8:
+                    print("breaking up of the loop")
                     break
-                pos_z = action_zero[2]
+                # pos_z = action_zero[2]
                 pp_snatch =1
             # re-assign the observation
             # else:
