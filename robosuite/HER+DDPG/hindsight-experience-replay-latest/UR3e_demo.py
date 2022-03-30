@@ -187,11 +187,11 @@ if __name__ == '__main__':
 
             # print(f"obs {obs}")
             obs_current = obs['observation']
-            # print(obs_current[21])
-            vel_iPhone_rt = (obs_current[13] - obs_last[13])/(0.002) #rt ==> real_time
+            # print("obs_current[12]",obs_current[12])
+            vel_iPhone_rt = (obs_current[12] - obs_last[12])/(0.002) #rt ==> real_time
             # When phone crosses this point, planner will get started
             # TODO: Recalib for UR3e
-            pre_grasp_pos = 0.6 #0.9
+            pre_grasp_pos = 0.5 #0.9
             proximal_tol = 0.1
             
             gripper_pos = ee_pose_init
@@ -201,15 +201,15 @@ if __name__ == '__main__':
             
             # print(f"delta: {delta} ")
             if phone_pos[0]<pre_grasp_pos :
-                print(f"stage0")
+                # print(f"stage0")
                 # print(f"demo 2 action_zero {action_zero}")
                 obs,reward,done= env.step(action_zero)
                 obs_current = obs['observation'] 
                 
 
             
-            if (phone_pos[0 ]>pre_grasp_pos and path_executed==False):
-                print(f"stage1: DMP")
+            if (phone_pos[0]>pre_grasp_pos and path_executed==False):
+                # print(f"stage1: DMP")
 
                 # Init DMP traj 
                 phone_pos = obs_current[12:15] 
@@ -242,14 +242,15 @@ if __name__ == '__main__':
                     end_pose.orientation.w =1
                     mode = String()
                     mode.data = "pick"
-                    print(f"phone_speed {obs_current[29]}")
-                    vel_iPhone_rt = (obs_current[13] - obs_last[13])/(0.002) #rt ==> real_time
+                    # print(f"phone_speed {obs_current[29]}")
+                    vel_iPhone_rt = (obs_current[12] - obs_last[12])/(0.002) #rt ==> real_time
 
-                    print(f"vel_ipHone {vel_iPhone_rt}")
+                    # print(f"vel_ipHone {vel_iPhone_rt}")
                     phone_velo = Vector3()
-                    phone_velo.x = 0
-                    phone_velo.y =vel_iPhone_rt
+                    phone_velo.x = vel_iPhone_rt
+                    phone_velo.y = 0
                     phone_velo.z = 0
+                    print("vel_iPhone_rt", phone_velo)
                     traj =dmp_client(start_pose, end_pose, mode, phone_velo)
                     desired_traj = np.zeros((len(traj), 6))
                     for i in range(len(traj)):
@@ -273,7 +274,7 @@ if __name__ == '__main__':
                 if(path_executed==False):
                     ee_pose[:3] = desired_traj[traj_index, :3]
                     ee_pose[2] = np.clip(ee_pose[2], a_min=pick_ht, a_max = 0.3)
-
+                    # print("ee_pose[2]",ee_pose[2])
                     desired_joint = ur3e_arm.inverse(ee_pose, q_guess = prev_joint)
                     if(desired_joint is None):
                         desired_joint = prev_joint
@@ -365,7 +366,7 @@ if __name__ == '__main__':
                 #         resume_flag = True
 
                 if path_executed and  pp_snatch == 1 and pp_grip == 0 and resume_flag:
-                    print(f"stage 3 Grip")
+                    # print(f"stage 3 Grip")
                     # action_zero[2] = pos_z
                     # action_zero[6] = 0.4
                     # action_zero[7] = 0.4
@@ -385,11 +386,11 @@ if __name__ == '__main__':
                         pp_grip=1
                                 
                 elif pp_grip==1 and phone_pos[2]>0.7:
-                    print("go up!! ship is sinking")
+                    # print("go up!! ship is sinking")
                     last_time = t
                     time_reset-=1
                     if time_reset<=0:
-                        ee_pose[2] -= 0.0005 #motion happening here
+                        ee_pose[2] += 0.0005 #motion happening here
 
 
                         # ee_pose[2] = np.clip(ee_pose[2], a_min=pick_ht)
@@ -410,7 +411,7 @@ if __name__ == '__main__':
                     #     env.clip_grip_vel()
                                 
                 elif done or phone_pos[0]>0.8:
-                    print("breaking up of the loop")
+                    # print("breaking up of the loop")
                     break
                 # pos_z = action_zero[2]
                 pp_snatch =1
