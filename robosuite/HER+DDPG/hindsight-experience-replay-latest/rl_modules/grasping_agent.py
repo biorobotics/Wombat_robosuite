@@ -23,6 +23,9 @@ import rospy
 from geometry_msgs.msg import Pose, Vector3 
 from std_msgs.msg import String
 from scipy.spatial.transform import Rotation as R
+from ur_ikfast import ur_kinematics 
+
+ur3e_arm = ur_kinematics.URKinematics('ur3e')
 
 """
 ddpg with HER (MPI-version)
@@ -83,7 +86,7 @@ class grasping_agent:
 		self.write_counter = 0
 		self.record_video = True
 		#! timestep incosistent from 11000
-		self.timesteps = 2000#4000
+		self.timesteps = 5500#4000
 
 	def add_padding(self,transition,keys):
 
@@ -162,8 +165,13 @@ class grasping_agent:
 					if MPI.COMM_WORLD.Get_rank() == 0:
 						image_new = []
 					# TODO: New action zero: calc from Fk tho...
-					action_zero = np.array([0,0,0.6,0,0,0,-0.75,0.75])
-					action_zero = np.array([1.31e-1, 3.915e-1, 2.05e-1, -3.14, 0,0,-0.4, 0.4])
+					action_zero=np.array([1.31e-1, 3.915e-1, 2.05e-1, -3.14, 0,0,-0.4, 0.4])
+					desired_joints =  np.array([-np.pi/2, -2.0, -np.pi/2, -1.01,  1.57, np.pi *0/180.0])
+					prev_joint = desired_joints
+					action_zero[:6] = desired_joints
+					ee_pose_init = ur3e_arm.forward(desired_joints)
+					ee_pose = ee_pose_init
+					pick_ht = 0.12
 					obs_current = np.zeros(34)
 					obs_last = obs_current.copy()
 					pp_snatch = 0 # pp =gripping flag
@@ -181,24 +189,25 @@ class grasping_agent:
 					observation_y = np.zeros(max_time_steps+1)
 					observation_z = np.zeros(max_time_steps+1)
 					t_arr = np.linspace(0,max_time_steps,max_time_steps+1)
-					R_ie = np.array([[-1,0,0],[0,1,0],[0,0,-1]])
+					# R_ie = np.array([[-1,0,0],[0,1,0],[0,0,-1]])
 					if n_cycles == self.args.n_cycles - 1 and MPI.COMM_WORLD.Get_rank() == 0 and r_mpi == 1 and self.record_video:
 						video_writer = imageio.get_writer('saved_models/New_Gripping_policy_dyn_rand/epoch_{}.mp4'.format(epoch+1), fps=60)
 					
-					wait_flag = False
 					plan_flag= True
+					wait_flag = False
 					path_executed = False
-					# time.sleep(5)
+					done = False
+					time.sleep(0.1)
 
 					for t in range(self.env_params['max_timesteps']):
 
-						try:
-							obs,reward,done = self.env.step(action_zero)
-							# print(f"action_zero {action_zero}")
-						except:
-							break_flag = True
-							break
-						
+						# try:
+						# 	obs,reward,done = self.env.step(action_zero)
+						# 	# print(f"action_zero {action_zero}")
+						# except:
+						# 	break_flag = True
+						# 	break
+						obs,reward,done = self.env.step(action_zero)
 						obs_current = obs['observation']
 						# print(f"Observation1 from self.env {obs_current[1]}, timestep {t}")
 						#Pre Reach 
@@ -209,32 +218,47 @@ class grasping_agent:
 						#Pre Grasp 
 						#If the phone has entered -> init the pick dmp motion
 						# till DMP convergence 
-						
+						vel_iPhone_rt = (obs_current[12] - obs_last[12])/(0.002) #rt ==> real_time
 						# flags
-						pre_grasp_pos = 0.3
+						pre_grasp_pos = 0.5
 						proximal_tol = 0.1
 
 
-						gripper_pos = obs_current[19:26] 
+						# gripper_pos = obs_current[19:26] 
+						# phone_pos = obs_current[12:15] 
+						gripper_pos = ee_pose_init
 						phone_pos = obs_current[12:15] 
-						delta = gripper_pos[0:3] - action_zero[0:3]
+						# delta = gripper_pos[0:3] - action_zero[0:3]
 
-						if phone_pos[1]>pre_grasp_pos:
-							try:
-								obs,reward,done= self.env.step(action_zero)
-								# print(f"action_zero {action_zero}")
+						# if phone_pos[1]>pre_grasp_pos:
+						# 	try:
+						# 		obs,reward,done= self.env.step(action_zero)
+						# 		# print(f"action_zero {action_zero}")
 
-							except:
-								break
+						# 	except:
+						# 		break
+						# 	obs_current = obs['observation'] 
+						# print(phone_pos[0])
+						if phone_pos[0]<pre_grasp_pos:
+							print(f"stage0")
+							# print(f"demo 2 action_zero {action_zero}")
+							obs,reward,done= self.env.step(action_zero)
 							obs_current = obs['observation'] 
+							# print("pp_snatch",pp_snatch)
+							# print(obs_current[20])
+							# print(obs_current[13])
 
 
-						if (phone_pos[1]<pre_grasp_pos and path_executed==False):
+						if (phone_pos[0]>=pre_grasp_pos and path_executed==False):
+							print(f"stage1: DMP")
+
+							# Init DMP traj 
+							phone_pos = obs_current[12:15]
 
 
 							# Init DMP traj 
 							if(plan_flag):          
-								start= action_zero[0:3]
+								start= ee_pose[0:3]
 								start_pose = Pose()
 
 								start_pose.position.x = start[0]
@@ -247,23 +271,24 @@ class grasping_agent:
 
 
 								goal = np.zeros(3)
-								goal[0] =- phone_pos[0] + delta[0]
-								goal[1] = phone_pos[1] - delta[1] #- 0.05
-								goal[2] = phone_pos[2]        
+								goal[0] =- phone_pos[0] - 0.5
+								goal[1] = phone_pos[1] 
+								goal[2] = 0.09#phone_pos[2]        
 								end_pose = Pose()
-								end_pose.position.x = goal[0] + 0.003
-								end_pose.position.y = goal[1] - 0.05
-								end_pose.position.z =0.78# goal[2]
+								end_pose.position.x = goal[0] 
+								end_pose.position.y = goal[1] 
+								end_pose.position.z = goal[2]
 								end_pose.orientation.x = 0
 								end_pose.orientation.y = 0
 								end_pose.orientation.z = 0
 								end_pose.orientation.w =1
 								mode = String()
 								mode.data = "pick"
+								vel_iPhone_rt = (obs_current[12] - obs_last[12])/(0.002) #rt ==> real_time
 
 								phone_velo = Vector3()
-								phone_velo.x = 0
-								phone_velo.y =obs_current[29]
+								phone_velo.x = vel_iPhone_rt
+								phone_velo.y = 0
 								phone_velo.z = 0
 
 								traj =self.dmp_client(start_pose, end_pose, mode, phone_velo)
@@ -282,16 +307,26 @@ class grasping_agent:
 
 							# Calculate current position in the trajectory : i^th index 
 							path_executed = traj_index==desired_traj.shape[0]
-							action_network=np.zeros(5)
+							action_network=np.zeros(6)
 							
 							if(path_executed==True):
 								print(f"Path Executed {path_executed}")
 							if(path_executed==False):
-								# print(f"executing dmp, norm is:{np.linalg.norm(gripper_pos[0:3]- phone_pos)}")
-								action_zero[0:3] = desired_traj[traj_index, 0:3]
-							# if(norm (take the norm between obs 12:15 and obs 19:22)<threshold):
+								# action_zero[0:3] = desired_traj[traj_index, 0:3]
+								ee_pose[0:3] = desired_traj[traj_index, 0:3]
+								ee_pose[2] = np.clip(ee_pose[2], a_min=pick_ht, a_max=0.3)#desired_traj[traj_index, 0:3]
+								desired_joint = ur3e_arm.inverse(ee_pose, q_guess = prev_joint)
+								if(desired_joint is None):
+									desired_joint = prev_joint
+								prev_joint = desired_joint
+								action_zero[:6] = desired_joint
+								
 
-							# if(np.linalg.norm(gripper_pos[0:3]- phone_pos)<0.15):
+								
+								# obs,reward,done= env.step(action_zero)
+								obs_current = obs['observation'] 
+								traj_index+=1
+							
 							if(True):
 
 								# print(f"executing agent actions")
@@ -300,37 +335,38 @@ class grasping_agent:
 									input_tensor = self._preproc_inputs(obs_current, g)
 									pi = self.actor_network(input_tensor)
 									action_network = self._select_actions(pi)
-								action_zero[0]+= action_network[0] #adding del_x to current_motion
-								action_zero[1]+=  action_network[1] #adding del_y to motion
-								action_zero[2]+=  action_network[2]  #adding del_z to motion
+								action_zero[0]+= action_network[0] #adding del to joint1
+								action_zero[1]+=  action_network[1] #adding del to joint2
+								action_zero[2]+=  action_network[2]  #adding del to joint3
+								action_zero[3]+= action_network[3] #adding del to joint4
+								action_zero[4]+=  action_network[4] #adding del to joint5
+								action_zero[5]+=  action_network[5]  #adding del to joint6
 								# Instead these should be a boolean value for the signal to grasp  
 								# action_zero[6] += action_network[3]
 								# action_zero[7] += action_network[4]
 							
 							
-							# clip the action if its touching the conveyor
-							if action_zero[2]>=0.763:
-								action_zero[2]=0.763								
+							# # clip the action if its touching the conveyor
+							# if action_zero[2]>=0.763:
+							# 	action_zero[2]=0.763								
 								
-							# obs,reward,done,_ = self.env.step(action_zero)
-							try:
-								obs,reward,done = self.env.step(action_zero)
-								# print(f"action_zero {action_zero}")
+							obs,reward,done = self.env.step(action_zero)
+							# try:
+							# 	obs,reward,done = self.env.step(action_zero)
+							# 	# print(f"action_zero {action_zero}")
 
-							except:
-								print(f"Passing !!!!")
-								_ = self.env.reset()
-								break
-							traj_index+=1
+							# except:
+							# 	print(f"Passing !!!!")
+							# 	_ = self.env.reset()
+							# 	break
+							# traj_index+=1
 
 						## Start snatch motion ###
-						elif path_executed or np.linalg.norm(obs_current[20]-obs_current[13])<0.001 or pp_snatch == 1:
-							
+						elif path_executed or np.linalg.norm(obs_current[19]-obs_current[12])<0.001 or pp_snatch == 1:
 							if(wait_flag==False):
 								completion_time = t
 								wait_flag =True
-							if action_zero[2]>=0.763: 
-								action_zero[2]=0.763
+							
 							obs,reward,done = self.env.step(action_zero)
 							obs_current = obs['observation']
 							
@@ -338,35 +374,48 @@ class grasping_agent:
 							resume_flag=True#False
 							
 							if path_executed and pp_snatch == 1 and pp_grip == 0 and resume_flag:
-
-
+								print(f"stage 3 Grip")
 								# print("stay!!")
-								action_zero[2] = pos_z
-								action_zero[6] = 0.4
-								action_zero[7] = -0.4
+								# action_zero[2] = pos_z
+								action_zero[6] = 0.5
+								action_zero[7] = -0.5
+								desired_joint = ur3e_arm.inverse(ee_pose, q_guess = prev_joint)
+								if(desired_joint is None):
+									desired_joint = prev_joint
+								prev_joint = desired_joint
+								action_zero[:6] = desired_joint
+
 								time_stay-=1
 								if time_stay<=0:
 									pp_grip=1
 								
 
-							elif pp_grip==1 and action_zero[2]>0.55:
-								# print("go up!! ship is sinking")
+							elif pp_grip==1 and phone_pos[2]<0.8:
+								print("go up!! ship is sinking")
 								last_time = t
 								time_reset-=1
 								if time_reset<=0:
-									pos_z -= 0.0005 #motion happening here
-									action_zero[2] = pos_z
-									action_zero[6] = 0.4
-									action_zero[7] = -0.4
+									ee_pose[2] += 0.0005 #motion happening here
 
-								if time_reset<=-100:
-									self.env.clip_grip_vel()
+									desired_joint = ur3e_arm.inverse(ee_pose, q_guess = prev_joint)
+									if(desired_joint is None):
+										desired_joint = prev_joint
+									prev_joint = desired_joint
+									action_zero[:6] = desired_joint
+									done = True
+					
+									action_zero[6] = 0.5
+									action_zero[7] = -0.5
+
+								# if time_reset<=-100:
+								# 	self.env.clip_grip_vel()
 								
 
-							elif action_zero[2]<0.55:
-								# print("breaking up of the loop")
+							elif done or phone_pos[0]>0.8:
+								print("breaking up of the loop")
 								break
-							pos_z = action_zero[2]
+							print("phone_pos[0]",phone_pos[0])
+							print("phone_pos[2]",phone_pos[2])
 							pp_snatch =1
 
 							ep_obs.append(obs['observation'].copy())
@@ -394,10 +443,10 @@ class grasping_agent:
 						T_real_actual = np.matmul(np.linalg.inv(T_sim_real),T_sim_actual)
 						t_real[0],t_real[1],t_real[2] = T_real_actual[0:3,3]
 						t_real[2] = - t_real[2]
-						observation_x[t] = t_real[0]
-						observation_y[t] = t_real[1]
-						observation_z[t] = t_real[2]
-						t_arr[t] = t*0.002
+						# observation_x[t] = t_real[0]
+						# observation_y[t] = t_real[1]
+						# observation_z[t] = t_real[2]
+						# t_arr[t] = t*0.002
 					# plt.plot(t_arr, observation_x)
 					# plt.title('End-effector x-coordinate vs. time')
 					# plt.xlabel('time(in seconds)')
@@ -653,8 +702,8 @@ class grasping_agent:
 		# phone_x = 0.578#np.random.uniform(0.428, 0.728)
 		# phone_speed = -0.20#np.random.uniform(-0.14, -0.25)
 		# phone_orient = 0.0
-		phone_x = np.random.uniform(0.428, 0.728)
-		phone_speed = np.random.uniform(-0.14, -0.25)
+		phone_x = 0.382#np.random.uniform(0.428, 0.728)
+		phone_speed = 0.20#np.random.uniform(-0.14, -0.25)
 		phone_orient = 0.0
 
 

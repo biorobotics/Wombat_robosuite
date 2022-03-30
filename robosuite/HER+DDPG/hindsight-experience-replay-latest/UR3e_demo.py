@@ -200,16 +200,17 @@ if __name__ == '__main__':
 
             
             # print(f"delta: {delta} ")
+            print(phone_pos[0])
             if phone_pos[0]<pre_grasp_pos :
-                # print(f"stage0")
+                print(f"stage0")
                 # print(f"demo 2 action_zero {action_zero}")
                 obs,reward,done= env.step(action_zero)
                 obs_current = obs['observation'] 
-                
+                                
 
             
             if (phone_pos[0]>pre_grasp_pos and path_executed==False):
-                # print(f"stage1: DMP")
+                print(f"stage1: DMP")
 
                 # Init DMP traj 
                 phone_pos = obs_current[12:15] 
@@ -287,7 +288,7 @@ if __name__ == '__main__':
                     obs,reward,done= env.step(action_zero)
                     obs_current = obs['observation'] 
                     traj_index+=1
-
+                
 
 
             # env.render()
@@ -328,7 +329,7 @@ if __name__ == '__main__':
             #     vel_y = (obs_current[20] - 0.0)/int(steps_to_reach)
             #     # print("Stage 3 ",pp)
             ### Start snatch motion ###
-            elif path_executed or np.linalg.norm(obs_current[20]-obs_current[13])<0.001 or pp_snatch == 1:
+            elif path_executed or np.linalg.norm(obs_current[19]-obs_current[12])<0.001 or pp_snatch == 1:
                 if(wait_flag==False):
                     completion_time = t
                     wait_flag =True

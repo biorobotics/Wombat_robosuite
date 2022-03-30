@@ -31,7 +31,7 @@ class UR3e_env(object):
     def __init__(self, args=None, is_render=False):
         self.is_render = is_render 
         self.action_dim = 6
-        self.action_network_dim = 3
+        self.action_network_dim = 6#3
         self.obs_dim = 34 #TODO: Verify this
         self.q_pos_last = np.zeros(self.action_dim)
         self.observation_current = None
@@ -174,8 +174,8 @@ class UR3e_env(object):
         glfw.destroy_window(self.viewer.window)
 
     def reset(self, phone_x = 0.4, phone_speed = -0.1, phone_orient = 0): #TODO: Set the default values here 
-        if(self.is_render):
-            self.close_window()
+        # if(self.is_render):
+        #     self.close_window()
         obs_new = self.set_env(phone_x, phone_speed, phone_orient)
         return obs_new
 
@@ -281,14 +281,14 @@ class UR3e_env(object):
         if self.is_render:
             self.viewer.render()
         self.observation_current = self.get_observation()
-        self.reward = self.compute_reward(self.observation_current['observation'])
+        self.reward = self.compute_reward(self.observation_current['observation'],self.observation_current['observation'],None)
         self.sim.data.set_joint_qvel('box_joint0',[self.phone_speed,0, 0, 0, 0, 0])
 
         self.done = self.is_done(self.observation_current['observation'])
         return self.observation_current, self.reward, self.done
 
 
-    def compute_reward(self, obs):
+    def compute_reward(self, obs, obs2, obs3):
         reward_grasp = []
         # print(f"obs compute rewards {obs}" )
         for i in range(obs.shape[0]):
@@ -454,4 +454,4 @@ if __name__ == '__main__':
 	pick_place_env = UR3e_env(args,is_render=True)
 	# pick_place_env = PickPlace_env(args)
 	# pick_place_env.run()
-	# launch(args,pick_place_env)
+	launch(args,pick_place_env)
