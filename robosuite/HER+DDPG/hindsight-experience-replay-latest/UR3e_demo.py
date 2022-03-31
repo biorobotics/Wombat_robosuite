@@ -57,10 +57,9 @@ def _preproc_inputs(obs, g):
         inputs = inputs.cuda()
     return inputs
 def dyn_rand():
-    # phone_x = 0.578#np.random.uniform(0.428, 0.728)
-    phone_x = 0.382
-
-    phone_speed = 0.20#np.random.uniform(-0.14, -0.18)
+    phone_x = np.random.uniform(0.232, 0.532)#0.382 is taken as the middle point
+    
+    phone_speed = np.random.uniform(0.20, 0.35)
     phone_orient = 0.0
     # phone_orient = np.random.uniform(-0.05, 0.05)
     return phone_x, phone_speed, phone_orient
@@ -203,13 +202,13 @@ if __name__ == '__main__':
             gripper_pos = ee_pose_init
             phone_pos = obs_current[12:15] 
             euler = quat_to_euler_temp(obs_current[15:19])    
-            print(f"ee_pose  {ee_pose}")
+            # print(f"ee_pose  {ee_pose}")
 
             # print(f"phone_pose: {np.around((phone_pos), 3)}, angles {euler}, gripper_pose: {np.around((gripper_pos[0:3]),3)}")
 
             
             # print(f"delta: {delta} ")
-            print(phone_pos[0])
+            # print(phone_pos[0])
             if phone_pos[0]<pre_grasp_pos :
                 print(f"stage0")
                 # print(f"demo 2 action_zero {action_zero}")

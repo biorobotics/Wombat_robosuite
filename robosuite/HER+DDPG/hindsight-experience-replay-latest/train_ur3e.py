@@ -45,7 +45,7 @@ class UR3e_env(object):
         # self.action_network_high = np.array([0.00005]*self.action_network_dim)
         # self.action_network_low = np.array([-0.00005]*self.action_network_dim)	 
 
-        self._max_episode_steps = 11000
+        self._max_episode_steps = 5500#11000
         self.ur3e_arm = ur_kinematics.URKinematics('ur3e')
 
     def angDiff(self,a1,a2):
@@ -120,6 +120,13 @@ class UR3e_env(object):
         if self.is_render:
             self.viewer = MjViewer(self.sim)
             self.viewer.vopt.geomgroup[0] = 0
+            self.viewer.cam.trackbodyid = 0
+            self.viewer.cam.distance = self.model.stat.extent*0.0001
+            self.viewer.cam.lookat[0]+= -1.4#0.8
+            self.viewer.cam.lookat[1]+= 0.5#0.8
+            self.viewer.cam.lookat[2]+= 0#0.8
+            self.viewer.cam.elevation = 0#-20
+            self.viewer.cam.azimuth = -1#-20
             self.viewer.render()
 
         self.timestep =0.0005 #?Is this needed
@@ -318,7 +325,7 @@ class UR3e_env(object):
         phone_quat = np.array(phone_quat)
         phone_quat = phone_quat.reshape(4,)
         phone_angles = self.quat_to_euler(phone_quat)
-        if obs[14]>=0.88 and (phone_angles[2] <0.1) and  obs[26] > -0.5:
+        if obs[14]>=0.88 and obs[26] > -0.5:
             return True
         # else:
         return False
@@ -359,7 +366,7 @@ class UR3e_env(object):
             self.sim.data.set_joint_qpos('robot0_base_right_short_joint', -0.7)
 	
     def clip_robot_joints(self,ee_pose):
-        print(f"clip robot joints:  {ee_pose}")
+        # print(f"clip robot joints:  {ee_pose}")
         x = ee_pose[0]
         y = ee_pose[1]
         z = ee_pose[2]

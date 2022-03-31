@@ -312,7 +312,7 @@ class grasping_agent:
 							action_network=np.zeros(6)
 							
 							if(path_executed==True):
-								# print(f"Path Executed {path_executed}")
+								print(f"Path Executed {path_executed}")
 							if(path_executed==False):
 								# action_zero[0:3] = desired_traj[traj_index, 0:3]
 								ee_pose[0:3] = desired_traj[traj_index, 0:3]
@@ -430,7 +430,7 @@ class grasping_agent:
 						
 						#write a video
 						if n_cycles == self.args.n_cycles - 1 and MPI.COMM_WORLD.Get_rank() == 0 and r_mpi == 1 and self.record_video:
-							video_img = self.env.sim.render(height=512, width=512, camera_name='robot0_realsense_front', mode='offscreen')[::-1]
+							video_img = self.env.sim.render(height=512, width=512, camera_name='robot0_camera_1', mode='offscreen')[::-1]
 							video_writer.append_data(video_img)
 							if t%1000==0:
 								print("Video_making & t:",t)
@@ -475,6 +475,8 @@ class grasping_agent:
 						Full_success = Full_success + 1
 					if n_cycles == self.args.n_cycles - 1 and MPI.COMM_WORLD.Get_rank() == 0 and r_mpi == 1 and self.record_video:
 						video_writer.close()
+						print("video done!")
+						# time.sleep(100)
 					ep_obs.append(obs_last.copy())
 					ep_ag.append(ag.copy())
 					mb_obs.append(ep_obs)
@@ -704,8 +706,8 @@ class grasping_agent:
 		# phone_x = 0.578#np.random.uniform(0.428, 0.728)
 		# phone_speed = -0.20#np.random.uniform(-0.14, -0.25)
 		# phone_orient = 0.0
-		phone_x = 0.382#np.random.uniform(0.428, 0.728)
-		phone_speed = 0.20#np.random.uniform(-0.14, -0.25)
+		phone_x = np.random.uniform(0.232, 0.532)#0.382 is taken as the middle point
+		phone_speed = np.random.uniform(0.20, 0.35)
 		phone_orient = 0.0
 
 
