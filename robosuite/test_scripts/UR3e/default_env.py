@@ -14,8 +14,10 @@ ur3e_arm = ur_kinematics.URKinematics('ur3e')
 
 is_render = True
 controller_names = ["OSC_POSE","OSC_POSITION","JOINT_POSITION"]
-controller_config = load_controller_config(default_controller=controller_names[2])
-controller_config['control_delta'] = False
+controller_config = load_controller_config(default_controller=controller_names[0])
+
+# controller delta takes in actions as delta between current and desired ee pose for OSC Controller 
+controller_config['control_delta'] = True
 # print(controller_config)
 # quit()
 # create environment instance
