@@ -53,7 +53,8 @@ from robosuite.models import MujocoWorldBase
 class D3_pick_place_env(object):
 
 	def __init__ (self,args=None,is_render=False):
-
+        #In the "_init_" function, we set the action_dimensions(6 i.e. position+orientation), no. of observations (eg. phone position, etc.), 
+		# no. of steps per episode, maxm. action per step and few other parameters
 		self.is_render = is_render
 		self.action_dim = 6 #actual robot
 		self.action_network_dim = 3 # Gripper pose
@@ -75,7 +76,8 @@ class D3_pick_place_env(object):
 		self._max_episode_steps = 11000#9000#20000
 
 		pass
-
+    #The "angDiff" and "nextClosestJointRad" functions make sure that the property of angle repeatability doesn't interfere with the working of 
+	# PD controller, basically making sure PD controller perceives 360 deg. and 0 deg. as the same angle
 	def angDiff(self,a1,a2):
 		d1=(a1-a2)%(2*np.pi)
 		d2=(a2-a1)%(2*np.pi)
@@ -94,7 +96,8 @@ class D3_pick_place_env(object):
 			else:
 				j2c[i]=j1[i]+aDiff2
 		return j2c
-
+    #The "set_env" function primarily calls the D3 arm in sim. world, sets the phone's initial position, size, speed and orientation. Also, sets
+	#  the conveyor size, speed. And returns the current state of observations
 	def set_env(self,phone_x,phone_speed,phone_orient):
 
 		self.phone_x = phone_x
@@ -137,7 +140,8 @@ class D3_pick_place_env(object):
 		self.observation_current = self.get_observation()
 
 		return self.observation_current
-
+    #"get_signal", "grip_signal", "PD_controller_rot", "PD_controller_lin", "PD_signal_scale", "Gripper_PD_controller" are basically the PD controller
+	# functions
 	def get_signal(self,action,obs_last,obs_last2last):
 		action = self.clip_action(action)
 
@@ -171,12 +175,12 @@ class D3_pick_place_env(object):
 
 		return PD_signal
 
-
+    #"reset" sets the phone position, speed and orientation to default values
 	def reset(self,phone_x=0.578,phone_speed=-0.2,phone_orient=0):
 		# ipdb.set_trace()
 		obs = self.set_env(phone_x,phone_speed,phone_orient)
 		return obs
-
+    
 	def grip_signal(self,des_state,obs_last,obs_last2last):
 		if des_state=='open':
 			left_finger_open = -0.287884
@@ -191,7 +195,9 @@ class D3_pick_place_env(object):
 			grip_signal=[self.Gripper_PD_controller(left_finger_close,obs_last[26],obs_last2last[26]),
 						 self.Gripper_PD_controller(right_finger_close,obs_last[27],obs_last2last[27])]
 		return grip_signal
-
+    
+	#"clip_action" makes sure the commanded action values doesn't make the end-effector to try reaching outside the workspace, or hitting the conveyor, 
+	# in place case the IK controller throws an error
 	def clip_action(self,action):
 		if action[0]>0.45:
 			action[0]=0.45
@@ -213,7 +219,7 @@ class D3_pick_place_env(object):
 		action = action_robot[0:3]+action_RL[0:3]
 
 		return action
-
+    #"step" commands the 6 active joints and returns the updated state values of observations and reward
 	def step(self,action):
 		# action = action.reshape(1,-1)
 		if self.observation_last is not None:
@@ -416,6 +422,7 @@ def get_env_params(env):
 	params['max_timesteps'] = env._max_episode_steps
 	return params
 
+#"launch" sets the environment randomness and calls the ddpg algo. script to start the training/learning process
 def launch(args,env):
 	# create the ddpg_agent
 	
@@ -431,8 +438,7 @@ def launch(args,env):
 	ddpg_trainer = ddpg_agent(args, env, env_params)
 	ddpg_trainer.learn()
 	# create the ddpg agent to interact with the environment 
-	#####################################################works till this point############################################
-	####### not yet there ##########
+
 
 if __name__ == '__main__':
 	# take the configuration for the HER
